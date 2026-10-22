@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>回放不夜城 · 需求文档</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    --paper: #f6f1e6;
+    --paper-2: #efe7d6;
+    --card: #fbf8f1;
+    --ink: #1d232a;
+    --ink-2: #4a5157;
+    --muted: #7a7466;
+    --line: #ddd2bc;
+    --gold: #a8823c;
+    --gold-soft: #f1e3c0;
+    --cinnabar: #b8432f;
+    --cinnabar-soft: #f5ddd6;
+    --qing: #2d5a6b;
+    --qing-soft: #dbe8ea;
+    --lv: #3e6e64;
+    --lv-soft: #dfece6;
+    --code-bg: #1d232a;
+    --code-fg: #ece3cf;
+    --brush: "Ma Shan Zheng", "STKaiti", "KaiTi", serif;
+    --serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+    --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --paper: #11161c; --paper-2: #171d24; --card: #1a2028; --ink: #ece3cf; --ink-2: #c9c1ad; --muted: #8f8979;
+      --line: #2c343d; --gold: #d4ae62; --gold-soft: #3a3020; --cinnabar: #e0735e; --cinnabar-soft: #3a211b;
+      --qing: #8fc3cf; --qing-soft: #1b2e35; --lv: #8fc7b6; --lv-soft: #1b2e29; --code-bg: #0b0f14;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.75; }
+  a { color: var(--qing); }
+  .layout { display: grid; grid-template-columns: 250px minmax(0, 1fr); max-width: 1320px; margin: 0 auto; gap: 40px; padding-inline: 24px; }
+  nav.toc { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding-block: 32px; font-size: 13.5px; }
+  nav.toc .brand { font-family: var(--brush); font-size: 34px; color: var(--gold); line-height: 1.1; }
+  nav.toc .sub { color: var(--muted); font-size: 12px; margin: 4px 0 18px; letter-spacing: 0.1em; }
+  nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  nav.toc a { display: block; padding: 4px 10px; border-left: 2px solid transparent; color: var(--ink-2); text-decoration: none; }
+  nav.toc a:hover { border-left-color: var(--gold); color: var(--ink); background: var(--paper-2); }
+  main { padding-block: 32px 80px; min-width: 0; }
+  header.hero { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 32px; align-items: end; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+  header.hero h1 { margin: 0; font-family: var(--brush); font-weight: 400; font-size: 64px; line-height: 1.1; color: var(--ink); }
+  header.hero h1 small { display: block; font-family: var(--serif); font-size: 16px; color: var(--muted); letter-spacing: 0.3em; margin-top: 10px; }
+  header.hero p.lede { font-family: var(--serif); font-size: 18px; color: var(--ink-2); margin: 18px 0 0; max-width: 46em; }
+  header.hero img { width: 180px; border: 1px solid var(--line); border-radius: 4px; display: block; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 18px; font-size: 13px; color: var(--muted); }
+  .meta b { color: var(--ink); font-weight: 500; }
+  section { padding-top: 36px; }
+  h2 { font-family: var(--serif); font-size: 26px; margin: 0 0 6px; display: flex; align-items: baseline; gap: 12px; text-wrap: balance; }
+  h2 .no { font-family: var(--mono); font-size: 14px; color: var(--gold); }
+  h3 { font-family: var(--serif); font-size: 18px; margin: 26px 0 8px; }
+  h4 { font-size: 15px; margin: 18px 0 6px; }
+  p { margin: 8px 0; max-width: 72em; }
+  .note { color: var(--muted); font-size: 13.5px; }
+  ul, ol { padding-left: 1.4em; margin: 8px 0; }
+  li { margin: 3px 0; }
+  .tbl { overflow-x: auto; margin: 12px 0; border: 1px solid var(--line); border-radius: 4px; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  th { background: var(--paper-2); font-weight: 500; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td code, p code, li code { font-family: var(--mono); font-size: 12.5px; background: var(--paper-2); padding: 1px 5px; border-radius: 3px; }
+  pre { margin: 12px 0; background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; border-radius: 4px; overflow-x: auto; font-family: var(--mono); font-size: 12.8px; line-height: 1.6; }
+  .pill { display: inline-block; font-size: 11.5px; padding: 0 8px; border-radius: 10px; font-weight: 500; white-space: nowrap; }
+  .p0 { background: var(--cinnabar-soft); color: var(--cinnabar); }
+  .p1 { background: var(--gold-soft); color: var(--gold); }
+  .p2 { background: var(--qing-soft); color: var(--qing); }
+  .ok { background: var(--lv-soft); color: var(--lv); }
+  .callout { border-left: 3px solid var(--cinnabar); background: var(--card); padding: 12px 16px; margin: 14px 0; border-radius: 0 4px 4px 0; }
+  .callout.gold { border-left-color: var(--gold); }
+  .callout.qing { border-left-color: var(--qing); }
+  .callout b:first-child { display: block; margin-bottom: 2px; }
+  .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; margin: 14px 0; }
+  .flow .node { flex: 1 1 140px; background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 10px 12px; font-size: 13.5px; }
+  .flow .node b { display: block; font-family: var(--serif); font-size: 14.5px; }
+  .flow .arrow { align-self: center; color: var(--gold); font-family: var(--mono); }
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; }
+  .card h4 { margin-top: 0; }
+  .req { border: 1px solid var(--line); border-radius: 4px; background: var(--card); margin: 12px 0; }
+  .req > .hd { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--paper-2); }
+  .req > .hd .id { font-family: var(--mono); font-size: 13px; color: var(--gold); }
+  .req > .hd .name { font-weight: 700; }
+  .req > .bd { padding: 6px 14px 10px; }
+  .req .ac { margin-top: 6px; }
+  .req .ac li::marker { content: "☐  "; color: var(--muted); }
+  footer { margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
+  @media (max-width: 980px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 0; padding-inline: 16px; }
+    nav.toc { position: static; max-height: none; padding-bottom: 0; }
+    nav.toc ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    header.hero { grid-template-columns: minmax(0, 1fr); }
+    header.hero img { width: 140px; }
+    .grid2 { grid-template-columns: minmax(0, 1fr); }
+    header.hero h1 { font-size: 48px; }
+  }
+  @media print { nav.toc { display: none; } .layout { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="目录">
+  <div class="brand">回放不夜城</div>
+  <div class="sub">REPLAY NIGHT CITY · 需求文档</div>
+  <ol>
+    <li><a href="#s1">1 项目概述</a></li>
+    <li><a href="#s2">2 比赛边界</a></li>
+    <li><a href="#s3">3 用户与场景</a></li>
+    <li><a href="#s4">4 产品结构与闭环</a></li>
+    <li><a href="#s5">5 两场景差异</a></li>
+    <li><a href="#s6">6 功能需求</a></li>
+    <li><a href="#s7">7 提示词设计</a></li>
+    <li><a href="#s8">8 数据结构 game.json</a></li>
+    <li><a href="#s9">9 技术方案</a></li>
+    <li><a href="#s10">10 OpenAPI 清单</a></li>
+    <li><a href="#s11">11 非功能需求</a></li>
+    <li><a href="#s12">12 范围分档</a></li>
+    <li><a href="#s13">13 比赛排期</a></li>
+    <li><a href="#s14">14 交付物</a></li>
+    <li><a href="#s15">15 风险与对策</a></li>
+    <li><a href="#s16">16 待确认事项</a></li>
+    <li><a href="#s17">17 附录</a></li>
+    <li><a href="#s18">18 构思记录</a></li>
+    <li><a href="#s19">19 可持续迭代</a></li>
+    <li><a href="#s20">20 拓展想象</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div>
+    <h1>回放不夜城<small>POLYV 2026 HACKATHON · 需求文档</small></h1>
+    <p class="lede">把一场直播回放自动变成一座可以闯的地下城。观众在闯关中把内容真正学会、看懂，讲师和运营拿到「大家卡在哪」的诊断。同一套引擎支持课程培训和直播带货两个场景。</p>
+    <div class="meta">
+      <span>团队 <b>你说就你队</b></span>
+      <span>成员 <b>Paul · Bob</b></span>
+      <span>赛程 <b>2026.10.23 — 10.24</b></span>
+      <span>版本 <b>v1.0 · 2026-10-21</b></span>
+      <span>状态 <b>范围已收敛，待开发</b></span>
+    </div>
+  </div>
+  <img src="assets/poster-9x16.png" alt="回放不夜城海报：月夜古城与水中倒影">
+</header>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="no">01</span>项目概述</h2>
+  <h3>1.1 背景与痛点</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>课程培训</h4>
+      <ul>
+        <li>回放很长，学员很少回看，看了也记不住</li>
+        <li>中途离开的学员不知道自己错过了什么</li>
+        <li>讲师只能看到答题卡的对错率，不知道学员具体卡在哪个概念上</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>直播带货</h4>
+      <ul>
+        <li>带货回放几乎没人复看，主播讲的卖点没有传达到</li>
+        <li>观众的购买顾虑散落在聊天室里，没人统一解答</li>
+        <li>相似商品、相似规格分不清，买错导致退货</li>
+      </ul>
+    </div>
+  </div>
+  <h3>1.2 产品一句话</h3>
+  <p>输入一场保利威直播回放，用大模型把大纲、字幕、聊天、观看记录分析成结构化的游戏数据，生成一座 3D 地下城。观众「闯关」的过程，就是对回放内容做检索、辨析和复习的过程。</p>
+  <h3>1.3 目标</h3>
+  <ul>
+    <li><b>比赛目标</b>：一天内做出可演示的 Demo，提交演示视频和源码</li>
+    <li><b>产品目标</b>：证明「一套引擎，换提示词和皮肤就能覆盖课程和带货两大客群」</li>
+    <li><b>体验目标</b>：玩法本身就是学习动作，而不是给题目换一层皮</li>
+  </ul>
+  <h3>1.4 命名说明</h3>
+  <p>对外名称为 <b>回放不夜城</b>（REPLAY NIGHT CITY）。产品内部由两层组成：<b>地上城</b>（回放广场，后续拓展）和 <b>地下城</b>（单场回放生成的闯关地图，比赛主体）。宣传物料保持抽象，不透露具体场景和玩法。</p>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="no">02</span>比赛边界</h2>
+  <div class="callout">
+    <b>硬性约束</b>
+    只基于保利威<b>公开 OpenAPI</b>和<b>开源 SDK / Demo</b>开发，<b>不使用</b>任何保利威非开源代码仓库做二次开发。
+  </div>
+  <ul>
+    <li>所有数据通过公开接口获取。接口不通时，用后台手动导出的字幕或大纲文件兜底，不调用内部接口。</li>
+    <li>大模型使用公开可用的 API，不接入公司内部的模型网关。</li>
+    <li>每个用到的接口都要能对应到帮助中心的公开文档路径（见第 10 节）。</li>
+  </ul>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="no">03</span>用户与场景</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>角色</th><th>课程培训</th><th>直播带货</th></tr></thead>
+    <tbody>
+      <tr><td><b>观众</b></td><td>学员：闯关巩固知识点，补上没看的部分</td><td>消费者：闯关弄懂卖点、解决购买顾虑、拿到优惠</td></tr>
+      <tr><td><b>主播</b></td><td>讲师：看全班卡关热力图，知道下节课该复讲什么</td><td>主播：知道哪个商品讲解没讲透、哪类顾虑最多</td></tr>
+      <tr><td><b>运营</b></td><td>完课率、复访率有了抓手</td><td>哪个商品讲解段流失最多、转化最差；优惠券核销</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">比赛 Demo 以<b>观众视角</b>为主线，讲师 / 运营视角以「热力图叠加层」的形式展示。</p>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="no">04</span>产品结构与闭环</h2>
+  <h3>4.1 生成流水线</h3>
+  <div class="flow">
+    <div class="node"><b>回放数据</b>大纲 · 字幕 · 聊天 · 提问 · 观看记录 · 商品</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>选择场景</b>课程培训 / 直播带货</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>场景提示词</b>大模型分析 + 校验</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>game.json</b>统一数据结构</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>两个出口</b>3D 地下城 · 讲义 / 卖点卡</div>
+  </div>
+  <div class="callout gold">
+    <b>核心设计原则</b>
+    游戏引擎只读 <code>game.json</code>，不关心是哪个场景。场景之间的差异全部收在<b>提示词</b>和<b>皮肤配置</b>里。这样两个场景的开发量接近一个，答辩时也能讲「通用引擎」。
+  </div>
+  <h3>4.2 地下城元素映射</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>游戏元素</th><th>由什么数据生成</th><th>对应的学习动作</th></tr></thead>
+    <tbody>
+      <tr><td>房间</td><td>大纲分段（带货：商品讲解片段）</td><td>按结构浏览回放</td></tr>
+      <tr><td>上锁的宝箱</td><td>每段的关键词；锁题由字幕生成</td><td>主动回忆（检索练习）</td></tr>
+      <tr><td>Boss</td><td>全班错误率最高的段落（带货：主推爆款或优惠规则）</td><td>攻克难点</td></tr>
+      <tr><td>NPC</td><td>聊天和提问里的高频问题</td><td>解决共性疑问</td></tr>
+      <tr><td>迷雾房间</td><td>观看记录里这位观众没看过的段落</td><td>补看漏掉的内容</td></tr>
+      <tr><td>倒下 → 复活</td><td>答错耗尽生命，跳回放对应的 40 秒，看完才能复活</td><td>针对性回看</td></tr>
+      <tr><td>结算</td><td>错题 → 复习计划；倒下位置 → 回放进度条打点</td><td>间隔复习</td></tr>
+      <tr><td>讲师 / 运营视角</td><td>全班卡关率叠加到地图上</td><td>教学诊断 / 转化诊断</td></tr>
+    </tbody>
+  </table></div>
+  <h3>4.3 产品闭环</h3>
+  <div class="flow">
+    <div class="node"><b>看回放</b>直播结束</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>闯地下城</b>答题 · 补看 · 打 Boss</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>结算</b>错题 · 复习计划 · 打点</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>讲师 / 运营</b>热力图诊断</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>下一场直播</b>针对性复讲 · 答题卡复测</div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="no">05</span>两个场景的差异</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>维度</th><th>🎓 课程培训</th><th>🛍 直播带货</th></tr></thead>
+    <tbody>
+      <tr><td>提示词分析出什么</td><td>知识点、易错点、混淆概念对</td><td>商品卖点、用户顾虑、规格对比、优惠规则</td></tr>
+      <tr><td>附带产出物</td><td><b>直播讲义</b>：知识点 + 易错点 + 回放时间点</td><td><b>商品卖点卡</b>：卖点 + 常见顾虑 + 讲解时间点</td></tr>
+      <tr><td>房间切分</td><td>按大纲分段</td><td>按商品讲解片段</td></tr>
+      <tr><td>宝箱锁题</td><td>知识题（含代码题）</td><td>卖点题：成分、适用人群、规格、价格规则</td></tr>
+      <tr><td>宝箱奖励</td><td>知识宝石</td><td>优惠券（Demo 中为示意）</td></tr>
+      <tr><td>Boss</td><td>全班错误率最高的知识点</td><td>主推爆款，或「满减叠加怎么算最省」这类规则题</td></tr>
+      <tr><td>NPC</td><td>聊天里的高频提问</td><td>购买顾虑，如「尺码偏大吗」</td></tr>
+      <tr><td>讲师 / 运营视角</td><td>全班卡关率</td><td>商品讲解段的流失率和卡关率</td></tr>
+      <tr><td>皮肤</td><td>石砖地牢、火把</td><td>夜市集市、灯笼（换配色、纹理、文案）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="no">06</span>功能需求</h2>
+  <p class="note">优先级：<span class="pill p0">P0</span> 比赛当天必做；<span class="pill p1">P1</span> 有余力再做；<span class="pill p2">P2</span> 后续拓展，只写进路线图。每条需求下方是验收标准。</p>
+
+  <div class="req"><div class="hd"><span class="id">F-01</span><span class="name">回放数据接入</span><span class="pill p0">P0</span></div><div class="bd">
+    <p>脚本调用公开 OpenAPI 拉取指定回放的大纲、字幕、聊天记录、提问记录，结果缓存为本地 JSON。课程、带货各准备一场。</p>
+    <ul class="ac">
+      <li>配置频道号和回放 ID 后，一条命令拉齐所有数据并落盘到 <code>data/&lt;场景&gt;-&lt;id&gt;/raw/</code></li>
+      <li>接口签名、AppID、密钥从 <code>.env</code> 读取，不写进代码、不提交仓库</li>
+      <li>任一接口失败时给出明确报错，并支持改用手动导出的字幕文件继续</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-02</span><span class="name">场景选择</span><span class="pill p0">P0</span></div><div class="bd">
+    <p>分析前选择场景（课程培训 / 直播带货），决定使用哪套提示词和皮肤。</p>
+    <ul class="ac">
+      <li>入口页可选两个场景，各对应一场示例回放</li>
+      <li>分析脚本通过参数 <code>--scene course|commerce</code> 切换提示词</li>
+    </ul>
+    <p class="note">P1：频道商品库里有商品就自动判定为带货场景，无需手选。</p>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-03</span><span class="name">提示词分析生成 game.json</span><span class="pill p0">P0</span></div><div class="bd">
+    <p>按场景调用大模型，把原始数据分析成统一结构的 <code>game.json</code>（结构见第 8 节），并做 schema 校验。</p>
+    <ul class="ac">
+      <li>两个场景都能稳定输出通过校验的 <code>game.json</code></li>
+      <li>每个题目、FAQ、混淆对都带 <code>source_time</code> 和 <code>source_quote</code>，能对回到回放原话</li>
+      <li>每道题 4 个选项、恰好 1 个正确答案；干扰项不能和正确答案同义</li>
+      <li>带货场景的卖点只来自主播原话和商品库详情，不出现功效承诺和绝对化用语</li>
+      <li>校验失败时自动重试一次，仍失败则输出具体错误字段</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-04</span><span class="name">讲义 / 卖点卡页面</span><span class="pill p0">P0</span></div><div class="bd">
+    <p>把 <code>game.json</code> 中的 <code>handout</code> 渲染成网页：课程场景为直播讲义，带货场景为商品卖点卡。</p>
+    <ul class="ac">
+      <li>每个要点旁显示回放时间点</li>
+      <li>手机和电脑上都能正常阅读</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-05</span><span class="name">3D 地下城</span><span class="pill p0">P0</span></div><div class="bd">
+    <p>基于现有 3D 原型，改为读取 <code>game.json</code> 生成地图，并支持两套皮肤。</p>
+    <h4>F-05.1 地图生成</h4>
+    <ul class="ac">
+      <li>房间数 = 分段数；用频道号作随机种子，同一场回放每次生成的地图一致</li>
+      <li>房间之间有通道连接，宝箱和 NPC 不会堵死通路</li>
+    </ul>
+    <h4>F-05.2 移动与交互</h4>
+    <ul class="ac">
+      <li>第一人称网格移动：电脑用键盘，手机用屏幕按钮</li>
+      <li>右上角小地图只显示走过的区域；底部提示条显示正前方是什么</li>
+    </ul>
+    <h4>F-05.3 宝箱锁题</h4>
+    <ul class="ac">
+      <li>面对宝箱按前进弹出题目；答对开箱获得奖励，答错扣 1 点生命</li>
+      <li>答错时提示回放中讲过该点的时间</li>
+    </ul>
+    <h4>F-05.4 Boss</h4>
+    <ul class="ac">
+      <li>Boss 有 3 点血，需连续答对 3 题</li>
+      <li>击败后最后一个房间的传送门激活</li>
+    </ul>
+    <h4>F-05.5 NPC</h4>
+    <ul class="ac">
+      <li>展示「N 人问过」、聊天原话和解答</li>
+    </ul>
+    <h4>F-05.6 迷雾房间</h4>
+    <ul class="ac">
+      <li>根据观看记录判定未观看的段落（观看覆盖率低于 50%）</li>
+      <li>读完该段摘要才能进入</li>
+    </ul>
+    <h4>F-05.7 倒下与复活</h4>
+    <ul class="ac">
+      <li>生命归零后弹出该题对应的 40 秒回放片段（Demo 中按倍速模拟播放 + 字幕）</li>
+      <li>看完才能复活</li>
+    </ul>
+    <h4>F-05.8 结算</h4>
+    <ul class="ac">
+      <li>显示正确率、倒下次数、用时、获得的宝石或优惠券</li>
+      <li>显示错题的复习计划（D+1 / D+3 / D+7）</li>
+      <li>显示回写进度条打点的请求体示意</li>
+    </ul>
+    <h4>F-05.9 讲师 / 运营视角</h4>
+    <ul class="ac">
+      <li>一键切换，按全班卡关率给每个房间地面染色，并显示百分比</li>
+    </ul>
+    <h4>F-05.10 两套皮肤</h4>
+    <ul class="ac">
+      <li>课程：石砖地牢；带货：夜市集市</li>
+      <li>至少切换配色、文案、奖励名称；纹理可后补</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-06</span><span class="name">入口页</span><span class="pill p0">P0</span></div><div class="bd">
+    <p>串起整个演示流程：选场景 → 选回放 → 查看讲义 / 卖点卡 → 进入地下城。</p>
+    <ul class="ac">
+      <li>两次点击内能进入任一场景的地下城</li>
+      <li>入口页说明用到了哪些 OpenAPI</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-07</span><span class="name">酒馆「谁是卧底」单人局</span><span class="pill p1">P1</span></div><div class="bd">
+    <p>用 <code>game.json</code> 中的 <code>pairs</code>（混淆概念对 / 相似规格）开一局卧底游戏：1 名真人 + AI 补位。</p>
+    <ul class="ac">
+      <li>每人拿到一个词，轮流用一句话描述，最后投票</li>
+      <li>复盘时 AI 逐句点评描述是否准确，并给出两个概念的区别和回放时间点</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-08</span><span class="name">真实数据驱动的热力图</span><span class="pill p1">P1</span></div><div class="bd">
+    <p>讲师 / 运营视角的卡关率改为用观看记录、答题卡数据计算，不再使用示例数值。</p>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-09</span><span class="name">回写进度条打点</span><span class="pill p1">P1</span></div><div class="bd">
+    <p>结算时真实调用打点接口，把倒下的位置写回回放进度条。</p>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-10</span><span class="name">复活接真实播放器</span><span class="pill p1">P1</span></div><div class="bd">
+    <p>用播放器 SDK 跳到对应时间点，播放真实的 40 秒回放，替代模拟播放。</p>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-11</span><span class="name">后续拓展</span><span class="pill p2">P2</span></div><div class="bd">
+    <ul>
+      <li><b>地上城 · 回放广场</b>：回放列表生成建筑，系列课成街，按顺序解锁</li>
+      <li><b>商店街</b>：积分兑换，对接商品库、商品订单</li>
+      <li><b>卷轴 / 种草集市</b>：用户写讲解或使用心得赚积分，AI 审核正确性</li>
+      <li><b>多人联机</b>：基于聊天室 SDK 同步位置，直播间一键开卧底局</li>
+      <li><b>每日副本</b>：按 FSRS 遗忘曲线推送复习</li>
+      <li><b>主播练兵</b>：语音复述卖点，AI 评分</li>
+      <li><b>其他</b>：数字人 NPC 讲解视频、嵌入观看页 SDK、glTF 模型素材与音效</li>
+    </ul>
+  </div></div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="no">07</span>提示词设计</h2>
+  <h3>7.1 两套提示词共同遵守的规则</h3>
+  <ul>
+    <li><b>只输出 JSON</b>，严格符合第 8 节的结构，不输出解释性文字</li>
+    <li><b>可溯源</b>：每一条题目、FAQ、混淆对都必须带 <code>source_time</code>（秒）和 <code>source_quote</code>（字幕原话），找不到原话就不生成</li>
+    <li><b>不编造</b>：只使用输入材料中出现的信息</li>
+    <li><b>选项规范</b>：每题 4 个选项，<code>options[0]</code> 为正确答案（展示时打乱）；干扰项优先取聊天里出现过的错误理解</li>
+    <li><b>粒度</b>：每个分段 1–3 个可考核的点，全场 10–18 题</li>
+  </ul>
+  <div class="grid2">
+    <div class="card">
+      <h4>7.2 课程培训提示词要点</h4>
+      <ul>
+        <li>角色：资深讲师兼出题人</li>
+        <li>按大纲分段提取<b>可考核</b>的知识点，跳过寒暄和过渡</li>
+        <li>标出易错点：答题卡错误率高、聊天反复追问的点</li>
+        <li>从「X 和 Y 有什么区别」这类提问中提取<b>混淆概念对</b></li>
+        <li>FAQ：把聊天和提问聚类成高频问题并作答，答案必须基于讲师原话</li>
+        <li>handout：生成一份直播讲义（Markdown），按分段组织</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>7.3 直播带货提示词要点</h4>
+      <ul>
+        <li>角色：商品讲解编辑</li>
+        <li>按商品讲解片段切分，提取卖点、适用人群、规格、价格和优惠规则</li>
+        <li>FAQ：把聊天聚类成购买顾虑（尺码、效果、售后等）</li>
+        <li>pairs：识别容易混淆的商品、SKU、规格</li>
+        <li>handout：每个商品一张卖点卡</li>
+        <li><b>合规硬约束</b>：
+          <ul>
+            <li>卖点只能来自主播原话和商品库详情</li>
+            <li>禁止生成功效承诺、绝对化用语（最、第一、100% 等）和医疗用语</li>
+            <li>原话里出现这类用语时，题目改为事实性描述</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <h3>7.4 输入材料组织</h3>
+<pre>[场景] course | commerce
+[回放信息] 标题、时长、讲师/主播
+[大纲] 分段列表：start, end, title, summary, keywords
+[字幕] 按分段归组的逐句字幕：t, text
+[聊天/提问] 时间, 昵称（脱敏）, 内容
+[观看统计] 各分段观看覆盖率（可选）
+[答题卡统计] 各题错误率（可选）
+[商品] 名称、规格、价格、详情（仅带货场景）</pre>
+  <p class="note">字幕过长时按分段分批调用，最后再合并成一份 game.json；分段之间的 pairs 和 FAQ 在合并阶段去重。</p>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="no">08</span>数据结构 game.json</h2>
+<pre>{
+  "version": 1,
+  "scene": "course",                     // course | commerce
+  "replay": { "channelId": "3958201", "title": "...", "duration": 4320, "host": "林老师" },
+  "rooms": [{
+    "title": "列表的创建与索引",
+    "start": 400, "end": 1155,           // 秒
+    "summary": "...",
+    "keywords": ["索引", "负索引", "切片"],
+    "watched_ratio": 1.0,                // 该观众对本段的观看覆盖率，&lt; 0.5 为迷雾
+    "fail_rate": 0.24,                   // 全班错误率，用于 Boss 判定和热力图
+    "items": [{
+      "id": "q12",
+      "keyword": "负索引",
+      "question": "输出是什么？",
+      "code": "a = ['苹果', '香蕉']\nprint(a[-1])",
+      "options": ["香蕉", "苹果", "报错", "None"],   // [0] 为正确答案
+      "explain": "负索引从末尾往回数……",
+      "source_time": 762,
+      "source_quote": "a[-1] 就是最后一个"
+    }]
+  }],
+  "boss_room": 3,                        // 缺省时取 fail_rate 最高的房间
+  "faq": [{ "room": 1, "count": 27, "question": "...", "answer": "...", "source_time": 760,
+            "samples": [["阿杰", "-1 是倒数第一个吗", "12:41"]] }],
+  "pairs": [{ "a": "append", "b": "extend", "diff": "...", "source_time": 1290 }],
+  "handout": { "title": "直播讲义", "markdown": "..." },
+  "skin": "dungeon"                      // dungeon | market
+}</pre>
+  <div class="tbl"><table>
+    <thead><tr><th>字段</th><th>校验规则</th></tr></thead>
+    <tbody>
+      <tr><td><code>rooms</code></td><td>3–8 个；按 <code>start</code> 升序，时间不重叠</td></tr>
+      <tr><td><code>items[].options</code></td><td>正好 4 个，互不相同</td></tr>
+      <tr><td><code>source_time</code></td><td>必须落在所属房间的 <code>[start, end]</code> 内</td></tr>
+      <tr><td><code>boss_room</code></td><td>该房间至少有 3 个 items</td></tr>
+      <tr><td><code>faq.count</code></td><td>正整数；<code>samples</code> 昵称需脱敏</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="no">09</span>技术方案</h2>
+  <h3>9.1 架构</h3>
+  <div class="flow">
+    <div class="node"><b>fetch-polyv.js</b>OpenAPI 签名、拉取、缓存</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>analyze.js</b>场景提示词 → 大模型 → 校验 → game.json</div>
+    <div class="arrow">→</div>
+    <div class="node"><b>静态前端</b>入口页 · 讲义页 · 3D 游戏</div>
+  </div>
+  <p><b>演示策略</b>：离线预生成 <code>game.json</code>，前端是纯静态页面。这样现场演示不依赖网络和模型的稳定性；实时生成的过程在演示视频里录一遍。</p>
+  <h3>9.2 技术栈</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>层</th><th>选型</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>数据脚本</td><td>Node.js</td><td>调用 OpenAPI（签名）、调用大模型、JSON Schema 校验（ajv）</td></tr>
+      <tr><td>3D 渲染</td><td>Three.js</td><td>原型已验证：InstancedMesh 批量绘制墙地、Canvas 程序化纹理、固定数量光源</td></tr>
+      <tr><td>页面</td><td>原生 HTML / CSS / JS</td><td>不引入框架，单文件即可打开</td></tr>
+      <tr><td>复习排期</td><td>ts-fsrs（P2）</td><td>Demo 先用固定的 1 / 3 / 7 天</td></tr>
+      <tr><td>大模型</td><td>任一公开 API</td><td>要求支持 JSON 输出；长字幕分段调用</td></tr>
+    </tbody>
+  </table></div>
+  <h3>9.3 目录结构</h3>
+<pre>playback-city/
+├── doc/                  # 需求文档（本文件）、设计与海报素材
+├── prompts/
+│   ├── course.md         # 课程培训提示词
+│   └── commerce.md       # 直播带货提示词
+├── schema/
+│   └── game.schema.json  # game.json 校验规则
+├── scripts/
+│   ├── fetch-polyv.js    # 拉取回放数据
+│   └── analyze.js        # 生成 game.json
+├── data/
+│   ├── course-&lt;id&gt;/      # raw/ 原始数据 + game.json
+│   └── commerce-&lt;id&gt;/
+├── web/
+│   ├── index.html        # 入口页
+│   ├── handout.html      # 讲义 / 卖点卡
+│   ├── game.html         # 3D 地下城
+│   └── skins/            # dungeon.js · market.js
+├── .env.example          # POLYV_APP_ID / POLYV_APP_SECRET / POLYV_USER_ID / LLM_API_KEY
+└── README.md</pre>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="no">10</span>OpenAPI 清单</h2>
+  <p class="note">路径取自保利威帮助中心文档仓库 <code>document-center</code>，比赛当天开工第一件事就是逐个验证。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>用途</th><th>接口（帮助中心文档路径）</th><th>优先级</th><th>状态</th></tr></thead>
+    <tbody>
+      <tr><td>查询暂存视频大纲</td><td><code>live/api/v4/channel/recordfile/get_record_file_outline</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>创建暂存视频大纲</td><td><code>live/api/v4/channel/recordfile/create_record_file_outline</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>查询智能字幕</td><td><code>vod/api/video_management/smart_subtitle/query_smart_subtitle</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>查询字幕列表</td><td><code>vod/api/video_management/subtitle/get_subtitle</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>查询频道聊天记录</td><td><code>live/api/chat/message/get_message_list</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>查询频道提问记录</td><td><code>live/api/live_interaction/get_question_list</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>查询视频库列表（回放列表）</td><td><code>live/api/channel/playback/get_playback_list</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>查询观看记录</td><td><code>live/api/v4/user/viewlog/viewlog_list</code></td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
+      <tr><td>答题卡作答统计</td><td>live_interaction 答题卡相关接口</td><td><span class="pill p1">P1</span></td><td><b>取数接口待核对</b></td></tr>
+      <tr><td>设置 / 查询打点信息</td><td><code>vod/api/video_management/chapter_marker/add_chapter_marker</code></td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
+      <tr><td>频道商品（带货）</td><td><code>live/api/channel/operate/add_channel_product</code> 及商品库相关接口</td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
+      <tr><td>数字人视频创作</td><td><code>live/api/v4/ai/video-produce/video-produce-batch-create</code></td><td><span class="pill p2">P2</span></td><td>异步，耗时不可控</td></tr>
+      <tr><td>聊天室</td><td>直播聊天室 JS-SDK（<code>live/js/chat_js_sdk</code>）</td><td><span class="pill p2">P2</span></td><td>多人联机用</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <h2><span class="no">11</span>非功能需求</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>类别</th><th>要求</th></tr></thead>
+    <tbody>
+      <tr><td>性能</td><td>中端手机 3D 场景不低于 30 帧；光源数量固定；渲染分辨率封顶 720 宽</td></tr>
+      <tr><td>兼容</td><td>Chrome / Safari 最新版；手机竖屏可玩；WebGL 不可用时给出提示</td></tr>
+      <tr><td>稳定</td><td>演示用预生成数据，不依赖现场网络和大模型</td></tr>
+      <tr><td>安全</td><td>OpenAPI 密钥和大模型 Key 只放 <code>.env</code>，不进前端、不进仓库；提交前检查 git diff 无密钥</td></tr>
+      <tr><td>隐私</td><td>聊天昵称在 game.json 中脱敏；不展示观众真实身份</td></tr>
+      <tr><td>合规（带货）</td>
+        <td>
+          <ul>
+            <li>卖点不编造</li>
+            <li>不制造假稀缺：「仅剩 N 张」必须是真实库存</li>
+            <li>评价类奖励不与好评绑定</li>
+          </ul>
+        </td></tr>
+      <tr><td>可演示性</td><td>任一场景 3 分钟内能走完「进入 → 答题 → 倒下复活 → 打 Boss → 结算」</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+  <h2><span class="no">12</span>范围分档</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>档位</th><th>内容</th><th>原则</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill p0">P0 一天必做</span></td><td>F-01 数据接入 · F-02 场景选择 · F-03 提示词分析 · F-04 讲义 / 卖点卡 · F-05 3D 地下城（两套皮肤）· F-06 入口页 · 交付物</td><td>这就是最终提交的 Demo，18:00 冻结</td></tr>
+      <tr><td><span class="pill p1">P1 余力</span></td><td>按顺序：F-07 卧底单人局 → F-08 真实热力图 → F-09 回写打点 → F-10 真实播放器 → 自动识别场景</td><td>做不完不影响提交</td></tr>
+      <tr><td><span class="pill p2">P2 拓展</span></td><td>F-11 全部</td><td>只放进 PPT 路线图，比赛期间不写代码</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+  <h2><span class="no">13</span>比赛排期（10.23）</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>时间</th><th>任务</th><th>负责</th><th>到点没完成怎么办</th></tr></thead>
+    <tbody>
+      <tr><td>赛前</td><td>用比赛账号验证大纲、智能字幕是否已开通；准备两场回放</td><td>全员</td><td>没开通就立刻改用手动导出字幕</td></tr>
+      <tr><td>09:00–10:00</td><td>验证接口签名，拉下两份数据</td><td>Paul</td><td>10:00 不通就用手动导出的字幕兜底</td></tr>
+      <tr><td>10:00–12:30</td><td>两套提示词，调出稳定的 game.json 并通过校验</td><td>Paul</td><td>带货版不稳定时，手工修正一份</td></tr>
+      <tr><td>10:00–12:30</td><td>3D 原型改为读 game.json（先用示例 JSON 并行开发）</td><td>Bob</td><td>—</td></tr>
+      <tr><td>13:30–15:30</td><td>两套皮肤；讲义 / 卖点卡页面</td><td>Bob / Paul</td><td>带货皮肤先只换配色和文案</td></tr>
+      <tr><td>15:30–17:00</td><td>入口页串联，联调两个场景</td><td>全员</td><td>入口页简化成两个按钮</td></tr>
+      <tr><td>17:00–18:00</td><td><b>P0 冻结</b>，完整走一遍，修 bug</td><td>全员</td><td>18:00 后不加功能</td></tr>
+      <tr><td>18:00–20:00</td><td>按顺序做 P1</td><td>全员</td><td>做不完不影响提交</td></tr>
+      <tr><td>20:00–21:30</td><td>录演示视频、写 README、整理提交</td><td>全员</td><td>预留时间不许挪用</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">负责人为建议分工，开赛前确认。</p>
+</section>
+
+<!-- 14 -->
+<section id="s14">
+  <h2><span class="no">14</span>交付物</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>交付物</th><th>内容</th><th>验收</th></tr></thead>
+    <tbody>
+      <tr><td>Demo</td><td>静态站点（入口页、讲义页、3D 游戏）+ 两份 game.json</td><td>本地或任意静态服务器打开即可演示</td></tr>
+      <tr><td>演示视频</td><td>3 分钟，脚本见下表</td><td>覆盖两个场景和切换</td></tr>
+      <tr><td>源码</td><td>按第 9.3 节目录结构；README 含架构图、接口清单、运行步骤、合规说明</td><td>按 README 能从零跑通</td></tr>
+      <tr><td>海报</td><td>回放不夜城 9:16（宋风）</td><td>已完成，见 <code>doc/assets/</code></td></tr>
+    </tbody>
+  </table></div>
+  <h3>演示视频脚本</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>时间</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>0:00–0:20</td><td>痛点：回放没人看，看了也记不住；带货回放的卖点没传达到</td></tr>
+      <tr><td>0:20–0:50</td><td>输入一场真实回放，展示提示词分析过程，生成讲义</td></tr>
+      <tr><td>0:50–1:50</td><td>课程场景：开宝箱、答错倒下、回放补看、打败 Boss、结算</td></tr>
+      <tr><td>1:50–2:30</td><td><b>一键切到带货场景</b>：同一引擎，锁题变卖点题，奖励变优惠券</td></tr>
+      <tr><td>2:30–3:00</td><td>讲师 / 运营热力图、架构图、OpenAPI 清单、P2 路线图</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 15 -->
+<section id="s15">
+  <h2><span class="no">15</span>风险与对策</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>风险</th><th>影响</th><th>对策</th></tr></thead>
+    <tbody>
+      <tr><td>比赛账号未开通视频大纲 / 智能字幕</td><td>拿不到核心数据</td><td>赛前验证；兜底用手动导出的字幕，大纲由大模型按字幕自行分段</td></tr>
+      <tr><td>大模型输出不稳定、出错题</td><td>Demo 出现错误答案</td><td>schema 校验 + 重试；演示用数据人工过一遍</td></tr>
+      <tr><td>带货回放样本难找</td><td>带货场景无法演示</td><td>提前约运营同事提供一场授权的带货回放，或自录一段模拟带货</td></tr>
+      <tr><td>答题卡统计接口不明确</td><td>Boss 判定和热力图缺数据</td><td>P0 用大模型按「聊天追问次数」估算难度，真实数据放 P1</td></tr>
+      <tr><td>手机端 3D 卡顿</td><td>演示体验差</td><td>降低渲染分辨率、固定光源数量；现场用电脑演示</td></tr>
+      <tr><td>范围膨胀</td><td>P0 做不完</td><td>18:00 冻结；P2 一律只进 PPT</td></tr>
+      <tr><td>密钥泄露</td><td>安全事故</td><td><code>.env</code> 加入 <code>.gitignore</code>，提交前检查</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 16 -->
+<section id="s16">
+  <h2><span class="no">16</span>待确认事项</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>#</th><th>事项</th><th>需要谁确认</th></tr></thead>
+    <tbody>
+      <tr><td>Q1</td><td>比赛账号的 AppID / Secret，以及大纲、智能字幕、数字人等能力是否已开通</td><td>赛事组织方</td></tr>
+      <tr><td>Q2</td><td>答题卡作答统计用哪个公开接口取数</td><td>查帮助中心 / 赛事答疑</td></tr>
+      <tr><td>Q3</td><td>使用哪家大模型 API，费用由谁承担</td><td>团队</td></tr>
+      <tr><td>Q4</td><td>课程、带货两场示例回放的来源与使用授权</td><td>团队 / 运营同事</td></tr>
+      <tr><td>Q5</td><td>源码提交方式（仓库地址、是否公开）</td><td>赛事组织方</td></tr>
+      <tr><td>Q6</td><td>海报左上角是否替换为官方 Logo</td><td>团队</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 17 -->
+<section id="s17">
+  <h2><span class="no">17</span>附录</h2>
+  <h3>17.1 已有原型</h3>
+  <ul>
+    <li>2D 像素版：<a href="https://claude.ai/artifact/HsHHTfQVEDP9a3RK4ushJo">回放地下城 2D</a>（大纲 / 字幕 / 聊天 / 观看记录驱动的完整闭环）</li>
+    <li>3D 第一人称版：<a href="https://claude.ai/artifact/7uMNVaeiNmaTAiR7nu3HGR">回放地下城 3D</a>（Three.js，作为 F-05 的开发起点）</li>
+  </ul>
+  <p class="note">两个原型目前使用写死的示例数据（一节 72 分钟的 Python 课），需要登录 claude.ai 才能打开。</p>
+  <h3>17.2 学习设计依据</h3>
+  <ul>
+    <li><b>检索练习</b>：主动回忆比重复观看更能巩固记忆，对应宝箱锁题</li>
+    <li><b>间隔重复</b>：按遗忘曲线安排复习，对应结算的 D+1 / D+3 / D+7</li>
+    <li><b>辨析</b>：区分相似概念需要精确理解差异，对应卧底游戏</li>
+    <li><b>针对性回看</b>：只看讲错点的那 40 秒，对应倒下复活</li>
+  </ul>
+  <h3>17.3 版本记录</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead>
+    <tbody><tr><td>v1.0</td><td>2026-10-21</td><td>初版：整合选题讨论、两场景设计、范围分档与排期；补充构思记录、可持续迭代点与拓展想象</td></tr></tbody>
+  </table></div>
+</section>
+
+<!-- 18 -->
+<section id="s18">
+  <h2><span class="no">18</span>构思记录</h2>
+  <p>选题过程中讨论过的方向。没有进入比赛范围，但都可以作为后续选题或功能储备。</p>
+
+  <h3>18.1 第一轮：按角色发散</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>方向</th><th>角色</th><th>思路</th><th>没选的原因</th></tr></thead>
+    <tbody>
+      <tr><td>AI 场控副驾</td><td>主播</td><td>实时聚类聊天，提醒高频问题和负面情绪，一键推商品、发抽奖、置顶问答</td><td>思路常见，差异化不够</td></tr>
+      <tr><td>迟到观众 30 秒追上进度</td><td>观众</td><td>中途进入直播间时，AI 总结前面讲了什么，支持追问并跳转</td><td>依赖实时字幕接口，单独做略薄</td></tr>
+      <tr><td>Polyv MCP Server</td><td>运营</td><td>把 OpenAPI 封装成 MCP 工具，一句话让 AI 建频道、配观看条件、发推广物料</td><td>技术立意高，但演示观感偏弱</td></tr>
+      <tr><td>数据问答助手</td><td>运营</td><td>自然语言问直播数据，自动取数出图</td><td>常见</td></tr>
+      <tr><td>观众意向评分</td><td>运营</td><td>按观看、发言、点商品、填问卷算意向分，推给销售</td><td>常见</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>18.2 第二轮：结合开源前沿</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>方向</th><th>灵感来源</th><th>思路</th></tr></thead>
+    <tbody>
+      <tr><td>开播前 1000 个 AI 观众预演</td><td>OASIS（camel-ai 社会模拟）、MiroFish</td><td>用频道历史聊天和观看记录聚类出观众画像，生成 AI 观众。主播彩排时 AI 观众实时发弹幕、提问、流失，输出预测留存曲线；也可以给标题、开场做 A/B。<b>只用于私有预演，绝不进真实直播间</b></td></tr>
+      <tr><td>线下会场也成为直播间观众</td><td>WiFi-DensePose / RuView（ESP32 采集 WiFi 信号做无摄像头感知）</td><td>混合直播时感知线下人数、热区、举手动作，转成直播间消息；线上线下人数合并显示</td></tr>
+      <tr><td>直播 3D 城市大屏</td><td>GitHub Skyline、git-city</td><td>每个频道一栋楼：高度是观看量，亮窗是在线人数，正在直播的楼顶亮探照灯，下单放烟花</td></tr>
+      <tr><td>体感直播间</td><td>MediaPipe Hands</td><td>观看页本地识别手势：比心是点赞，举手是提问，比数字是作答</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>18.3 第三轮：学习动作本身就是玩法</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>《带徒弟》：你教出来的 AI 替你考试</h4>
+      <ul>
+        <li>每个学员领养一个「什么都不会」的 AI 学徒，学员用语音或文字教它，学徒去考场答题</li>
+        <li>学徒答错时<b>复述你的原话</b>，直接暴露你自己的误解</li>
+        <li>学徒会「饿」，这个饿就是遗忘：过几天要再教一次，背后是 FSRS 间隔复习</li>
+        <li>讲师端得到<b>误解地图</b>：从自由讲解里看出「35% 的人以为 A 是 B 的子集」，比选择题信息量大得多</li>
+        <li><b>技术难点</b>：学徒要「真不会」。拆成两个角色：
+          <ul>
+            <li>学徒（Letta 记忆）只能引用学员教过的内容</li>
+            <li>考官以字幕为标准答案独立判分</li>
+          </ul>
+        </li>
+        <li><b>依据</b>：门徒效应。Teachable Agent 研究（Betty's Brain）发现，为了教别人而学，投入度和效果都更好</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>两个附加玩法</h4>
+      <ul>
+        <li><b>找茬</b>：用数字人重讲一段并故意埋错，学员边看边抓；找错比听对需要更深的理解</li>
+        <li><b>知识卧底</b>：6 人中 1 人拿到微妙错误的概念版本，轮流解释后投票；复盘时 AI 逐句点评</li>
+      </ul>
+      <h4>混淆词对的自动挖掘</h4>
+      <ul>
+        <li>学员答错时选的干扰项 = 他脑中与正确答案混淆的概念</li>
+        <li>聊天中「X 和 Y 有什么区别」句式</li>
+        <li>同一节课里语义相近的关键词</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>18.4 第四轮：地上城、商店和卧底酒馆</h3>
+  <ul>
+    <li><b>地上城 · 回放广场</b>：回放列表生成建筑，观看量是楼高，系列课是一条街、按顺序解锁，有错题待复习的建筑门口亮「今日副本」，运营可挂活动旗帜</li>
+    <li><b>商店街</b>，红线是<b>道具不能代替学习动作</b>（不能跳过回放复活、不能直接看答案）：
+      <ul>
+        <li>课程商铺：真实商品，用积分抵扣，走商品库和订单接口</li>
+        <li>道具铺：提示卷轴，只告诉你回放第几分钟讲过</li>
+        <li>卷轴集市：学员写的讲解卷轴，别人购买和评价</li>
+      </ul>
+    </li>
+    <li><b>宝石与金币分离</b>：宝石代表本人掌握，不可交易；金币和卷轴可以流通</li>
+    <li><b>酒馆卧底</b>：赢了获得「辨析徽章」；地下城里出现双子门，有徽章时多显示一条线索；主播可在直播间一键开局</li>
+  </ul>
+
+  <h3>18.5 第五轮：带货场景</h3>
+  <ul>
+    <li><b>消费者逛街寻宝</b>：地上城是直播夜市商业街，正在直播的店铺亮灯；宝箱奖励是专属优惠券；Boss 是满减规则题</li>
+    <li><b>主播练兵</b>（企业销售培训，更易收费）：
+      <ul>
+        <li>怪物是用户异议：「太贵了」「别家便宜 20」</li>
+        <li>宝箱是用语音复述卖点，AI 评分</li>
+        <li>倒下后回看金牌主播是怎么接这个问题的</li>
+      </ul>
+    </li>
+    <li><b>卧底辨析相似 SKU</b>：选错规格是退货原因之一，可作为降低退货率的商业指标</li>
+    <li><b>种草笔记集市</b>：买过的人写使用心得赚积分，奖励不与好评绑定</li>
+  </ul>
+
+  <h3>18.6 视觉方向演变</h3>
+  <p>像素地牢 → 霓虹赛博城（被否：太俗、太 DJ）→ <b>宋风月夜古城</b>（采用）。</p>
+  <p>宣传物料的原则是<b>抽象，不暴露主题</b>：进度条化作水岸金线，播放头是一盏灯，城的倒影就是「另一座城」。</p>
+</section>
+
+<!-- 19 -->
+<section id="s19">
+  <h2><span class="no">19</span>可持续迭代点</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>方向</th><th>迭代内容</th><th>衡量指标</th></tr></thead>
+    <tbody>
+      <tr><td>内容质量</td>
+        <td>
+          <ul>
+            <li>题目质量评测集（人工标注 100 题，跟踪正确率、歧义率）</li>
+            <li>提示词版本管理</li>
+            <li>讲师审核台：可编辑、删除、置顶题目</li>
+          </ul>
+        </td>
+        <td>题目被讲师修改的比例、观众「题目有误」反馈率</td></tr>
+      <tr><td>参数化变体题</td><td>同一知识点自动生成数值或情境不同的变体，防止背答案</td><td>二刷正确率与一刷差值</td></tr>
+      <tr><td>自适应难度</td><td>连续答对时出现「精英怪」，连续答错时降级并给 NPC 提示</td><td>平均通关率稳定在 60%–80%</td></tr>
+      <tr><td>间隔复习</td><td>固定的 1 / 3 / 7 天替换为 FSRS，按个人记忆曲线推送每日副本</td><td>7 日留存、复习完成率</td></tr>
+      <tr><td>皮肤体系</td><td>皮肤配置化（纹理、模型、音效、文案），引入 glTF 素材和音效</td><td>新增一套皮肤的工时</td></tr>
+      <tr><td>数据闭环</td>
+        <td>
+          <ul>
+            <li>埋点：进入、答题、倒下、复活回看时长、Boss 通过、结算</li>
+            <li>热力图改用真实数据</li>
+          </ul>
+        </td>
+        <td>回放完播率、复活回看完成率</td></tr>
+      <tr><td>集成形态</td><td>独立页面 → 嵌入观看页 SDK → 后台一键为回放「开副本」</td><td>开通客户数</td></tr>
+      <tr><td>多端</td><td>小程序版、移动端性能优化（LOD、离屏剔除）</td><td>中端机帧率</td></tr>
+      <tr><td>多语言</td><td>题目和讲义随字幕语言生成，服务海外客户</td><td>—</td></tr>
+      <tr><td>无障碍</td><td>纯文字 / 语音模式，不玩 3D 也能完成复习</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 20 -->
+<section id="s20">
+  <h2><span class="no">20</span>拓展想象</h2>
+  <p>以下是新的设想，按「离落地的距离」由近到远排列。</p>
+
+  <h3>20.1 近期可做</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>进度条上的「墓碑」</h4>
+      <p>借鉴《黑暗之魂》的血迹和留言：大家倒下的位置在回放进度条上汇聚成一条「难度热度带」。后来的观众看回放时就知道哪里有坑，还能看到前人留下的一句提醒，比如「注意，负数索引从 -1 开始」。这样弹幕从「吐槽」变成「路标」。</p>
+    </div>
+    <div class="card">
+      <h4>异步幽灵同行</h4>
+      <p>在地下城里看到同班同学的半透明「幽灵」走过的路线和倒下的地方。不需要实时联机，也有「一起在学」的陪伴感。</p>
+    </div>
+    <div class="card">
+      <h4>通关高光短片</h4>
+      <p>结算时自动把你倒下又复活的那几个 40 秒片段剪成一支「我的攻克集锦」（裁剪 / AI 快剪能力），再配一张通关海报（邀请海报接口），用于分享传播。</p>
+    </div>
+    <div class="card">
+      <h4>课件做壁画</h4>
+      <p>回放课件事件里的 PPT 页面挂在对应房间的墙上，走进房间就看到老师当时翻到的那页，空间记忆和内容记忆绑定在一起。</p>
+    </div>
+  </div>
+
+  <h3>20.2 中期可做</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>直播中实时长出地下城</h4>
+      <p>不必等直播结束：讲师每讲完一段，地下城就长出一个新房间，观众边看边打，下课时正好通关。直播从「单向听讲」变成「边听边闯」。</p>
+    </div>
+    <div class="card">
+      <h4>AI 地城主旁白</h4>
+      <p>一个带人设的 AI 旁白（TTS）根据你的表现即兴解说：「你已经第三次倒在 KeyError 门口了，要不要去问问那位幽灵学长？」人设可以是讲师的数字分身。</p>
+    </div>
+    <div class="card">
+      <h4>赛季与公会</h4>
+      <p>一个系列课是一个赛季，一个班级或部门是一个公会。公会进度条按「全员通关率」计算，掉队的人拖慢公会进度，形成同伴互助。</p>
+    </div>
+    <div class="card">
+      <h4>直播预热副本（带货）</h4>
+      <p>开播前一天放出「预告地下城」，通关领取开播提醒（直播预约）和预热券。先让观众弄懂主推款，开播时转化更高。</p>
+    </div>
+  </div>
+
+  <h3>20.3 远期设想</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>每场回放一种画风</h4>
+      <p>按内容主题生成专属皮肤：讲宋史的课是汴京夜市，讲化学的课是炼金工坊，讲护肤品的带货是花园温室。贴图和配色由图像模型生成，引擎不变。</p>
+    </div>
+    <div class="card">
+      <h4>企业培训合规凭证</h4>
+      <p>通关报告作为培训完成凭证导出给 HR：每个知识点的掌握度、回看时长、复习完成情况，比「看完 80% 视频」更能证明学会了。</p>
+    </div>
+    <div class="card">
+      <h4>卡关指标开放成数据产品</h4>
+      <p>「卡关率」「复活回看率」「混淆词对榜」作为新的内容质量指标开放给客户。课程方用它改课，带货方用它改话术，这是对完播率之外的补充。</p>
+    </div>
+    <div class="card">
+      <h4>让 Agent 来闯关</h4>
+      <p>地下城本身也是一套评测环境：让客户的 AI 助教、AI 客服来闯同一座地下城，看它能不能答对、能不能引用正确的回放片段。这样就成了企业知识库问答质量的「考场」。</p>
+    </div>
+  </div>
+</section>
+
+<footer>回放不夜城 · 你说就你队 · POLYV 2026 HACKATHON　|　本文档仅基于保利威公开 OpenAPI 与开源 SDK 设计</footer>
+</main>
+</div>
+</body>
+</html>

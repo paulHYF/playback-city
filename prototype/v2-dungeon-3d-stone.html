@@ -1,0 +1,1232 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>回放地下城 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Pixelify+Sans:wght@500;700&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #111217;
+    --panel: #1a1c23;
+    --panel-2: #22252e;
+    --line: #2f3340;
+    --text: #ece3cf;
+    --muted: #9b9484;
+    --ember: #e8a245;
+    --ember-2: #f5c97c;
+    --blood: #d65a4e;
+    --moss: #73b99c;
+    --arcane: #a395f2;
+    --display: "ZCOOL QingKe HuangYou", "Noto Sans SC", system-ui, sans-serif;
+    --pixel: "Pixelify Sans", "JetBrains Mono", ui-monospace, monospace;
+    --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  html, body { background: var(--bg); }
+  body { color: var(--text); font-family: var(--body); font-size: 14px; line-height: 1.6; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 32px; display: grid; gap: 16px; }
+
+  .top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+  .brand h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1.1; letter-spacing: 0.04em; color: var(--ember-2); text-wrap: balance; }
+  .brand h1 small { font-family: var(--pixel); font-size: 15px; color: var(--muted); letter-spacing: 0.08em; margin-left: 10px; }
+  .course { margin-top: 4px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .course code { font-family: var(--mono); font-size: 12px; color: var(--text); }
+  .hud { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .stat { display: grid; }
+  .stat .k { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .stat .v { font-family: var(--pixel); font-size: 20px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .hearts { font-size: 18px; letter-spacing: 2px; }
+  .hearts .on { color: var(--blood); }
+  .hearts .off { color: #3a3d48; }
+  .gem { color: #7fd8ff; }
+  .btn { font: inherit; font-size: 13px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 7px 12px; cursor: pointer; }
+  .btn:hover { border-color: var(--ember); }
+  .btn:focus-visible, .opt:focus-visible, .pad button:focus-visible, .screen:focus-visible { outline: 2px solid var(--ember-2); outline-offset: 2px; }
+  .btn[aria-pressed="true"] { background: #3a2a1a; border-color: var(--ember); color: var(--ember-2); }
+  .btn.primary { background: var(--ember); color: #1d1408; border-color: var(--ember); font-weight: 700; }
+  .btn.primary:disabled { background: #4a4235; border-color: #4a4235; color: #8b8270; cursor: wait; }
+
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+  .game { display: grid; gap: 10px; min-width: 0; }
+  .screen { position: relative; aspect-ratio: 16 / 10; max-width: 100%; border: 2px solid #000; box-shadow: 0 0 0 1px var(--line); background: #07080b; overflow: hidden; }
+  .screen canvas#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+  .screen.shake { animation: shake 0.32s linear; }
+  @keyframes shake { 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, 1px); } 80% { transform: translate(3px, 0); } }
+  .flash { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(214, 90, 78, 0) 30%, rgba(214, 90, 78, 0.65)); opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+  .flash.on { opacity: 1; transition: none; }
+  .mm { position: absolute; right: 10px; top: 10px; width: 168px; height: auto; image-rendering: pixelated; border: 1px solid rgba(232, 162, 69, 0.4); background: rgba(8, 9, 12, 0.6); }
+  .ahead { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 5px 12px; font-size: 13px; color: var(--ember-2); background: rgba(10, 10, 14, 0.82); border: 1px solid rgba(232, 162, 69, 0.45); border-radius: 3px; text-align: center; pointer-events: none; }
+  .toast { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); background: rgba(10, 10, 14, 0.9); border: 1px solid var(--ember); color: var(--ember-2); padding: 6px 14px; font-size: 13px; border-radius: 3px; pointer-events: none; max-width: calc(100% - 220px); text-align: center; }
+  .fail { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); }
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .hint { color: var(--muted); font-size: 12.5px; margin: 0; max-width: 60ch; }
+  .hint kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); border-bottom-width: 2px; padding: 0 5px; border-radius: 3px; color: var(--text); }
+  .pad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(2, 42px); gap: 4px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .pad button { font-family: var(--pixel); font-size: 17px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; touch-action: none; }
+  .pad button:active { background: #3a2a1a; border-color: var(--ember); }
+
+  .panel { display: grid; gap: 14px; min-width: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 14px; display: grid; gap: 8px; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .room-title { font-family: var(--display); font-weight: 400; font-size: 22px; line-height: 1.2; color: var(--ember-2); margin: 0; text-wrap: balance; }
+  .room-time { font-family: var(--mono); font-size: 12px; }
+  .room-sum { margin: 0; color: #d6cdb9; font-size: 13.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-family: var(--mono); font-size: 11.5px; padding: 1px 7px; border: 1px solid var(--line); border-radius: 2px; background: var(--panel-2); }
+  .tag { font-size: 11px; padding: 1px 7px; border-radius: 2px; }
+  .tag.boss { background: #4a1f1b; color: #ffb3a8; }
+  .tag.fog { background: #262838; color: #c7c2ff; }
+  .tag.npc { background: #2b2546; color: #cfc6ff; }
+  .tag.done { background: #1d3a2f; color: #a7e5c9; }
+  .src { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); opacity: 0.38; transition: opacity 0.25s; }
+  .src:first-child { border-top: 0; }
+  .src.on { opacity: 1; }
+  .src .dot { width: 8px; height: 8px; margin-top: 6px; background: var(--muted); }
+  .src.on .dot { background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+  .src b { font-weight: 500; font-size: 13px; }
+  .src .role { color: #d6cdb9; font-size: 12.5px; }
+  .src .api { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+  .log { font-family: var(--mono); font-size: 11.5px; line-height: 1.55; max-height: 190px; overflow-y: auto; display: grid; gap: 3px; color: #c9c1ad; }
+  .log .t { color: var(--muted); margin-right: 6px; }
+  .log .ok { color: var(--moss); }
+  .log .warn { color: var(--ember-2); }
+  .log .bad { color: #ff9b8f; }
+
+  .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .lg { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; }
+  .lg canvas { width: 40px; height: 40px; }
+  .lg b { display: block; font-weight: 500; font-size: 13px; }
+  .lg span { color: var(--muted); font-size: 12px; line-height: 1.45; display: block; }
+  .foot { color: var(--muted); font-size: 12px; max-width: 80ch; margin: 0; }
+
+  .modal { position: fixed; inset: 0; background: rgba(5, 6, 9, 0.74); display: grid; place-items: center; z-index: 20; padding: 16px; }
+  .dialog { width: min(580px, 100%); max-height: 88vh; overflow-y: auto; background: var(--panel); border: 1px solid #4a3d2a; border-radius: 4px; box-shadow: 0 0 0 2px #000, 0 24px 60px rgba(0, 0, 0, 0.6); padding: 18px; display: grid; gap: 12px; }
+  .dialog h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.2; color: var(--ember-2); text-wrap: balance; }
+  .dialog h3 { margin: 4px 0 0; font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0.06em; }
+  .dialog p { margin: 0; }
+  .q { font-size: 15px; font-weight: 500; }
+  pre.code { margin: 0; font-family: var(--mono); font-size: 13px; line-height: 1.6; background: #0d0e12; border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; overflow-x: auto; color: #e9e1cc; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opt { font-family: var(--mono); font-size: 13px; text-align: left; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; cursor: pointer; min-height: 44px; }
+  .opt:hover:not(:disabled) { border-color: var(--ember); }
+  .opt.right { border-color: var(--moss); background: #183026; color: #c8f0dd; }
+  .opt.wrong { border-color: var(--blood); background: #3a1a17; color: #ffc3ba; text-decoration: line-through; }
+  .opt:disabled { cursor: default; }
+  .fb { font-size: 13.5px; padding: 10px 12px; border-radius: 3px; border: 1px solid var(--line); background: var(--panel-2); }
+  .fb.ok { border-color: #2f6b52; }
+  .fb.bad { border-color: #7a322b; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .bossbar { display: flex; gap: 4px; }
+  .bossbar i { flex: 1; height: 8px; background: var(--blood); }
+  .bossbar i.gone { background: #3a2422; }
+  .video { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background: linear-gradient(160deg, #1d2230, #10131b); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .slide { position: absolute; inset: 8% 26% 22% 5%; background: #f3efe4; color: #22252e; border-radius: 2px; padding: 4% 5%; display: grid; align-content: start; gap: 6px; overflow: hidden; }
+  .slide .st { font-weight: 700; font-size: clamp(11px, 2.4vw, 15px); }
+  .slide pre { margin: 0; font-family: var(--mono); font-size: clamp(9px, 1.9vw, 12px); line-height: 1.5; white-space: pre-wrap; }
+  .cam { position: absolute; right: 4%; top: 8%; width: 18%; aspect-ratio: 3 / 4; background: #2b3242; border-radius: 2px; display: grid; place-items: end center; overflow: hidden; }
+  .cam::before { content: ""; position: absolute; top: 22%; left: 50%; width: 36%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: #c99f80; }
+  .cam::after { content: ""; width: 78%; height: 34%; border-radius: 40% 40% 0 0; background: #3e5a7a; }
+  .sub { position: absolute; left: 4%; right: 4%; bottom: 9%; text-align: center; font-size: clamp(11px, 2.5vw, 15px); color: #fff; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+  .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255, 255, 255, 0.15); }
+  .bar i { display: block; height: 100%; width: 0; background: var(--ember); }
+  .vt { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .chat { display: grid; gap: 6px; }
+  .msg { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; font-size: 13px; padding: 6px 10px; background: var(--panel-2); border-radius: 3px; }
+  .msg .n { color: var(--arcane); }
+  .msg .tm { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .answer { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px; background: #201d33; border: 1px solid #3d3566; border-radius: 3px; }
+  .avatar { width: 64px; aspect-ratio: 3 / 4; border-radius: 3px; background: linear-gradient(#4b3f8c, #2a2350); position: relative; overflow: hidden; }
+  .avatar::before { content: ""; position: absolute; top: 18%; left: 50%; width: 42%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: #e2bd9c; }
+  .avatar::after { content: ""; position: absolute; bottom: 0; left: 12%; right: 12%; height: 36%; border-radius: 40% 40% 0 0; background: #a395f2; }
+  .note { font-size: 12px; color: var(--muted); }
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .grid4 > div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; }
+  .grid4 .v { font-family: var(--pixel); font-size: 22px; font-variant-numeric: tabular-nums; color: var(--ember-2); }
+  .grid4 .k { font-size: 11px; color: var(--muted); }
+  .review { display: grid; gap: 6px; }
+  .review > div { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; padding: 8px 10px; background: var(--panel-2); border-radius: 3px; }
+  .review b { font-weight: 500; }
+  .review .when { font-family: var(--mono); font-size: 11.5px; color: var(--moss); }
+
+  @media (max-width: 960px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 560px) {
+    .brand h1 { font-size: 28px; }
+    .opts { grid-template-columns: 1fr; }
+    .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mm { width: 112px; }
+    .toast { max-width: calc(100% - 140px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen.shake { animation: none; }
+    .src, .flash { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>回放地下城<small>3D · DUNGEON RAID</small></h1>
+      <div class="course">
+        <span id="courseTitle"></span>
+        <span>频道 <code id="courseCh"></code></span>
+        <span id="courseMeta"></span>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="stat"><span class="k">生命</span><span class="v hearts" id="hpView"></span></div>
+      <div class="stat"><span class="k">知识宝石</span><span class="v gem" id="gemView">0 / 0</span></div>
+      <div class="stat"><span class="k">经验</span><span class="v" id="xpView">0</span></div>
+      <button class="btn" id="teacherBtn" type="button" aria-pressed="false">讲师视角：全班卡关热力</button>
+      <button class="btn" id="resetBtn" type="button">重新开始</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="game">
+      <div class="screen" id="screen" tabindex="0" aria-label="第一人称 3D 地下城。方向键前进后退和转身，撞上宝箱开始答题">
+        <canvas id="cv"></canvas>
+        <div class="flash" id="flash"></div>
+        <canvas class="mm" id="mm" width="160" height="92" aria-hidden="true"></canvas>
+        <div class="ahead" id="ahead" hidden></div>
+        <div class="toast" id="toast" hidden></div>
+      </div>
+      <div class="controls">
+        <p class="hint"><kbd>↑</kbd><kbd>↓</kbd> 或 <kbd>W</kbd><kbd>S</kbd> 前进后退，<kbd>←</kbd><kbd>→</kbd> 或 <kbd>A</kbd><kbd>D</kbd> 转身，<kbd>Q</kbd><kbd>E</kbd> 侧移。面对宝箱按前进就开锁答题。夺下 Boss 守着的宝藏后，去最后一个房间的传送门结算。</p>
+        <div class="pad" aria-label="移动按钮">
+          <button type="button" data-act="left" aria-label="左转">⟲</button>
+          <button type="button" data-act="fwd" aria-label="前进">▲</button>
+          <button type="button" data-act="right" aria-label="右转">⟳</button>
+          <button type="button" data-act="sl" aria-label="左移">◁</button>
+          <button type="button" data-act="back" aria-label="后退">▼</button>
+          <button type="button" data-act="sr" aria-label="右移">▷</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card" id="roomCard"></div>
+      <div class="card">
+        <div class="eyebrow">这个房间由哪些数据生成</div>
+        <div id="sources"></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">数据流</div>
+        <div class="log" id="log" aria-live="polite"></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="legend" id="legend"></section>
+
+  <p class="foot">示例数据：模拟一节 72 分钟的 Python 直播课回放（大纲、字幕、聊天、观看记录、答题卡统计都是按公开 OpenAPI 的数据形态编的）。3D 渲染用 Three.js，墙砖、地砖和火光的纹理都由代码实时绘制，没有外部素材。「答题卡作答统计」用哪个接口取数还需要核对。</p>
+
+  <div class="modal" id="modal" hidden>
+    <div class="dialog" id="dialog" role="dialog" aria-modal="true"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  // ───────────── 示例数据（形态对齐公开 OpenAPI） ─────────────
+  const DATA = {
+    course: { channelId: '3958201', title: 'Python 入门 · 第 3 课：列表、字典与循环', teacher: '林老师', date: '2026-10-12 20:00', duration: 4320, students: 186 },
+    outline: [
+      { title: '开场：为什么需要数据结构', start: 0, end: 400, summary: '用「存全班 50 人成绩」的例子引出问题：变量一多就没法批量处理，需要把数据装进一个容器。', keyword: ['数据结构', '列表'] },
+      { title: '列表的创建与索引', start: 400, end: 1155, summary: '列表用方括号创建，下标从 0 开始；负索引从末尾往回数；切片取一段，包含起点不包含终点。', keyword: ['索引', '负索引', '切片'] },
+      { title: '列表的增删改', start: 1155, end: 1910, summary: 'append 在末尾加一个元素，pop 删除并返回元素；列表是可变对象，两个变量可能指向同一个列表。', keyword: ['append', 'pop', '可变'] },
+      { title: '字典：键值对', start: 1910, end: 2730, summary: '字典用键找值。方括号取不存在的键会抛 KeyError，get 可以给默认值；键必须是不可变类型。', keyword: ['KeyError', 'get', '键'] },
+      { title: 'for 循环遍历', start: 2730, end: 3490, summary: 'range 生成数字序列，enumerate 同时拿下标和元素，items 遍历字典的键值对。', keyword: ['range', 'enumerate', 'items'] },
+      { title: '综合练习：统计词频', start: 3490, end: 4320, summary: '用字典计数，再按出现次数排序，找出一段文字里最常出现的词。', keyword: ['计数', '排序'] }
+    ],
+    watched: [[0, 2730], [3490, 4320]],
+    failRate: [8, 24, 17, 62, 41, 29],
+    clusters: [
+      { seg: 1, count: 27, q: 'a[-1] 到底是哪一个？负数索引从哪开始数？',
+        msgs: [['阿杰', '老师 -1 是倒数第一个吗', '12:41'], ['Mia', '负数索引从哪开始数啊', '12:44'], ['土豆', 'a[-0] 是什么？', '12:50']],
+        answer: '负索引从末尾往回数：a[-1] 是最后一个，a[-2] 是倒数第二个，等价于 a[len(a) - 1]。另外 -0 就是 0，所以 a[-0] 取到的是第一个。' },
+      { seg: 3, count: 34, q: 'd.get("k") 和 d["k"] 有什么区别？',
+        msgs: [['小周', 'get 和 [] 有啥区别', '37:02'], ['Kevin', '为啥我这报 KeyError', '37:15'], ['奶茶三分糖', 'get 第二个参数是干嘛的', '38:40']],
+        answer: '键不存在时，d["k"] 直接抛 KeyError；d.get("k") 返回 None，d.get("k", 0) 返回你给的默认值 0。你希望程序报错还是给个默认值，决定了用哪一个。这也是 Boss 的弱点。' }
+    ],
+    questions: [
+      { id: 'q01', seg: 0, kw: '数据结构', t: 212, q: '用 s1、s2 … s50 五十个变量存全班成绩，最大的麻烦是什么？', code: '',
+        opts: ['没法用循环批量处理，求平均分要写 50 遍', '变量名里不能带数字', 'Python 最多只能有 32 个变量', '会让程序明显变慢'],
+        why: '变量一多就没法统一处理。把同类数据放进一个列表，一个循环就能处理全部。',
+        subs: [[-16, '假设我们要存全班五十个同学的成绩'], [-6, '按前两节课学的，你得写 s1、s2，一直写到 s50'], [4, '那要算个平均分怎么办？五十个变量挨个加'], [13, '这就是今天要解决的问题：把同类数据装进一个容器']] },
+      { id: 'q02', seg: 0, kw: '列表', t: 318, q: '下面哪个是合法的 Python 列表？', code: '',
+        opts: ['[90, 85, 77]', '(90; 85; 77)', '<90, 85, 77>', '{90: 85: 77}'],
+        why: '列表用方括号，元素之间用逗号分隔。',
+        subs: [[-15, 'Python 里最常用的容器，叫列表'], [-5, '写法很简单，一对方括号'], [5, '里面的元素用英文逗号隔开，比如 90, 85, 77'], [14, '注意是方括号，不是圆括号，也不是花括号']] },
+      { id: 'q11', seg: 1, kw: '索引', t: 520, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1])",
+        opts: ['香蕉', '苹果', '橙子', '报错 IndexError'],
+        why: '索引从 0 开始，a[0] 是苹果，a[1] 才是香蕉。',
+        subs: [[-16, '列表里每个元素都有一个位置编号，叫索引'], [-6, '重点来了：索引是从 0 开始数的'], [4, '所以 a[0] 是苹果，a[1] 是香蕉'], [13, '很多同学第一次写都会差一位，大家注意']] },
+      { id: 'q12', seg: 1, kw: '负索引', t: 762, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[-1])",
+        opts: ['葡萄', '苹果', '报错，索引不能是负数', '橙子'],
+        why: '负索引从末尾往回数，-1 就是最后一个。',
+        subs: [[-15, '那我想取最后一个怎么办？不用去数长度'], [-5, 'Python 支持负数索引'], [5, 'a[-1] 就是最后一个，a[-2] 是倒数第二个'], [14, '你可以理解成从尾巴往回数']] },
+      { id: 'q13', seg: 1, kw: '切片', t: 948, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1:3])",
+        opts: ["['香蕉', '橙子']", "['香蕉', '橙子', '葡萄']", "['苹果', '香蕉', '橙子']", "['橙子']"],
+        why: '切片包含起点、不包含终点：a[1:3] 取的是下标 1 和 2。',
+        subs: [[-15, '如果想一次取一段，用切片'], [-5, '冒号前面是起点，后面是终点'], [5, '记住一句话：包含起点，不包含终点'], [14, '所以 a[1:3] 拿到的是下标 1 和 2，两个元素']] },
+      { id: 'q21', seg: 2, kw: 'append', t: 1290, q: '输出是什么？', code: 'nums = [1, 2]\nnums.append([3, 4])\nprint(len(nums))',
+        opts: ['3', '4', '2', '报错'],
+        why: 'append 把整个 [3, 4] 当成一个元素加进去，所以长度是 3。想逐个加入要用 extend。',
+        subs: [[-15, '往列表末尾加东西，用 append'], [-5, 'append 每次只加一个元素'], [5, '如果你 append 一个列表进去，它会整个作为一个元素'], [14, '想把元素一个个加进去，要用 extend']] },
+      { id: 'q22', seg: 2, kw: 'pop', t: 1502, q: '输出是什么？', code: 'nums = [10, 20, 30]\nx = nums.pop()\nprint(x)',
+        opts: ['30', '10', '[10, 20]', 'None'],
+        why: 'pop() 不传参数时，删除并返回最后一个元素。',
+        subs: [[-15, '删除元素可以用 pop'], [-5, 'pop 不写参数，默认删最后一个'], [5, '而且它会把删掉的那个值返回给你'], [14, '所以 x = nums.pop()，x 就是原来的最后一个']] },
+      { id: 'q23', seg: 2, kw: '可变', t: 1736, q: '输出是什么？', code: 'b = [1, 2]\nc = b\nc.append(3)\nprint(b)',
+        opts: ['[1, 2, 3]', '[1, 2]', '[3]', '报错'],
+        why: 'c = b 没有复制列表，两个名字指向同一个列表对象，改 c 就是改 b。',
+        subs: [[-15, '这里有个大坑，大家看屏幕'], [-5, 'c = b，并没有复制一份新列表'], [5, 'b 和 c 是同一个列表的两个名字'], [14, '所以你改 c，打印 b 也变了']] },
+      { id: 'qb1', seg: 3, kw: 'KeyError', t: 2205, q: '执行结果是什么？', code: "d = {'name': '小明', 'age': 12}\nprint(d['score'])",
+        opts: ['抛出 KeyError', '输出 None', '输出 0', "输出 ''（空字符串）"],
+        why: '用方括号取一个不存在的键，会直接抛 KeyError。',
+        subs: [[-15, '字典用键来取值，写法也是方括号'], [-5, '但如果这个键根本不存在呢？'], [5, '程序会直接报错，错误类型叫 KeyError'], [14, '线上代码里，这个错误非常常见']] },
+      { id: 'qb2', seg: 3, kw: 'get', t: 2318, q: '输出是什么？', code: "d = {'name': '小明', 'age': 12}\nprint(d.get('score', 0))",
+        opts: ['0', 'None', '抛出 KeyError', 'score'],
+        why: 'get 取不到键时，返回第二个参数作为默认值。',
+        subs: [[-15, '怎么避免 KeyError？用 get 方法'], [-5, 'get 取不到的时候，默认返回 None'], [5, '你还可以给它第二个参数，当作默认值'], [14, '比如 d.get("score", 0)，取不到就返回 0']] },
+      { id: 'qb3', seg: 3, kw: '键', t: 2490, q: '下面哪个不能作为字典的键？', code: '',
+        opts: ['[1, 2]', "'id'", '42', '(1, 2)'],
+        why: '字典的键必须是不可变的。列表可变，不能当键；元组可以。',
+        subs: [[-15, '最后讲一下，什么东西能当字典的键'], [-5, '规则是：键必须是不可变的'], [5, '字符串、数字、元组都可以'], [14, '列表是可变的，拿列表当键会直接报错']] },
+      { id: 'q41', seg: 4, kw: 'range', t: 2860, q: '输出是什么？', code: "for i in range(3):\n    print(i, end=' ')",
+        opts: ['0 1 2', '1 2 3', '0 1 2 3', '3'],
+        why: 'range(3) 生成 0、1、2，不包含 3。',
+        subs: [[-15, '先看 range，它会生成一串数字'], [-5, 'range(3) 生成的是 0、1、2'], [5, '和切片一样，不包含终点 3'], [14, '所以这个循环会执行三次']] },
+      { id: 'q42', seg: 4, kw: 'enumerate', t: 3105, q: '输出是什么？', code: "for i, v in enumerate(['a', 'b']):\n    print(i, v)\n    break",
+        opts: ['0 a', '1 a', 'a 0', '0 b'],
+        why: 'enumerate 同时给出下标和元素，下标默认从 0 开始。',
+        subs: [[-15, '如果循环的时候既要元素又要下标'], [-5, '不用自己维护计数器，用 enumerate'], [5, '它每轮给你两个值：下标和元素'], [14, '下标默认从 0 开始']] },
+      { id: 'q43', seg: 4, kw: 'items', t: 3340, q: 'for k, v in d.items() 每一轮拿到的是什么？', code: '',
+        opts: ['一个键和它对应的值', '只有键', '只有值', '键的下标和键'],
+        why: 'items() 返回键值对，解包成 k 和 v。',
+        subs: [[-15, '遍历字典有三种方式'], [-5, '直接 for k in d，拿到的是键'], [5, '用 d.items()，每轮拿到一个键和对应的值'], [14, '写成 for k, v in d.items()，最常用']] },
+      { id: 'q51', seg: 5, kw: '计数', t: 3720, q: '输出是什么？', code: "counts = {}\nfor w in ['a', 'b', 'a']:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts)",
+        opts: ["{'a': 2, 'b': 1}", "{'a': 1, 'b': 1}", '抛出 KeyError', "{'a': 2}"],
+        why: 'get(w, 0) 第一次遇到某个词时取到 0，再加 1，所以不会报 KeyError。',
+        subs: [[-15, '综合练习，统计每个词出现了几次'], [-5, '思路是用字典计数：词是键，次数是值'], [5, 'counts.get(w, 0) + 1，第一次出现就从 0 开始加'], [14, '这里就用到了刚才讲的 get 默认值']] },
+      { id: 'q52', seg: 5, kw: '排序', t: 4010, q: '输出是什么？', code: "counts = {'a': 2, 'b': 5, 'c': 1}\ntop = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)\nprint(top[0])",
+        opts: ["('b', 5)", "('a', 2)", "('c', 1)", '5'],
+        why: '按值（kv[1]）从大到小排序，第一个就是出现次数最多的。',
+        subs: [[-15, '统计完了，要找出现最多的词'], [-5, '用 sorted 对 items 排序'], [5, 'key 写 lambda kv: kv[1]，表示按值排序'], [14, 'reverse=True 从大到小，第一个就是最多的']] }
+    ]
+  };
+
+  const SOURCES = [
+    { key: 'outline', name: '视频大纲', api: 'v4/channel/recordfile/get_record_file_outline', role: '房间 = 大纲分段，宝箱 = 关键词' },
+    { key: 'subtitle', name: '智能字幕', api: 'video_management/smart_subtitle/query_smart_subtitle', role: '宝箱的锁题，复活时回放的字幕原文' },
+    { key: 'chat', name: '聊天记录 · 提问记录', api: 'chat/message/get_message_list · live_interaction/get_question_list', role: '高频提问化身成幽灵学长' },
+    { key: 'avatar', name: '数字人视频创作', api: 'v4/ai/video-produce/video-produce-batch-create', role: '幽灵学长的 15 秒讲解短片' },
+    { key: 'quiz', name: '答题卡作答统计', api: 'live_interaction 答题卡（取数接口待核对）', role: '全班错误率最高的段落成为 Boss 宝库' },
+    { key: 'viewlog', name: '观看记录', api: 'v4/user/viewlog/viewlog_list', role: '你没看过的段落被紫雾封住' },
+    { key: 'marker', name: '进度条打点', api: 'video_management/chapter_marker/add_chapter_marker', role: '你踩中机关的位置回写到回放进度条' }
+  ];
+
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const Q = Object.fromEntries(DATA.questions.map(q => [q.id, q]));
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+  if (!window.THREE) {
+    $('#screen').insertAdjacentHTML('beforeend', '<div class="fail">3D 引擎没有加载成功，请检查网络后刷新页面。</div>');
+    return;
+  }
+
+  // ───────────── 由数据推导游戏结构 ─────────────
+  const BOSS_ROOM = DATA.failRate.indexOf(Math.max(...DATA.failRate));
+  const FOG_ROOMS = DATA.outline.map((s, i) => {
+    const seen = DATA.watched.reduce((acc, [a, b]) => acc + Math.max(0, Math.min(b, s.end) - Math.max(a, s.start)), 0);
+    return seen / (s.end - s.start) < 0.5 ? i : -1;
+  }).filter(i => i >= 0);
+  const LAST_ROOM = DATA.outline.length - 1;
+  const GEM_COLORS = [0x7cc36a, 0x5fb3d9, 0xc9a2ff, 0xe0784c, 0xe7c55a, 0xef8fb0];
+
+  // ───────────── 地图生成（与 2D 版同一套规则） ─────────────
+  const CW = 13, CH = 11, COLS = CW * 3 + 1, ROWS = CH * 2 + 1;
+  const LAYOUT = [[0, 0], [1, 0], [2, 0], [2, 1], [1, 1], [0, 1]];
+  let grid, roomOf, rooms, entities, torches;
+
+  function buildWorld() {
+    const rnd = mulberry32(Number(DATA.course.channelId));
+    const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+    grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
+    roomOf = Array.from({ length: ROWS }, () => new Array(COLS).fill(-1));
+    rooms = LAYOUT.map(([cx, cy], i) => {
+      const w = ri(8, 10), h = ri(6, 8);
+      const x = cx * CW + 2 + ri(0, CW - 3 - w), y = cy * CH + 2 + ri(0, CH - 3 - h);
+      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { grid[yy][xx] = 1; roomOf[yy][xx] = i; }
+      return { i, x, y, w, h, cx: x + Math.floor(w / 2), cy: y + Math.floor(h / 2) };
+    });
+    for (let i = 0; i < rooms.length - 1; i++) {
+      const a = rooms[i], b = rooms[i + 1];
+      let x = a.cx, y = a.cy;
+      while (x !== b.cx) { x += Math.sign(b.cx - x); if (grid[y][x] === 0) grid[y][x] = 1; }
+      while (y !== b.cy) { y += Math.sign(b.cy - y); if (grid[y][x] === 0) grid[y][x] = 1; }
+    }
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      if (grid[y][x] !== 0) continue;
+      let near = false;
+      for (let dy = -1; dy <= 1 && !near; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const yy = y + dy, xx = x + dx;
+        if (yy >= 0 && yy < ROWS && xx >= 0 && xx < COLS && grid[yy][xx] === 1) { near = true; break; }
+      }
+      if (near) grid[y][x] = 2;
+    }
+    torches = [];
+    rooms.forEach(r => {
+      [r.x + 1, r.x + r.w - 2].forEach(tx => { if (grid[r.y - 1][tx] === 2) torches.push({ x: tx, y: r.y - 1, seed: rnd() * 10 }); });
+    });
+
+    entities = [];
+    const taken = [];
+    const free = (x, y) => !taken.some(([a, b]) => Math.abs(a - x) <= 1 && Math.abs(b - y) <= 1);
+    const place = r => {
+      const cand = [];
+      for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) {
+        if (x === r.cx || y === r.cy) continue; // 十字通道保持畅通
+        if (free(x, y)) cand.push([x, y]);
+      }
+      const p = cand[Math.floor(rnd() * cand.length)];
+      taken.push(p);
+      return p;
+    };
+    rooms.forEach(r => {
+      DATA.clusters.filter(c => c.seg === r.i).forEach((c, k) => {
+        const [x, y] = place(r);
+        entities.push({ id: 'npc' + r.i + '_' + k, type: 'npc', room: r.i, x, y, cluster: c });
+      });
+      if (r.i === BOSS_ROOM) {
+        const [x, y] = place(r);
+        entities.push({ id: 'boss', type: 'boss', room: r.i, x, y, kw: 'KeyError 字典魔', qids: DATA.questions.filter(q => q.seg === r.i).map(q => q.id) });
+      } else {
+        DATA.questions.filter(q => q.seg === r.i).forEach(q => {
+          const [x, y] = place(r);
+          entities.push({ id: q.id, type: 'chest', room: r.i, x, y, kw: q.kw, qids: [q.id], color: GEM_COLORS[r.i % GEM_COLORS.length] });
+        });
+      }
+    });
+    const last = rooms[LAST_ROOM];
+    entities.push({ id: 'portal', type: 'portal', room: LAST_ROOM, x: last.cx, y: last.cy });
+  }
+  const TOTAL_GEMS = () => entities.filter(e => e.type === 'chest').length + 1; // +1 = Boss 宝藏
+
+  // ───────────── Three.js 场景 ─────────────
+  const WALL_H = 1.3, EYE = 0.56;
+  const screenEl = $('#screen'), cv = $('#cv');
+  const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: false });
+  renderer.setPixelRatio(1);
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x07080b);
+  scene.fog = new THREE.FogExp2(0x07080b, 0.17);
+  const camera = new THREE.PerspectiveCamera(72, 16 / 10, 0.05, 40);
+  camera.rotation.order = 'YXZ';
+
+  function canvasTex(size, paint, repeat) {
+    const c = document.createElement('canvas'); c.width = c.height = size;
+    paint(c.getContext('2d'), size);
+    const t = new THREE.CanvasTexture(c);
+    t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter;
+    if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; }
+    return t;
+  }
+  const trnd = mulberry32(7);
+  const wallTex = canvasTex(64, (g) => {
+    g.fillStyle = '#1e2026'; g.fillRect(0, 0, 64, 64);
+    for (let r = 0; r < 4; r++) for (let b = -1; b < 3; b++) {
+      const x = b * 32 + (r % 2 ? 16 : 0), s = 50 + Math.floor(trnd() * 22);
+      g.fillStyle = 'rgb(' + s + ',' + (s + 3) + ',' + (s + 13) + ')';
+      g.fillRect(x + 1, r * 16 + 1, 30, 14);
+      g.fillStyle = 'rgba(255,255,255,0.06)'; g.fillRect(x + 1, r * 16 + 1, 30, 2);
+      for (let k = 0; k < 6; k++) { g.fillStyle = 'rgba(0,0,0,' + (0.15 + trnd() * 0.2) + ')'; g.fillRect(x + 2 + Math.floor(trnd() * 27), r * 16 + 3 + Math.floor(trnd() * 10), 2, 2); }
+    }
+    g.fillStyle = 'rgba(80,110,60,0.35)'; g.fillRect(6, 58, 10, 6); g.fillRect(40, 60, 14, 4);
+  });
+  const floorTex = canvasTex(64, (g) => {
+    g.fillStyle = '#15130f'; g.fillRect(0, 0, 64, 64);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) {
+      const v = Math.floor(trnd() * 12);
+      g.fillStyle = 'rgb(' + (46 + v) + ',' + (41 + v) + ',' + (34 + v) + ')';
+      g.fillRect(c * 32 + 1, r * 32 + 1, 30, 30);
+      for (let k = 0; k < 10; k++) { g.fillStyle = 'rgba(0,0,0,' + (0.1 + trnd() * 0.2) + ')'; g.fillRect(c * 32 + 2 + Math.floor(trnd() * 27), r * 32 + 2 + Math.floor(trnd() * 27), 2, 2); }
+    }
+    g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillRect(8, 12, 12, 1); g.fillRect(19, 12, 1, 6);
+  });
+  const ceilTex = canvasTex(32, (g) => {
+    g.fillStyle = '#16171c'; g.fillRect(0, 0, 32, 32);
+    for (let k = 0; k < 30; k++) { g.fillStyle = 'rgba(255,255,255,' + trnd() * 0.05 + ')'; g.fillRect(Math.floor(trnd() * 32), Math.floor(trnd() * 32), 2, 2); }
+  });
+  const glowTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  })();
+  const mistTex = canvasTex(64, (g) => {
+    g.clearRect(0, 0, 64, 64);
+    for (let k = 0; k < 26; k++) {
+      const x = trnd() * 64, y = trnd() * 64, r = 6 + trnd() * 14;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, 'rgba(190,175,255,0.55)'); gr.addColorStop(1, 'rgba(190,175,255,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+  }, true);
+  mistTex.magFilter = THREE.LinearFilter; mistTex.minFilter = THREE.LinearFilter;
+  const swirlTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d');
+    g.translate(64, 64);
+    for (let k = 0; k < 5; k++) {
+      g.rotate(Math.PI * 2 / 5);
+      g.strokeStyle = 'rgba(200,190,255,0.7)'; g.lineWidth = 6;
+      g.beginPath();
+      for (let a = 0; a < 5; a += 0.1) { const rr = a * 11; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      g.stroke();
+    }
+    return new THREE.CanvasTexture(c);
+  })();
+
+  const wallMat = new THREE.MeshLambertMaterial({ map: wallTex });
+  const floorMat = new THREE.MeshLambertMaterial({ map: floorTex });
+  const corridorMat = new THREE.MeshLambertMaterial({ map: floorTex, color: 0x9a948a });
+  const ceilMat = new THREE.MeshLambertMaterial({ map: ceilTex });
+
+  function buildLevel() {
+    const walls = [], floors = [], corrs = [];
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      if (grid[y][x] === 2) walls.push([x, y]);
+      else if (grid[y][x] === 1) (roomOf[y][x] >= 0 ? floors : corrs).push([x, y]);
+    }
+    const m = new THREE.Matrix4();
+    const inst = (geo, mat, list, yy) => {
+      const mesh = new THREE.InstancedMesh(geo, mat, list.length);
+      list.forEach(([x, y], i) => { m.makeTranslation(x + 0.5, yy, y + 0.5); mesh.setMatrixAt(i, m); });
+      mesh.instanceMatrix.needsUpdate = true;
+      mesh.frustumCulled = false; // r128 的包围球不含实例偏移，开着会被误剔除
+      scene.add(mesh);
+    };
+    inst(new THREE.BoxGeometry(1, WALL_H, 1), wallMat, walls, WALL_H / 2);
+    const fg = new THREE.PlaneGeometry(1, 1); fg.rotateX(-Math.PI / 2);
+    inst(fg, floorMat, floors, 0);
+    inst(fg, corridorMat, corrs, 0);
+    const cg = new THREE.PlaneGeometry(1, 1); cg.rotateX(Math.PI / 2);
+    inst(cg, ceilMat, floors.concat(corrs), WALL_H);
+  }
+
+  // 灯光：环境光 + 手持火把 + 4 盏就近火把灯（数量固定，避免着色器重编译）
+  scene.add(new THREE.AmbientLight(0x3c4252, 0.6));
+  const hand = new THREE.PointLight(0xffb36b, 1.4, 6.5, 1.6); scene.add(hand);
+  const pool = Array.from({ length: 4 }, () => { const l = new THREE.PointLight(0xff8a3d, 1.2, 4.2, 1.8); scene.add(l); return l; });
+  const bossLight = new THREE.PointLight(0xff3b2f, 1.3, 4.5, 1.8); scene.add(bossLight);
+  const portalLight = new THREE.PointLight(0xa395f2, 0, 4, 1.8); scene.add(portalLight);
+
+  function buildTorches() {
+    const bracket = new THREE.MeshLambertMaterial({ color: 0x3a2a1c });
+    torches.forEach(tc => {
+      const z = tc.y + 1;
+      const b = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.22, 0.08), bracket);
+      b.position.set(tc.x + 0.5, 0.72, z + 0.04); scene.add(b);
+      const flame = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xff9a3c, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+      flame.position.set(tc.x + 0.5, 0.9, z + 0.07); flame.scale.set(0.28, 0.36, 1);
+      scene.add(flame); tc.flame = flame;
+      const core = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xffe2a0, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+      core.position.set(tc.x + 0.5, 0.87, z + 0.08); core.scale.set(0.1, 0.15, 1);
+      scene.add(core);
+      tc.wx = tc.x + 0.5; tc.wz = z + 0.3;
+    });
+  }
+
+  // 文字标签（canvas 贴图精灵）
+  const labels = [];
+  function labelTex(text, fg, bg) {
+    const c = document.createElement('canvas'), g = c.getContext('2d');
+    const font = '500 40px "Noto Sans SC", "PingFang SC", sans-serif';
+    g.font = font;
+    const w = Math.ceil(g.measureText(text).width) + 36;
+    c.width = w; c.height = 64;
+    g.font = font; g.fillStyle = bg; g.fillRect(0, 0, w, 64);
+    g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, 34);
+    const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter;
+    return { t, aspect: w / 64 };
+  }
+  function makeLabel(text, fg, bg, h) {
+    const { t, aspect } = labelTex(text, fg, bg);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false }));
+    s.userData = { text, fg, bg, h };
+    s.scale.set(h * aspect, h, 1);
+    labels.push(s);
+    return s;
+  }
+  function setLabel(s, text, fg, bg) {
+    s.userData.text = text; s.userData.fg = fg || s.userData.fg; s.userData.bg = bg || s.userData.bg;
+    const { t, aspect } = labelTex(s.userData.text, s.userData.fg, s.userData.bg);
+    if (s.material.map) s.material.map.dispose();
+    s.material.map = t; s.material.needsUpdate = true;
+    s.scale.set(s.userData.h * aspect, s.userData.h, 1);
+  }
+  const glowSprite = (color, size) => {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    s.scale.set(size, size, 1); return s;
+  };
+
+  function buildEntities() {
+    const wood = new THREE.MeshLambertMaterial({ color: 0x6b4325 });
+    const gold = new THREE.MeshLambertMaterial({ color: 0xd9a441, emissive: 0x3a2608 });
+    entities.forEach(e => {
+      const g = new THREE.Group();
+      g.position.set(e.x + 0.5, 0, e.y + 0.5);
+      if (e.type === 'chest') {
+        const r = rooms[e.room];
+        g.rotation.y = Math.atan2(r.cx - e.x, r.cy - e.y);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.3, 0.36), wood); body.position.y = 0.15; g.add(body);
+        [-0.17, 0.17].forEach(bx => { const band = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.31, 0.38), gold); band.position.set(bx, 0.155, 0); g.add(band); });
+        const lock = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.11, 0.03), gold); lock.position.set(0, 0.25, 0.19); g.add(lock);
+        const pivot = new THREE.Group(); pivot.position.set(0, 0.3, -0.18); g.add(pivot);
+        const lid = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.11, 0.36), wood); lid.position.set(0, 0.055, 0.18); pivot.add(lid);
+        const lidBand = new THREE.Mesh(new THREE.BoxGeometry(0.54, 0.035, 0.37), gold); lidBand.position.set(0, 0.07, 0.18); pivot.add(lidBand);
+        const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.085), new THREE.MeshLambertMaterial({ color: e.color, emissive: new THREE.Color(e.color).multiplyScalar(0.55) }));
+        gem.position.y = 0.66; g.add(gem);
+        const glow = glowSprite(e.color, 0.5); glow.position.y = 0.66; g.add(glow);
+        const label = makeLabel('宝箱 · ' + e.kw, '#f2e9d5', 'rgba(15,15,20,0.85)', 0.12); label.position.y = 0.95; g.add(label);
+        Object.assign(e, { lid: pivot, gem, glow, label });
+      } else if (e.type === 'boss') {
+        const core = new THREE.Group(); core.position.y = 0.78; g.add(core);
+        const body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.36, 0), new THREE.MeshLambertMaterial({ color: 0xb8352d, emissive: 0x3a0806, flatShading: true }));
+        core.add(body);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffd76a });
+        [-0.12, 0.12].forEach(ex => { const eye = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), eyeMat); eye.position.set(ex, 0.07, 0.31); core.add(eye); });
+        const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.05, 0.02), new THREE.MeshBasicMaterial({ color: 0x1a0505 })); mouth.position.set(0, -0.12, 0.33); core.add(mouth);
+        const spikeMat = new THREE.MeshLambertMaterial({ color: 0x5a1612 });
+        const up = new THREE.Vector3(0, 1, 0);
+        for (let k = 0; k < 10; k++) {
+          const phi = Math.acos(1 - 2 * (k + 0.5) / 10), th = Math.PI * (1 + Math.sqrt(5)) * k;
+          const dir = new THREE.Vector3(Math.sin(phi) * Math.cos(th), Math.cos(phi), Math.sin(phi) * Math.sin(th));
+          if (dir.z > 0.6) continue; // 别挡住脸
+          const sp = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.24, 5), spikeMat);
+          sp.position.copy(dir.clone().multiplyScalar(0.36)); sp.quaternion.setFromUnitVectors(up, dir); core.add(sp);
+        }
+        const hoard = new THREE.Group(); g.add(hoard); // Boss 守着的宝藏
+        for (let k = 0; k < 9; k++) { const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.02, 10), gold); coin.position.set((k % 3 - 1) * 0.13, 0.01 + Math.floor(k / 3) * 0.022, (Math.floor(k / 3) - 1) * 0.06); hoard.add(coin); }
+        const glow = glowSprite(0xff5040, 1.4); glow.position.y = 0.78; g.add(glow);
+        const label = makeLabel('BOSS · ' + e.kw + ' ♥♥♥', '#ffc0b6', 'rgba(60,18,15,0.92)', 0.14); label.position.y = 1.28; g.add(label);
+        Object.assign(e, { core, glow, label, hoard });
+      } else if (e.type === 'npc') {
+        const mat = new THREE.MeshLambertMaterial({ color: 0x9d8cff, emissive: 0x3b2f8f, transparent: true, opacity: 0.8, side: THREE.DoubleSide });
+        const body = new THREE.Group(); g.add(body);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 12), mat); head.position.y = 0.8; body.add(head);
+        const robe = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.55, 14, 1, true), mat); robe.position.y = 0.46; body.add(robe);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0x1a1430 });
+        [-0.055, 0.055].forEach(ex => { const eye = new THREE.Mesh(new THREE.SphereGeometry(0.028, 8, 6), eyeMat); eye.position.set(ex, 0.82, 0.14); body.add(eye); });
+        const glow = glowSprite(0x8f7cff, 0.9); glow.position.y = 0.65; g.add(glow);
+        const label = makeLabel('! ' + e.cluster.count + ' 人问过', '#ffe7a0', 'rgba(35,28,70,0.92)', 0.12); label.position.y = 1.1; g.add(label);
+        Object.assign(e, { body, glow, label });
+      } else if (e.type === 'portal') {
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.045, 8, 32), new THREE.MeshBasicMaterial({ color: 0x55556a }));
+        const disc = new THREE.Mesh(new THREE.CircleGeometry(0.31, 32), new THREE.MeshBasicMaterial({ map: swirlTex, color: 0x555566, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+        const stand = new THREE.Group(); stand.position.y = 0.55; stand.add(ring); stand.add(disc); g.add(stand);
+        const label = makeLabel('传送门（未激活）', '#d9d2ff', 'rgba(25,22,45,0.9)', 0.12); label.position.y = 1.05; g.add(label);
+        Object.assign(e, { stand, ring, disc, label });
+        portalLight.position.set(e.x + 0.5, 0.6, e.y + 0.5);
+      }
+      scene.add(g);
+      e.obj = g;
+    });
+    const boss = entities.find(e => e.type === 'boss');
+    if (boss) bossLight.position.set(boss.x + 0.5, 0.9, boss.y + 0.5);
+  }
+
+  // 迷雾（没看过的段落）与讲师热力层
+  const mists = {}, heat = new THREE.Group();
+  scene.add(heat);
+  function buildOverlays() {
+    FOG_ROOMS.forEach(ri => {
+      const r = rooms[ri], seg = DATA.outline[ri];
+      const grp = new THREE.Group();
+      const box = new THREE.Mesh(new THREE.BoxGeometry(r.w, WALL_H, r.h), new THREE.MeshBasicMaterial({ map: mistTex, color: 0x7a6cff, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide }));
+      box.position.set(r.x + r.w / 2, WALL_H / 2, r.y + r.h / 2);
+      grp.add(box);
+      const label = makeLabel('? 你没看过 ' + fmt(seg.start) + '–' + fmt(seg.end), '#e3ddff', 'rgba(30,24,70,0.9)', 0.16);
+      label.position.set(r.x + r.w / 2, 0.75, r.y + r.h / 2); label.material.depthTest = false; label.renderOrder = 5;
+      grp.add(label);
+      scene.add(grp);
+      mists[ri] = { grp, box };
+    });
+    rooms.forEach(r => {
+      const rate = DATA.failRate[r.i];
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(r.w, r.h), new THREE.MeshBasicMaterial({ color: 0xd65a4e, transparent: true, opacity: rate / 100 * 0.75, depthWrite: false }));
+      plane.rotation.x = -Math.PI / 2; plane.position.set(r.x + r.w / 2, 0.012, r.y + r.h / 2);
+      heat.add(plane);
+      const label = makeLabel('卡关 ' + rate + '% · ' + Math.round(rate / 100 * DATA.course.students) + '/' + DATA.course.students + ' 人', '#fff3e6', 'rgba(90,25,20,0.9)', 0.18);
+      label.position.set(r.x + r.w / 2, 1.05, r.y + r.h / 2);
+      heat.add(label);
+    });
+  }
+
+  // ───────────── 状态 ─────────────
+  const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  let S, P, curRoom = -1, seen;
+  const fresh = () => ({ px: rooms[0].cx, py: rooms[0].cy, dir: 1, hp: 5, xp: 0, dead: [], explored: [], visited: [], wrong: [], falls: 0, answered: 0, correct: 0, bossHp: 3, teacher: false, seenNpc: [], startedAt: Date.now() });
+  const mv = { t: 1, fx: 0, fz: 0, tx: 0, tz: 0 }, tn = { t: 1, f: 0, to: 0 }, bump = { t: 1, dx: 0, dz: 0 };
+  const anims = [];
+
+  function syncPlayer() {
+    P = { x: S.px + 0.5, z: S.py + 0.5, yaw: -S.dir * Math.PI / 2 };
+    mv.t = 1; tn.t = 1; bump.t = 1;
+  }
+
+  // ───────────── 移动与交互 ─────────────
+  function doAction(a) {
+    if (a === 'left' || a === 'right') {
+      S.dir = (S.dir + (a === 'left' ? 3 : 1)) % 4;
+      tn.f = P.yaw; tn.to = P.yaw + (a === 'left' ? 1 : -1) * Math.PI / 2; tn.t = 0;
+      return;
+    }
+    const off = { fwd: 0, back: 2, sl: 3, sr: 1 }[a];
+    const [dx, dy] = DIRS[(S.dir + off) % 4];
+    tryStep(dx, dy, a === 'fwd');
+  }
+
+  function blocker(x, y) {
+    return entities.find(e => e.x === x && e.y === y && !(e.type === 'boss' && S.dead.includes('boss')));
+  }
+
+  function tryStep(dx, dy, facing) {
+    const nx = S.px + dx, ny = S.py + dy;
+    if (ny < 0 || ny >= ROWS || nx < 0 || nx >= COLS || grid[ny][nx] !== 1) { bump.t = 0; bump.dx = dx; bump.dz = dy; return; }
+    const r = roomOf[ny][nx];
+    if (r >= 0 && FOG_ROOMS.includes(r) && !S.explored.includes(r)) { held.length = 0; openExplore(r); return; }
+    const e = blocker(nx, ny);
+    if (e) {
+      held.length = 0;
+      if (!facing) { toast('转过身面对它，再按前进'); return; }
+      interact(e); return;
+    }
+    S.px = nx; S.py = ny;
+    mv.fx = P.x; mv.fz = P.z; mv.tx = nx + 0.5; mv.tz = ny + 0.5; mv.t = 0;
+    markSeen(nx, ny, 2);
+    if (r >= 0) enterRoom(r);
+  }
+
+  function enterRoom(r) {
+    if (!S.visited.includes(r)) {
+      S.visited.push(r);
+      const seg = DATA.outline[r];
+      addLog('进入第 ' + (r + 1) + ' 段「' + seg.title + '」' + fmt(seg.start) + '–' + fmt(seg.end));
+    }
+    const rm = rooms[r];
+    for (let y = rm.y - 1; y <= rm.y + rm.h; y++) for (let x = rm.x - 1; x <= rm.x + rm.w; x++) seen[y * COLS + x] = 1;
+    if (r !== curRoom) { curRoom = r; renderPanel(r); }
+  }
+
+  function markSeen(px, py, rad) {
+    for (let y = py - rad; y <= py + rad; y++) for (let x = px - rad; x <= px + rad; x++) {
+      if (y >= 0 && y < ROWS && x >= 0 && x < COLS) seen[y * COLS + x] = 1;
+    }
+  }
+
+  function interact(e) {
+    if (e.type === 'chest') {
+      if (S.dead.includes(e.id)) toast('空宝箱，宝石「' + e.kw + '」已经在你包里了');
+      else openBattle(e);
+    } else if (e.type === 'boss') openBattle(e);
+    else if (e.type === 'npc') openNpc(e);
+    else if (e.type === 'portal') {
+      if (S.dead.includes('boss')) openResult();
+      else toast('传送门还没激活：先夺下第 ' + (BOSS_ROOM + 1) + ' 段 Boss 守着的宝藏');
+    }
+  }
+
+  // ───────────── 面板 / HUD / 日志 ─────────────
+  function roomCleared(i) { return entities.filter(e => e.room === i && (e.type === 'chest' || e.type === 'boss')).every(e => S.dead.includes(e.id)); }
+  function gems() { return entities.filter(e => (e.type === 'chest' || e.type === 'boss') && S.dead.includes(e.id)).length; }
+  function updateHud() {
+    $('#hpView').innerHTML = Array.from({ length: 5 }, (_, i) => '<span class="' + (i < S.hp ? 'on' : 'off') + '">♥</span>').join('');
+    $('#gemView').textContent = '◆ ' + gems() + ' / ' + TOTAL_GEMS();
+    $('#xpView').textContent = S.xp;
+    $('#teacherBtn').setAttribute('aria-pressed', String(S.teacher));
+    heat.visible = S.teacher;
+  }
+  function renderPanel(i) {
+    const seg = DATA.outline[i];
+    const tags = [];
+    if (i === BOSS_ROOM) tags.push('<span class="tag boss">Boss 宝库 · 全班错误率 ' + DATA.failRate[i] + '%</span>');
+    if (FOG_ROOMS.includes(i)) tags.push('<span class="tag fog">' + (S.explored.includes(i) ? '紫雾已驱散' : '你没看过这段') + '</span>');
+    if (DATA.clusters.some(c => c.seg === i)) tags.push('<span class="tag npc">有幽灵学长</span>');
+    if (roomCleared(i)) tags.push('<span class="tag done">宝藏已清空</span>');
+    $('#roomCard').innerHTML =
+      '<div class="eyebrow">当前房间 · 大纲第 ' + (i + 1) + ' / ' + DATA.outline.length + ' 段</div>' +
+      '<h2 class="room-title">' + esc(seg.title) + '</h2>' +
+      '<div class="room-time">回放 ' + fmt(seg.start) + ' – ' + fmt(seg.end) + '</div>' +
+      (tags.length ? '<div class="chips">' + tags.join('') + '</div>' : '') +
+      '<p class="room-sum">' + esc(seg.summary) + '</p>' +
+      '<div class="chips">' + seg.keyword.map(k => '<span class="chip">' + esc(k) + '</span>').join('') + '</div>';
+    const on = new Set(['outline', 'subtitle']);
+    if (DATA.clusters.some(c => c.seg === i)) { on.add('chat'); on.add('avatar'); }
+    if (i === BOSS_ROOM) on.add('quiz');
+    if (FOG_ROOMS.includes(i)) on.add('viewlog');
+    if (i === LAST_ROOM) on.add('marker');
+    $('#sources').innerHTML = SOURCES.map(s =>
+      '<div class="src' + (on.has(s.key) ? ' on' : '') + '"><span class="dot"></span><div><b>' + esc(s.name) + '</b>' +
+      '<div class="role">' + esc(s.role) + '</div><div class="api">' + esc(s.api) + '</div></div></div>').join('');
+  }
+  function addLog(text, kind) {
+    const d = new Date();
+    const el = document.createElement('div');
+    el.innerHTML = '<span class="t">' + [d.getHours(), d.getMinutes(), d.getSeconds()].map(n => String(n).padStart(2, '0')).join(':') + '</span><span class="' + (kind || '') + '">' + esc(text) + '</span>';
+    const log = $('#log');
+    log.prepend(el);
+    while (log.children.length > 60) log.lastChild.remove();
+  }
+  let toastTimer;
+  function toast(text) {
+    const el = $('#toast'); el.textContent = text; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2400);
+  }
+  function hurt() {
+    const s = screenEl; s.classList.remove('shake'); void s.offsetWidth; if (!reduceMotion) s.classList.add('shake');
+    const f = $('#flash'); f.classList.add('on'); requestAnimationFrame(() => requestAnimationFrame(() => f.classList.remove('on')));
+  }
+
+  // ───────────── 弹窗 ─────────────
+  const modal = $('#modal'), dialog = $('#dialog');
+  function openModal(html) { dialog.innerHTML = html; modal.hidden = false; held.length = 0; const f = dialog.querySelector('button'); if (f) f.focus({ preventScroll: true }); }
+  function closeModal() { modal.hidden = true; screenEl.focus({ preventScroll: true }); }
+
+  function openBattle(e) {
+    const isBoss = e.type === 'boss';
+    const qi = isBoss ? 3 - S.bossHp : 0;
+    const q = Q[e.qids[qi]], seg = DATA.outline[e.room];
+    const opts = shuffle(q.opts.map((o, i) => ({ o, ok: i === 0 })));
+    openModal(
+      '<div class="eyebrow">' + (isBoss ? 'BOSS 宝库 · 全班错误率 ' + DATA.failRate[e.room] + '% · 第 ' + (qi + 1) + ' / 3 击' : '上锁的宝箱') + ' · 大纲第 ' + (e.room + 1) + ' 段 ' + fmt(seg.start) + '–' + fmt(seg.end) + '</div>' +
+      '<h2>' + esc(isBoss ? e.kw + ' 守着宝藏' : '「' + e.kw + '」宝箱') + '</h2>' +
+      (isBoss ? '<div class="bossbar">' + [0, 1, 2].map(k => '<i class="' + (k < 3 - S.bossHp ? 'gone' : '') + '"></i>').join('') + '</div>' : '<p class="note">锁上刻着一道题。答对开箱拿宝石，答错会触发机关。</p>') +
+      '<p class="q">' + esc(q.q) + '</p>' +
+      (q.code ? '<pre class="code">' + esc(q.code) + '</pre>' : '') +
+      '<div class="opts">' + opts.map((x, i) => '<button class="opt" type="button" data-i="' + i + '">' + esc(x.o) + '</button>').join('') + '</div>' +
+      '<div id="fb" hidden></div>' +
+      '<div class="actions" id="acts"><button class="btn" type="button" id="flee">先离开</button></div>'
+    );
+    $('#flee').onclick = closeModal;
+    dialog.querySelectorAll('.opt').forEach(btn => btn.onclick = () => {
+      const pick = opts[Number(btn.dataset.i)];
+      const fb = $('#fb');
+      S.answered++;
+      if (pick.ok) {
+        S.correct++;
+        btn.classList.add('right');
+        dialog.querySelectorAll('.opt').forEach(b => b.disabled = true);
+        fb.className = 'fb ok'; fb.hidden = false;
+        if (isBoss) {
+          S.bossHp--;
+          setLabel(e.label, 'BOSS · ' + e.kw + ' ' + '♥'.repeat(Math.max(0, S.bossHp)));
+          if (S.bossHp > 0) {
+            fb.innerHTML = '<b>命中！</b>Boss 还剩 ' + S.bossHp + ' 点血。' + esc(q.why);
+            $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">下一击</button>';
+            $('#nx').onclick = () => openBattle(e);
+            addLog('Boss 受到一击：' + q.kw, 'ok');
+          } else {
+            fb.innerHTML = '<b>Boss 倒下，宝藏到手！+100 XP</b> ' + esc(q.why) + ' 传送门已在第 ' + (LAST_ROOM + 1) + ' 段的房间激活。';
+            $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">继续</button>';
+            $('#nx').onclick = closeModal;
+            defeat(e, 100);
+          }
+        } else {
+          fb.innerHTML = '<b>咔哒，宝箱开了！获得知识宝石「' + esc(e.kw) + '」+20 XP</b> ' + esc(q.why);
+          $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">收下宝石</button>';
+          $('#nx').onclick = closeModal;
+          defeat(e, 20);
+        }
+        $('#nx').focus({ preventScroll: true });
+      } else {
+        btn.classList.add('wrong'); btn.disabled = true;
+        S.hp = Math.max(0, S.hp - 1);
+        if (!S.wrong.includes(q.id)) S.wrong.push(q.id);
+        hurt(); updateHud();
+        fb.className = 'fb bad'; fb.hidden = false;
+        fb.innerHTML = '<b>机关触发！−1 ♥</b> 老师在回放 ' + fmt(q.t) + ' 讲过这个点。';
+        addLog('答错「' + q.kw + '」→ 记录错题，回放锚点 ' + fmt(q.t), 'bad');
+        if (S.hp <= 0) setTimeout(() => openReplay(q), 650);
+      }
+      updateHud();
+    });
+  }
+
+  function defeat(e, xp) {
+    S.dead.push(e.id); S.xp += xp;
+    if (e.type === 'chest') anims.push({ e, kind: 'open', t: 0 });
+    if (e.type === 'boss') anims.push({ e, kind: 'die', t: 0 });
+    addLog((e.type === 'boss' ? '击败 Boss「' + e.kw + '」，夺得宝藏' : '打开宝箱，获得宝石「' + e.kw + '」') + ' +' + xp + ' XP', 'ok');
+    if (roomCleared(e.room)) addLog('第 ' + (e.room + 1) + ' 段的宝藏已清空', 'ok');
+    updateHud(); renderPanel(e.room);
+    applyEntityState();
+  }
+
+  function openReplay(q) {
+    S.falls++;
+    const seg = DATA.outline[q.seg];
+    const t0 = q.t - 20, t1 = q.t + 20, DUR = 6500;
+    openModal(
+      '<div class="eyebrow">生命耗尽 · 复活条件</div>' +
+      '<h2>回到回放里，补上这 40 秒</h2>' +
+      '<p class="note">第 ' + (q.seg + 1) + ' 段「' + esc(seg.title) + '」。演示按 6 倍速播放；正式版用播放器 SDK 跳到 ' + fmt(t0) + ' 正常播放 40 秒。</p>' +
+      '<div class="video"><div class="slide"><div class="st">' + esc(seg.title) + '</div><pre>' + esc(q.code || seg.summary) + '</pre></div>' +
+      '<div class="cam"></div><div class="sub" id="sub"></div><div class="bar"><i id="barI"></i></div></div>' +
+      '<div class="vt"><span id="vcur">' + fmt(t0) + '</span><span>' + fmt(t1) + '</span></div>' +
+      '<div class="actions"><button class="btn primary" type="button" id="revive" disabled>播放中…</button></div>'
+    );
+    const start = performance.now();
+    const tick = () => {
+      if (modal.hidden || !$('#barI')) return;
+      const p = Math.min(1, (performance.now() - start) / DUR);
+      const cur = t0 + (t1 - t0) * p;
+      $('#barI').style.width = (p * 100) + '%';
+      $('#vcur').textContent = fmt(cur);
+      const line = q.subs.filter(([o]) => q.t + o <= cur).pop();
+      $('#sub').textContent = line ? line[1] : '';
+      if (p < 1) requestAnimationFrame(tick);
+      else {
+        const b = $('#revive'); b.disabled = false; b.textContent = '复活（♥ × 3）';
+        b.onclick = () => { S.hp = 3; updateHud(); addLog('看完回放 ' + fmt(t0) + '–' + fmt(t1) + ' → 复活', 'warn'); closeModal(); };
+        b.focus({ preventScroll: true });
+      }
+    };
+    requestAnimationFrame(tick);
+    addLog('倒下 → 回放 ' + fmt(t0) + '–' + fmt(t1) + '（智能字幕片段）', 'warn');
+  }
+
+  function openExplore(ri) {
+    const seg = DATA.outline[ri];
+    const qs = DATA.questions.filter(q => q.seg === ri);
+    openModal(
+      '<div class="eyebrow">紫雾封印 · 来自观看记录</div>' +
+      '<h2>这一段你还没看过</h2>' +
+      '<p>观看记录显示，你在 <b>' + fmt(seg.start) + '–' + fmt(seg.end) + '</b> 离开了直播间，错过了「' + esc(seg.title) + '」。读完这段的大纲，紫雾才会散开。</p>' +
+      '<h3>AI 大纲摘要</h3><p>' + esc(seg.summary) + '</p>' +
+      '<h3>老师原话（智能字幕节选）</h3>' +
+      '<div class="chat">' + qs.map(q => '<div class="msg"><span class="tm">' + fmt(q.t + q.subs[2][0]) + '</span><span>' + esc(q.subs[2][1]) + '</span><span></span></div>').join('') + '</div>' +
+      '<div class="chips">' + seg.keyword.map(k => '<span class="chip">' + esc(k) + '</span>').join('') + '</div>' +
+      '<div class="actions"><button class="btn" type="button" id="later">等会儿再来</button><button class="btn primary" type="button" id="lit" disabled>阅读中…</button></div>'
+    );
+    $('#later').onclick = closeModal;
+    setTimeout(() => {
+      const b = $('#lit'); if (!b) return;
+      b.disabled = false; b.textContent = '读完了，驱散紫雾';
+      b.onclick = () => {
+        S.explored.push(ri); S.xp += 10;
+        addLog('驱散紫雾：第 ' + (ri + 1) + ' 段 +10 XP', 'ok');
+        applyEntityState(); updateHud(); renderPanel(curRoom >= 0 ? curRoom : ri); closeModal();
+      };
+    }, 1800);
+  }
+
+  function openNpc(e) {
+    const c = e.cluster, seg = DATA.outline[c.seg];
+    const first = !S.seenNpc.includes(e.id);
+    openModal(
+      '<div class="eyebrow">幽灵学长 · 来自聊天记录和提问记录</div>' +
+      '<h2>' + c.count + ' 位同学问过同一个问题</h2>' +
+      '<p class="q">' + esc(c.q) + '</p>' +
+      '<h3>直播时聊天室里的原话</h3>' +
+      '<div class="chat">' + c.msgs.map(([n, m, tm]) => '<div class="msg"><span class="n">' + esc(n) + '</span><span>' + esc(m) + '</span><span class="tm">' + tm + '</span></div>').join('') + '</div>' +
+      '<h3>数字人' + esc(DATA.course.teacher) + '的回答</h3>' +
+      '<div class="answer"><div class="avatar" aria-hidden="true"></div><p>' + esc(c.answer) + '</p></div>' +
+      '<p class="note">正式版：赛前用视频创作接口为每个高频问题生成一段 15 秒的数字人讲解。本段时间范围 ' + fmt(seg.start) + '–' + fmt(seg.end) + '。</p>' +
+      '<div class="actions"><button class="btn primary" type="button" id="ok">' + (first ? '记住了（+10 XP）' : '关闭') + '</button></div>'
+    );
+    $('#ok').onclick = () => {
+      if (first) { S.seenNpc.push(e.id); S.xp += 10; addLog('听完幽灵学长讲解 +10 XP', 'ok'); applyEntityState(); updateHud(); }
+      closeModal();
+    };
+  }
+
+  function openResult() {
+    const acc = S.answered ? Math.round(S.correct / S.answered * 100) : 0;
+    const secs = Math.round((Date.now() - S.startedAt) / 1000);
+    const day = n => { const d = new Date(); d.setDate(d.getDate() + n); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+    const wrong = S.wrong.map(id => Q[id]);
+    const markers = wrong.map(q => ({ time: q.t, desc: '你在这里踩中过机关：' + q.kw }));
+    openModal(
+      '<div class="eyebrow">夺宝结算</div>' +
+      '<h2>第 3 课地下城已通关</h2>' +
+      '<div class="grid4">' +
+        '<div><div class="v">' + gems() + '/' + TOTAL_GEMS() + '</div><div class="k">知识宝石</div></div>' +
+        '<div><div class="v">' + acc + '%</div><div class="k">答题正确率</div></div>' +
+        '<div><div class="v">' + S.falls + '</div><div class="k">倒下次数</div></div>' +
+        '<div><div class="v">' + fmt(secs) + '</div><div class="k">用时</div></div>' +
+      '</div>' +
+      '<h3>巩固计划（按遗忘曲线推送每日副本）</h3>' +
+      '<div class="review">' + (wrong.length ? wrong.map(q =>
+        '<div><b>' + esc(q.kw) + '</b><span class="note">第 ' + (q.seg + 1) + ' 段 · 回放 ' + fmt(q.t) + '</span><span class="when">' + day(1) + ' · ' + day(3) + ' · ' + day(7) + '</span></div>').join('')
+        : '<div><b>全部一次答对</b><span class="when">' + day(7) + ' 推送一次综合复习</span></div>') + '</div>' +
+      '<h3>回写到回放进度条的打点（请求体示意）</h3>' +
+      '<pre class="code">' + esc(JSON.stringify(markers.length ? markers : [{ time: 0, desc: '全部通关，无机关点' }], null, 2)) + '</pre>' +
+      '<p class="note">你的错题会计入讲师端的全班卡关热力图（点上方「讲师视角」查看）。正式版的间隔由 FSRS 算法按作答记录计算，这里先用固定的 1 / 3 / 7 天示意。</p>' +
+      '<div class="actions"><button class="btn" type="button" id="stay">留在地下城</button><button class="btn primary" type="button" id="again">再闯一次</button></div>'
+    );
+    addLog('夺宝结算：宝石 ' + gems() + '/' + TOTAL_GEMS() + '，错题 ' + wrong.length + ' 个 → 生成巩固计划', 'ok');
+    $('#stay').onclick = closeModal;
+    $('#again').onclick = () => { reset(); closeModal(); };
+  }
+
+  // 把存档状态同步到 3D 物体（重开、热更新、驱雾后都要调用）
+  function applyEntityState() {
+    entities.forEach(e => {
+      const fogged = FOG_ROOMS.includes(e.room) && !S.explored.includes(e.room);
+      e.obj.visible = !fogged;
+      const done = S.dead.includes(e.id);
+      if (e.type === 'chest') {
+        const animating = anims.some(a => a.e === e);
+        if (!animating) { e.lid.rotation.x = done ? -1.9 : 0; e.gem.visible = !done; e.glow.visible = !done; e.gem.position.y = 0.66; e.gem.scale.setScalar(1); }
+        e.label.visible = !done;
+      } else if (e.type === 'boss') {
+        const animating = anims.some(a => a.e === e);
+        if (!animating) { e.core.visible = !done; e.glow.visible = !done; e.hoard.visible = !done; e.core.scale.setScalar(1); }
+        e.label.visible = !done;
+        bossLight.intensity = done ? 0 : 1.3;
+        setLabel(e.label, 'BOSS · ' + e.kw + ' ' + '♥'.repeat(Math.max(0, S.bossHp)));
+      } else if (e.type === 'npc') {
+        const seenIt = S.seenNpc.includes(e.id);
+        setLabel(e.label, (seenIt ? '' : '! ') + e.cluster.count + ' 人问过', seenIt ? '#d9d2ff' : '#ffe7a0');
+      } else if (e.type === 'portal') {
+        const on = S.dead.includes('boss');
+        e.ring.material.color.setHex(on ? 0xa395f2 : 0x55556a);
+        e.disc.material.color.setHex(on ? 0xb9adff : 0x444455);
+        portalLight.intensity = on ? 1.6 : 0;
+        setLabel(e.label, on ? '传送门：结算' : '传送门（未激活）');
+      }
+    });
+    Object.keys(mists).forEach(ri => { mists[ri].grp.visible = !S.explored.includes(Number(ri)); });
+  }
+
+  // ───────────── 小地图 ─────────────
+  const mm = $('#mm'), mctx = mm.getContext('2d');
+  mm.width = COLS * 4; mm.height = ROWS * 4;
+  function drawMinimap() {
+    const T = 4;
+    mctx.clearRect(0, 0, mm.width, mm.height);
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      if (!seen[y * COLS + x]) continue;
+      const g = grid[y][x];
+      if (!g) continue;
+      const r = roomOf[y][x];
+      if (g === 2) mctx.fillStyle = '#3a3e4a';
+      else if (r >= 0 && FOG_ROOMS.includes(r) && !S.explored.includes(r)) mctx.fillStyle = '#5b4fb8';
+      else mctx.fillStyle = r >= 0 ? '#6d604a' : '#4a4235';
+      mctx.fillRect(x * T, y * T, T, T);
+    }
+    if (S.teacher) rooms.forEach(r => { mctx.fillStyle = 'rgba(214,90,78,' + (DATA.failRate[r.i] / 100 * 0.85) + ')'; mctx.fillRect(r.x * T, r.y * T, r.w * T, r.h * T); });
+    entities.forEach(e => {
+      if (!seen[e.y * COLS + e.x] || !e.obj.visible) return;
+      if (e.type === 'boss' && S.dead.includes('boss')) return;
+      mctx.fillStyle = e.type === 'chest' ? (S.dead.includes(e.id) ? '#6b6457' : '#ffd36a') : e.type === 'boss' ? '#ff5a4a' : e.type === 'npc' ? '#b7a9ff' : (S.dead.includes('boss') ? '#d9d2ff' : '#77778a');
+      mctx.fillRect(e.x * T, e.y * T, T, T);
+    });
+    // 玩家朝向箭头
+    const cx = P.x * T, cy = P.z * T, a = -P.yaw;
+    const fx = Math.sin(a), fz = -Math.cos(a);
+    mctx.fillStyle = '#f5c97c';
+    mctx.beginPath();
+    mctx.moveTo(cx + fx * 6, cy + fz * 6);
+    mctx.lineTo(cx - fx * 3 + fz * 4, cy - fz * 3 - fx * 4);
+    mctx.lineTo(cx - fx * 3 - fz * 4, cy - fz * 3 + fx * 4);
+    mctx.closePath(); mctx.fill();
+  }
+
+  // ───────────── 前方提示 ─────────────
+  let lastAhead = '';
+  function updateAhead() {
+    let text = '';
+    if (mv.t >= 1 && tn.t >= 1 && modal.hidden) {
+      const [dx, dy] = DIRS[S.dir];
+      const nx = S.px + dx, ny = S.py + dy;
+      if (ny >= 0 && ny < ROWS && nx >= 0 && nx < COLS) {
+        const r = roomOf[ny][nx];
+        const e = blocker(nx, ny);
+        if (r >= 0 && FOG_ROOMS.includes(r) && !S.explored.includes(r)) text = '前方：紫雾封印 · 按前进查看';
+        else if (e && e.type === 'chest') text = S.dead.includes(e.id) ? '前方：空宝箱' : '前方：上锁的宝箱「' + e.kw + '」· 按前进开锁';
+        else if (e && e.type === 'boss') text = '前方：Boss「' + e.kw + '」· 按前进挑战';
+        else if (e && e.type === 'npc') text = '前方：幽灵学长 · 按前进对话';
+        else if (e && e.type === 'portal') text = S.dead.includes('boss') ? '前方：传送门 · 按前进结算' : '前方：未激活的传送门';
+      }
+    }
+    if (text !== lastAhead) { lastAhead = text; const el = $('#ahead'); el.textContent = text; el.hidden = !text; }
+  }
+
+  // ───────────── 主循环 ─────────────
+  const held = [];
+  let last = performance.now();
+  const camPos = new THREE.Vector3();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const t = now / 1000;
+    if (mv.t < 1) { mv.t = Math.min(1, mv.t + dt / 0.22); const k = ease(mv.t); P.x = mv.fx + (mv.tx - mv.fx) * k; P.z = mv.fz + (mv.tz - mv.fz) * k; }
+    if (tn.t < 1) { tn.t = Math.min(1, tn.t + dt / 0.2); P.yaw = tn.f + (tn.to - tn.f) * ease(tn.t); }
+    if (bump.t < 1) bump.t = Math.min(1, bump.t + dt / 0.18);
+    if (mv.t >= 1 && tn.t >= 1 && bump.t >= 1 && held.length && modal.hidden) doAction(held[held.length - 1]);
+
+    const b = Math.sin(bump.t * Math.PI) * 0.1;
+    const bob = reduceMotion ? 0 : Math.sin(mv.t * Math.PI) * 0.025;
+    camera.position.set(P.x + bump.dx * b, EYE + bob, P.z + bump.dz * b);
+    camera.rotation.set(-0.05, P.yaw, 0);
+    camPos.copy(camera.position);
+
+    const flick = reduceMotion ? 0 : Math.sin(t * 11) * 0.06 + Math.sin(t * 23) * 0.04;
+    hand.position.set(P.x, EYE + 0.15, P.z);
+    hand.intensity = 1.35 + flick;
+    torches.slice().sort((a, c) => ((a.wx - P.x) ** 2 + (a.wz - P.z) ** 2) - ((c.wx - P.x) ** 2 + (c.wz - P.z) ** 2))
+      .slice(0, pool.length).forEach((tc, i) => { pool[i].position.set(tc.wx, 0.9, tc.wz); pool[i].intensity = 1.1 + (reduceMotion ? 0 : Math.sin(t * 9 + tc.seed) * 0.15); });
+    torches.forEach(tc => { if (tc.flame) { const s = reduceMotion ? 1 : 1 + Math.sin(t * 13 + tc.seed) * 0.08; tc.flame.scale.set(0.28 * s, 0.36 * s, 1); } });
+
+    entities.forEach(e => {
+      if (!e.obj.visible) return;
+      if (e.type === 'chest' && !S.dead.includes(e.id)) {
+        e.gem.rotation.y = t * 1.6; e.gem.position.y = 0.66 + (reduceMotion ? 0 : Math.sin(t * 2.2 + e.x) * 0.03);
+        e.glow.position.y = e.gem.position.y;
+        e.label.visible = S.visited.includes(e.room);
+      } else if (e.type === 'boss' && e.core.visible) {
+        e.obj.rotation.y = Math.atan2(camPos.x - e.obj.position.x, camPos.z - e.obj.position.z);
+        e.core.position.y = 0.78 + (reduceMotion ? 0 : Math.sin(t * 1.8) * 0.06);
+        e.core.rotation.z = reduceMotion ? 0 : Math.sin(t * 1.2) * 0.15;
+        e.glow.material.opacity = 0.55 + Math.abs(Math.sin(t * 2)) * 0.3;
+      } else if (e.type === 'npc') {
+        e.obj.rotation.y = Math.atan2(camPos.x - e.obj.position.x, camPos.z - e.obj.position.z);
+        e.body.position.y = reduceMotion ? 0 : Math.sin(t * 2 + e.x) * 0.05;
+        e.label.visible = S.visited.includes(e.room);
+      } else if (e.type === 'portal') {
+        e.obj.rotation.y = Math.atan2(camPos.x - e.obj.position.x, camPos.z - e.obj.position.z);
+        e.disc.rotation.z = -t * (S.dead.includes('boss') ? 2.4 : 0.4);
+        e.label.visible = S.visited.includes(e.room);
+      }
+    });
+    for (let i = anims.length - 1; i >= 0; i--) {
+      const a = anims[i]; a.t += dt;
+      if (a.kind === 'open') {
+        const k = Math.min(1, a.t / 0.5);
+        a.e.lid.rotation.x = -1.9 * ease(k);
+        const g = Math.min(1, Math.max(0, (a.t - 0.25) / 0.6));
+        a.e.gem.position.y = 0.66 + g * 0.9; a.e.gem.scale.setScalar(1 + g * 0.6);
+        a.e.gem.rotation.y += dt * 12; a.e.glow.position.y = a.e.gem.position.y;
+        a.e.glow.material.opacity = 1 - g;
+        if (a.t > 0.9) { a.e.gem.visible = false; a.e.glow.visible = false; a.e.glow.material.opacity = 1; anims.splice(i, 1); }
+      } else if (a.kind === 'die') {
+        const k = Math.min(1, a.t / 0.9);
+        a.e.core.scale.setScalar(1 - ease(k)); a.e.core.rotation.y += dt * 14;
+        a.e.glow.scale.setScalar(1.4 + k * 1.5); a.e.glow.material.opacity = 1 - k;
+        bossLight.intensity = 1.3 + Math.sin(k * Math.PI) * 3;
+        if (k >= 1) { a.e.core.visible = false; a.e.glow.visible = false; a.e.hoard.visible = false; a.e.glow.scale.setScalar(1.4); a.e.glow.material.opacity = 1; bossLight.intensity = 0; anims.splice(i, 1); }
+      }
+    }
+    Object.values(mists).forEach(m => { if (m.grp.visible) { m.box.material.map.offset.x = (t * 0.05) % 1; m.box.material.map.offset.y = (t * 0.02) % 1; m.box.material.opacity = 0.75 + Math.sin(t * 1.5) * 0.1; } });
+
+    renderer.render(scene, camera);
+    drawMinimap();
+    updateAhead();
+    requestAnimationFrame(frame);
+  }
+
+  function resize() {
+    const r = screenEl.getBoundingClientRect();
+    const w = Math.max(1, r.width), h = Math.max(1, r.height);
+    const iw = Math.round(Math.min(w * (window.devicePixelRatio || 1), 720)); // 刻意降低内部分辨率，做出复古像素感
+    renderer.setSize(iw, Math.round(iw * h / w), false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+
+  // ───────────── 输入 ─────────────
+  const KEYS = { ArrowUp: 'fwd', w: 'fwd', W: 'fwd', ArrowDown: 'back', s: 'back', S: 'back', ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', q: 'sl', Q: 'sl', e: 'sr', E: 'sr' };
+  window.addEventListener('keydown', ev => {
+    const act = KEYS[ev.key];
+    if (!act || !modal.hidden) return;
+    if (ev.target && /INPUT|TEXTAREA/.test(ev.target.tagName)) return;
+    ev.preventDefault();
+    if (!held.includes(act)) held.push(act);
+  });
+  window.addEventListener('keyup', ev => { const act = KEYS[ev.key]; if (!act) return; const i = held.indexOf(act); if (i >= 0) held.splice(i, 1); });
+  window.addEventListener('blur', () => { held.length = 0; });
+  document.querySelectorAll('.pad button').forEach(b => {
+    const act = b.dataset.act;
+    const release = () => { const i = held.indexOf(act); if (i >= 0) held.splice(i, 1); };
+    b.addEventListener('pointerdown', ev => { ev.preventDefault(); if (modal.hidden && !held.includes(act)) held.push(act); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => b.addEventListener(n, release));
+  });
+  $('#teacherBtn').onclick = () => { S.teacher = !S.teacher; updateHud(); addLog(S.teacher ? '切到讲师视角：地面叠加全班卡关率' : '回到学员视角', 'warn'); };
+  $('#resetBtn').onclick = () => reset();
+
+  function reset() {
+    S = fresh(); seen = new Uint8Array(ROWS * COLS); anims.length = 0; curRoom = -1;
+    syncPlayer(); markSeen(S.px, S.py, 2); enterRoom(0);
+    applyEntityState(); updateHud();
+    addLog('重新开始', 'warn');
+  }
+
+  // ───────────── 图例 ─────────────
+  function legend() {
+    const items = [
+      ['chest', '上锁的宝箱', '大纲每段的关键词，锁题由字幕生成，答对拿宝石'],
+      ['boss', 'Boss 宝库', '全班答题卡错误率最高的段落（本课 ' + DATA.failRate[BOSS_ROOM] + '%），连对 3 题夺宝'],
+      ['npc', '幽灵学长', '聊天里被反复问的问题，数字人老师来解答'],
+      ['fog', '紫雾封印', '观看记录里你没看过的段落，读完大纲才能进'],
+      ['heart', '倒下 = 补课', '生命耗尽就回到回放对应的 40 秒，看完复活']
+    ];
+    $('#legend').innerHTML = items.map(([k, t, d], i) => '<div class="lg"><canvas width="40" height="40" id="lg' + i + '"></canvas><div><b>' + t + '</b><span>' + d + '</span></div></div>').join('');
+    items.forEach(([k], i) => {
+      const c = document.getElementById('lg' + i).getContext('2d');
+      c.fillStyle = '#22252e'; c.fillRect(0, 0, 40, 40);
+      if (k === 'chest') { c.fillStyle = '#6b4325'; c.fillRect(7, 18, 26, 14); c.fillStyle = '#7a4d2b'; c.fillRect(7, 13, 26, 6); c.fillStyle = '#d9a441'; c.fillRect(11, 13, 3, 19); c.fillRect(26, 13, 3, 19); c.fillRect(18, 19, 4, 5); c.fillStyle = '#5fb3d9'; c.beginPath(); c.moveTo(20, 2); c.lineTo(24, 7); c.lineTo(20, 12); c.lineTo(16, 7); c.closePath(); c.fill(); }
+      if (k === 'boss') { c.fillStyle = '#b8352d'; c.beginPath(); c.arc(20, 21, 12, 0, Math.PI * 2); c.fill(); c.fillStyle = '#5a1612'; [[8, 9], [32, 9], [20, 5]].forEach(([x, y]) => { c.beginPath(); c.moveTo(x, y); c.lineTo(20, 16); c.lineTo(x + (x < 20 ? 6 : x > 20 ? -6 : 4), y + 6); c.fill(); }); c.fillStyle = '#ffd76a'; c.fillRect(14, 18, 4, 4); c.fillRect(22, 18, 4, 4); }
+      if (k === 'npc') { c.fillStyle = 'rgba(157,140,255,0.85)'; c.beginPath(); c.arc(20, 13, 7, 0, Math.PI * 2); c.fill(); c.beginPath(); c.moveTo(20, 16); c.lineTo(31, 36); c.lineTo(9, 36); c.closePath(); c.fill(); c.fillStyle = '#1a1430'; c.fillRect(16, 12, 3, 3); c.fillRect(21, 12, 3, 3); }
+      if (k === 'fog') { c.fillStyle = '#3a3170'; c.fillRect(0, 0, 40, 40); c.fillStyle = '#e3ddff'; c.font = '700 24px "Pixelify Sans", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('?', 20, 21); }
+      if (k === 'heart') { c.fillStyle = '#d65a4e'; c.font = '26px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('♥', 20, 22); }
+    });
+  }
+
+  // ───────────── 启动 ─────────────
+  function boot(saved) {
+    buildWorld(); buildLevel(); buildTorches(); buildEntities(); buildOverlays();
+    S = Object.assign(fresh(), saved && saved.S ? saved.S : {});
+    seen = new Uint8Array(ROWS * COLS);
+    syncPlayer();
+    $('#courseTitle').textContent = DATA.course.title;
+    $('#courseCh').textContent = DATA.course.channelId;
+    $('#courseMeta').textContent = DATA.course.date + ' 直播回放 · ' + fmt(DATA.course.duration) + ' · ' + DATA.course.teacher;
+    legend();
+    markSeen(S.px, S.py, 2);
+    S.visited.forEach(r => { const rm = rooms[r]; for (let y = rm.y - 1; y <= rm.y + rm.h; y++) for (let x = rm.x - 1; x <= rm.x + rm.w; x++) seen[y * COLS + x] = 1; });
+    const r0 = roomOf[S.py][S.px];
+    enterRoom(r0 >= 0 ? r0 : 0);
+    applyEntityState(); updateHud();
+    resize();
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(screenEl); else window.addEventListener('resize', resize);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => labels.forEach(s => setLabel(s, s.userData.text)));
+    if (!saved || !saved.S) {
+      [
+        ['GET 视频大纲 → ' + DATA.outline.length + ' 段，生成 ' + DATA.outline.length + ' 个房间', ''],
+        ['GET 智能字幕 → 412 条，按关键词生成 ' + DATA.questions.length + ' 把宝箱锁题', ''],
+        ['GET 聊天记录 1,288 条 + 提问 96 条 → 聚类出 ' + DATA.clusters.length + ' 个高频问题', ''],
+        ['GET 观看记录 → 缺失 ' + FOG_ROOMS.map(i => fmt(DATA.outline[i].start) + '–' + fmt(DATA.outline[i].end)).join('、') + '，封上紫雾', 'warn'],
+        ['答题卡统计 → 第 ' + (BOSS_ROOM + 1) + ' 段错误率 ' + DATA.failRate[BOSS_ROOM] + '%，设为 Boss 宝库', 'bad'],
+        ['3D 地下城生成完毕（seed = 频道号 ' + DATA.course.channelId + '）', 'ok']
+      ].forEach(([t, k], i) => setTimeout(() => addLog(t, k), 120 + i * 260));
+      setTimeout(() => toast('↑ 前进 · ← → 转身 · 面对宝箱按 ↑ 开锁'), 400);
+    }
+    if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === 'function') window.claude.hot.snapshot(() => ({ S }));
+    screenEl.focus({ preventScroll: true });
+    requestAnimationFrame(tt => { last = tt; frame(tt); });
+  }
+
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(boot);
+  else boot((window.claude && window.claude.hot && window.claude.hot.data) || {});
+})();
+</script>
+
+</body></html>

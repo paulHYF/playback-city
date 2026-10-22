@@ -1,0 +1,1784 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>回放不夜城</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@500;700&family=Noto+Sans+SC:wght@400;500;700&family=Cinzel:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0d1217;
+    --panel: #151b21;
+    --panel-2: #1b232a;
+    --line: #2a343c;
+    --text: #ece3cf;
+    --muted: #8f9a9c;
+    --gold: #c9a45c;
+    --gold-2: #e6cf98;
+    --cinnabar: #c4503a;
+    --jade: #8fcfb5;
+    --qing: #9fc3c9;
+    --brush: "Ma Shan Zheng", "STKaiti", "KaiTi", serif;
+    --serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+    --cap: "Cinzel", "Noto Serif SC", serif;
+    --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); }
+  body { color: var(--text); font-family: var(--body); font-size: 14px; line-height: 1.6; }
+  .wrap { max-width: 1260px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 32px; display: grid; gap: 16px; }
+
+  .top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+  .brand h1 { margin: 0; font-family: var(--brush); font-weight: 400; font-size: 42px; line-height: 1.05; color: var(--gold-2); }
+  .brand h1 small { font-family: var(--serif); font-size: 15px; color: var(--muted); letter-spacing: 0.2em; margin-left: 12px; }
+  .course { margin-top: 6px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .course b { color: var(--text); font-weight: 500; }
+[hidden] { display: none !important; }
+  .hud { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .stat { display: grid; }
+  .stat .k { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .stat .v { font-family: var(--cap); font-size: 20px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .hearts { font-size: 18px; letter-spacing: 2px; font-family: var(--body) !important; }
+  .hearts .on { color: var(--cinnabar); }
+  .hearts .off { color: #33393f; }
+  .coin { color: var(--gold-2); }
+  .jade { color: var(--jade); }
+  .btn { font: inherit; font-size: 13px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 7px 12px; cursor: pointer; }
+  .btn:hover:not(:disabled) { border-color: var(--gold); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn:focus-visible, .opt:focus-visible, .pad button:focus-visible, .screen:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--gold-2); outline-offset: 2px; }
+  .btn[aria-pressed="true"] { background: #33261a; border-color: var(--gold); color: var(--gold-2); }
+  .btn.primary { background: var(--gold); color: #1d1408; border-color: var(--gold); font-weight: 700; }
+  .btn.primary:disabled { background: #4a4235; border-color: #4a4235; color: #8b8270; }
+  .btn.seal { background: var(--cinnabar); border-color: var(--cinnabar); color: #fbefe6; font-weight: 700; }
+
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+  .game { display: grid; gap: 10px; min-width: 0; }
+  .screen { position: relative; aspect-ratio: 16 / 10; max-width: 100%; border: 1px solid #3a2f22; box-shadow: 0 0 0 3px #0a0d10, 0 0 0 4px #3a2f22; background: #07090c; overflow: hidden; }
+  .screen canvas#cv { position: absolute; inset: 0; width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+  .screen.shake { animation: shake 0.32s linear; }
+  @keyframes shake { 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, 1px); } 80% { transform: translate(3px, 0); } }
+  .flash { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(196, 80, 58, 0) 30%, rgba(196, 80, 58, 0.65)); opacity: 0; pointer-events: none; transition: opacity 0.5s; }
+  .flash.on { opacity: 1; transition: none; }
+  .fade { position: absolute; inset: 0; background: #05070a; opacity: 0; pointer-events: none; transition: opacity 0.45s; display: grid; place-items: center; }
+  .fade.on { opacity: 1; }
+  .fade span { font-family: var(--brush); font-size: 40px; color: var(--gold-2); }
+  .mm { position: absolute; right: 10px; top: 10px; width: 160px; height: auto; image-rendering: pixelated; border: 1px solid rgba(201, 164, 92, 0.45); background: rgba(8, 10, 12, 0.6); }
+  .where { position: absolute; left: 12px; top: 10px; font-family: var(--brush); font-size: 24px; color: var(--gold-2); text-shadow: 0 1px 4px #000; pointer-events: none; }
+  .ahead { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); max-width: calc(100% - 32px); padding: 5px 12px; font-size: 13px; color: var(--gold-2); background: rgba(10, 12, 14, 0.84); border: 1px solid rgba(201, 164, 92, 0.5); border-radius: 3px; text-align: center; pointer-events: none; }
+  .toast { position: absolute; left: 50%; top: 52px; transform: translateX(-50%); background: rgba(10, 12, 14, 0.92); border: 1px solid var(--gold); color: var(--gold-2); padding: 6px 14px; font-size: 13px; border-radius: 3px; pointer-events: none; max-width: calc(100% - 200px); text-align: center; }
+  .fail { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--muted); }
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .hint { color: var(--muted); font-size: 12.5px; margin: 0; max-width: 62ch; }
+  .hint kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); border-bottom-width: 2px; padding: 0 5px; border-radius: 3px; color: var(--text); }
+  .pad { display: grid; grid-template-columns: repeat(3, 48px); grid-template-rows: repeat(2, 42px); gap: 4px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .pad button { font-size: 17px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; touch-action: none; }
+  .pad button:active { background: #33261a; border-color: var(--gold); }
+
+  .panel { display: grid; gap: 14px; min-width: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 14px; display: grid; gap: 8px; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .room-title { font-family: var(--brush); font-weight: 400; font-size: 28px; line-height: 1.15; color: var(--gold-2); margin: 0; }
+  .room-time { font-family: var(--mono); font-size: 12px; }
+  .room-sum { margin: 0; color: #d6cdb9; font-size: 13.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-family: var(--mono); font-size: 11.5px; padding: 1px 7px; border: 1px solid var(--line); border-radius: 2px; background: var(--panel-2); }
+  .tag { font-size: 11px; padding: 1px 7px; border-radius: 2px; }
+  .tag.boss { background: #3e1d16; color: #ffc0b0; }
+  .tag.fog { background: #222b31; color: #c9d6d8; }
+  .tag.npc { background: #1b2e33; color: #cfe0e0; }
+  .tag.done { background: #1d3a2f; color: #a7e5c9; }
+  .src { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); opacity: 0.4; transition: opacity 0.25s; }
+  .src:first-child { border-top: 0; }
+  .src.on { opacity: 1; }
+  .src .dot { width: 8px; height: 8px; margin-top: 6px; background: var(--muted); }
+  .src.on .dot { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
+  .src b { font-weight: 500; font-size: 13px; }
+  .src .role { color: #d6cdb9; font-size: 12.5px; }
+  .src .api { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+  .log { font-family: var(--mono); font-size: 11.5px; line-height: 1.55; max-height: 180px; overflow-y: auto; display: grid; gap: 3px; color: #c9c1ad; }
+  .log .t { color: var(--muted); margin-right: 6px; }
+  .log .ok { color: var(--jade); }
+  .log .warn { color: var(--gold-2); }
+  .log .bad { color: #ff9b8f; }
+  .foot { color: var(--muted); font-size: 12px; max-width: 86ch; margin: 0; }
+
+  .modal { position: fixed; inset: 0; background: rgba(4, 6, 8, 0.76); display: grid; place-items: center; z-index: 20; padding: 16px; }
+  .dialog { width: min(600px, 100%); max-height: 88vh; overflow-y: auto; background: var(--panel); border: 1px solid #4a3d2a; border-radius: 4px; box-shadow: 0 0 0 2px #000, 0 24px 60px rgba(0, 0, 0, 0.6); padding: 18px; display: grid; gap: 12px; }
+  .dialog h2 { margin: 0; font-family: var(--brush); font-weight: 400; font-size: 30px; line-height: 1.15; color: var(--gold-2); }
+  .dialog h3 { margin: 4px 0 0; font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0.06em; }
+  .dialog p { margin: 0; }
+  .q { font-size: 15px; font-weight: 500; }
+  pre.code { margin: 0; font-family: var(--mono); font-size: 13px; line-height: 1.6; background: #0b0f13; border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; overflow-x: auto; color: #e9e1cc; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opt { font-family: var(--mono); font-size: 13px; text-align: left; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; cursor: pointer; min-height: 44px; }
+  .opt:hover:not(:disabled) { border-color: var(--gold); }
+  .opt.right { border-color: var(--jade); background: #173026; color: #c8f0dd; }
+  .opt.wrong { border-color: var(--cinnabar); background: #36190f; color: #ffc3ba; text-decoration: line-through; }
+  .opt:disabled { cursor: default; }
+  .fb { font-size: 13.5px; padding: 10px 12px; border-radius: 3px; border: 1px solid var(--line); background: var(--panel-2); }
+  .fb.ok { border-color: #2f6b52; }
+  .fb.bad { border-color: #7a322b; }
+  .fb.hint { border-color: #5a4a2a; background: #211c13; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; align-items: center; }
+  .actions .spacer { flex: 1; }
+  .bossbar { display: flex; gap: 4px; }
+  .bossbar i { flex: 1; height: 8px; background: var(--cinnabar); }
+  .bossbar i.gone { background: #3a2422; }
+  .video { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background: linear-gradient(160deg, #1b2430, #0f141b); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .slide { position: absolute; inset: 8% 26% 22% 5%; background: #f3efe4; color: #22252e; border-radius: 2px; padding: 4% 5%; display: grid; align-content: start; gap: 6px; overflow: hidden; }
+  .slide .st { font-weight: 700; font-size: clamp(11px, 2.4vw, 15px); }
+  .slide pre { margin: 0; font-family: var(--mono); font-size: clamp(9px, 1.9vw, 12px); line-height: 1.5; white-space: pre-wrap; }
+  .cam { position: absolute; right: 4%; top: 8%; width: 18%; aspect-ratio: 3 / 4; background: #2b3242; border-radius: 2px; display: grid; place-items: end center; overflow: hidden; }
+  .cam::before { content: ""; position: absolute; top: 22%; left: 50%; width: 36%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: #c99f80; }
+  .cam::after { content: ""; width: 78%; height: 34%; border-radius: 40% 40% 0 0; background: #3e5a7a; }
+  .sub { position: absolute; left: 4%; right: 4%; bottom: 9%; text-align: center; font-size: clamp(11px, 2.5vw, 15px); color: #fff; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+  .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255, 255, 255, 0.15); }
+  .bar i { display: block; height: 100%; width: 0; background: var(--gold); }
+  .vt { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .chat { display: grid; gap: 6px; }
+  .msg { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; font-size: 13px; padding: 6px 10px; background: var(--panel-2); border-radius: 3px; }
+  .msg .n { color: var(--qing); }
+  .msg .tm { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .answer { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px; background: #16242a; border: 1px solid #2d4a52; border-radius: 3px; }
+  .avatar { width: 64px; aspect-ratio: 3 / 4; border-radius: 3px; background: linear-gradient(#2d4a52, #16242a); position: relative; overflow: hidden; }
+  .avatar::before { content: ""; position: absolute; top: 18%; left: 50%; width: 42%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: #e2bd9c; }
+  .avatar::after { content: ""; position: absolute; bottom: 0; left: 12%; right: 12%; height: 36%; border-radius: 40% 40% 0 0; background: #dfe7e6; }
+  .note { font-size: 12px; color: var(--muted); }
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .grid4 > div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; }
+  .grid4 .v { font-family: var(--cap); font-size: 22px; font-variant-numeric: tabular-nums; color: var(--gold-2); }
+  .grid4 .k { font-size: 11px; color: var(--muted); }
+  .review { display: grid; gap: 6px; }
+  .review > div { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; padding: 8px 10px; background: var(--panel-2); border-radius: 3px; }
+  .review b { font-weight: 500; }
+  .review .when { font-family: var(--mono); font-size: 11.5px; color: var(--jade); }
+
+  /* 店铺 */
+  .wallet { display: flex; gap: 14px; font-size: 13px; color: var(--muted); }
+  .wallet b { font-family: var(--cap); font-size: 16px; }
+  .goods { display: grid; gap: 8px; }
+  .good { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; }
+  .good .ico { width: 52px; height: 52px; border-radius: 3px; display: grid; place-items: center; font-family: var(--brush); font-size: 26px; color: #fbefe6; }
+  .good .nm { font-weight: 500; }
+  .good .ds { font-size: 12.5px; color: #c9c1ad; }
+  .good .pr { font-family: var(--cap); font-size: 13px; color: var(--gold-2); white-space: nowrap; }
+  .good .pr s { color: var(--muted); margin-right: 6px; }
+  .rule { font-size: 12.5px; color: var(--gold-2); background: #211c13; border: 1px dashed #5a4a2a; border-radius: 3px; padding: 8px 12px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs .btn[aria-selected="true"] { border-color: var(--gold); color: var(--gold-2); background: #33261a; }
+  .scroll-body { font-family: var(--serif); font-size: 15px; line-height: 1.9; background: #f1e7d2; color: #2a2118; border-radius: 3px; padding: 16px 18px; border-left: 6px solid #8e2f22; border-right: 6px solid #8e2f22; }
+  label.f { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+  textarea, select { font: inherit; color: var(--text); background: #0f1418; border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; }
+  textarea { min-height: 110px; resize: vertical; }
+
+  @media (max-width: 980px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 560px) {
+    .brand h1 { font-size: 34px; }
+    .opts { grid-template-columns: 1fr; }
+    .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mm { width: 110px; }
+    .toast { max-width: calc(100% - 32px); top: 90px; }
+    .good { grid-template-columns: 44px minmax(0, 1fr); }
+    .good .act { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen.shake { animation: none; }
+    .src, .flash, .fade { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>回放不夜城<small id="subtitle">地上 · 回放广场</small></h1>
+      <div class="course" id="courseLine"></div>
+    </div>
+    <div class="hud">
+      <div class="stat" id="hpStat" hidden><span class="k">生命</span><span class="v hearts" id="hpView"></span></div>
+      <div class="stat"><span class="k">铜钱</span><span class="v coin" id="coinView">0</span></div>
+      <div class="stat"><span class="k">玉璧</span><span class="v jade" id="jadeView">0</span></div>
+      <div class="stat"><span class="k">行囊</span><span class="v" id="bagView" style="font-size:14px;font-family:var(--body)">—</span></div>
+      <button class="btn" id="oilBtn" type="button" hidden>点灯油</button>
+      <button class="btn" id="teacherBtn" type="button" aria-pressed="false" hidden>讲师视角</button>
+      <button class="btn" id="upBtn" type="button" hidden>回到地面</button>
+      <button class="btn" id="resetBtn" type="button">重新开始</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="game">
+      <div class="screen" id="screen" tabindex="0" aria-label="第一人称 3D 场景。方向键前进后退和转身，面对建筑、店铺或宝函按前进交互">
+        <canvas id="cv"></canvas>
+        <div class="flash" id="flash"></div>
+        <div class="where" id="where">回放广场</div>
+        <canvas class="mm" id="mm" width="92" height="76" aria-hidden="true"></canvas>
+        <div class="ahead" id="ahead" hidden></div>
+        <div class="toast" id="toast" hidden></div>
+        <div class="fade" id="fade"><span id="fadeText"></span></div>
+      </div>
+      <div class="controls">
+        <p class="hint"><kbd>↑</kbd><kbd>↓</kbd>/<kbd>W</kbd><kbd>S</kbd> 前进后退，<kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> 转身，<kbd>Q</kbd><kbd>E</kbd> 侧移。面对楼阁、店铺、宝函按前进即可交互。地上逛广场和店铺，进第 3 讲的楼阁下到地宫闯关，赚的铜钱回地面花。</p>
+        <div class="pad" aria-label="移动按钮">
+          <button type="button" data-act="left" aria-label="左转">⟲</button>
+          <button type="button" data-act="fwd" aria-label="前进">▲</button>
+          <button type="button" data-act="right" aria-label="右转">⟳</button>
+          <button type="button" data-act="sl" aria-label="左移">◁</button>
+          <button type="button" data-act="back" aria-label="后退">▼</button>
+          <button type="button" data-act="sr" aria-label="右移">▷</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card" id="roomCard"></div>
+      <div class="card">
+        <div class="eyebrow">这里由哪些数据生成</div>
+        <div id="sources"></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">数据流</div>
+        <div class="log" id="log" aria-live="polite"></div>
+      </div>
+    </aside>
+  </main>
+
+  <p class="foot">原型 v3 · 示例数据：一套 Python 入门系列课（4 讲），其中第 3 讲带完整的大纲、字幕、聊天、观看记录、答题卡统计（按公开 OpenAPI 的数据形态编写）。3D 渲染用 Three.js，青砖、方砖、格扇窗、藻井、远山与宫灯全部由代码绘制，没有外部素材。商品下单、积分抵扣为演示逻辑。</p>
+
+  <div class="modal" id="modal" hidden>
+    <div class="dialog" id="dialog" role="dialog" aria-modal="true"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  // ═════════════ 示例数据（形态对齐公开 OpenAPI） ═════════════
+  const DATA = {
+    course: { channelId: '3958201', title: 'Python 入门 · 第 3 讲：列表、字典与循环', teacher: '林老师', date: '2026-10-12 20:00', duration: 4320, students: 186 },
+    outline: [
+      { title: '开场：为什么需要数据结构', start: 0, end: 400, summary: '用「存全班 50 人成绩」的例子引出问题：变量一多就没法批量处理，需要把数据装进一个容器。', keyword: ['数据结构', '列表'] },
+      { title: '列表的创建与索引', start: 400, end: 1155, summary: '列表用方括号创建，下标从 0 开始；负索引从末尾往回数；切片取一段，包含起点不包含终点。', keyword: ['索引', '负索引', '切片'] },
+      { title: '列表的增删改', start: 1155, end: 1910, summary: 'append 在末尾加一个元素，pop 删除并返回元素；列表是可变对象，两个变量可能指向同一个列表。', keyword: ['append', 'pop', '可变'] },
+      { title: '字典：键值对', start: 1910, end: 2730, summary: '字典用键找值。方括号取不存在的键会抛 KeyError，get 可以给默认值；键必须是不可变类型。', keyword: ['KeyError', 'get', '键'] },
+      { title: 'for 循环遍历', start: 2730, end: 3490, summary: 'range 生成数字序列，enumerate 同时拿下标和元素，items 遍历字典的键值对。', keyword: ['range', 'enumerate', 'items'] },
+      { title: '综合练习：统计词频', start: 3490, end: 4320, summary: '用字典计数，再按出现次数排序，找出一段文字里最常出现的词。', keyword: ['计数', '排序'] }
+    ],
+    watched: [[0, 2730], [3490, 4320]],
+    failRate: [8, 24, 17, 62, 41, 29],
+    clusters: [
+      { seg: 1, count: 27, q: 'a[-1] 到底是哪一个？负数索引从哪开始数？',
+        msgs: [['阿杰', '老师 -1 是倒数第一个吗', '12:41'], ['Mia', '负数索引从哪开始数啊', '12:44'], ['土豆', 'a[-0] 是什么？', '12:50']],
+        answer: '负索引从末尾往回数：a[-1] 是最后一个，a[-2] 是倒数第二个，等价于 a[len(a) - 1]。另外 -0 就是 0，所以 a[-0] 取到的是第一个。' },
+      { seg: 3, count: 34, q: 'd.get("k") 和 d["k"] 有什么区别？',
+        msgs: [['小周', 'get 和 [] 有啥区别', '37:02'], ['Kevin', '为啥我这报 KeyError', '37:15'], ['奶茶三分糖', 'get 第二个参数是干嘛的', '38:40']],
+        answer: '键不存在时，d["k"] 直接抛 KeyError；d.get("k") 返回 None，d.get("k", 0) 返回你给的默认值 0。你希望程序报错还是给个默认值，决定了用哪一个。这也是镇墓兽的弱点。' }
+    ],
+    questions: [
+      { id: 'q01', seg: 0, kw: '数据结构', t: 212, q: '用 s1、s2 … s50 五十个变量存全班成绩，最大的麻烦是什么？', code: '',
+        opts: ['没法用循环批量处理，求平均分要写 50 遍', '变量名里不能带数字', 'Python 最多只能有 32 个变量', '会让程序明显变慢'],
+        why: '变量一多就没法统一处理。把同类数据放进一个列表，一个循环就能处理全部。',
+        subs: [[-16, '假设我们要存全班五十个同学的成绩'], [-6, '按前两节课学的，你得写 s1、s2，一直写到 s50'], [4, '那要算个平均分怎么办？五十个变量挨个加'], [13, '这就是今天要解决的问题：把同类数据装进一个容器']] },
+      { id: 'q02', seg: 0, kw: '列表', t: 318, q: '下面哪个是合法的 Python 列表？', code: '',
+        opts: ['[90, 85, 77]', '(90; 85; 77)', '<90, 85, 77>', '{90: 85: 77}'],
+        why: '列表用方括号，元素之间用逗号分隔。',
+        subs: [[-15, 'Python 里最常用的容器，叫列表'], [-5, '写法很简单，一对方括号'], [5, '里面的元素用英文逗号隔开，比如 90, 85, 77'], [14, '注意是方括号，不是圆括号，也不是花括号']] },
+      { id: 'q11', seg: 1, kw: '索引', t: 520, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1])",
+        opts: ['香蕉', '苹果', '橙子', '报错 IndexError'],
+        why: '索引从 0 开始，a[0] 是苹果，a[1] 才是香蕉。',
+        subs: [[-16, '列表里每个元素都有一个位置编号，叫索引'], [-6, '重点来了：索引是从 0 开始数的'], [4, '所以 a[0] 是苹果，a[1] 是香蕉'], [13, '很多同学第一次写都会差一位，大家注意']] },
+      { id: 'q12', seg: 1, kw: '负索引', t: 762, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[-1])",
+        opts: ['葡萄', '苹果', '报错，索引不能是负数', '橙子'],
+        why: '负索引从末尾往回数，-1 就是最后一个。',
+        subs: [[-15, '那我想取最后一个怎么办？不用去数长度'], [-5, 'Python 支持负数索引'], [5, 'a[-1] 就是最后一个，a[-2] 是倒数第二个'], [14, '你可以理解成从尾巴往回数']] },
+      { id: 'q13', seg: 1, kw: '切片', t: 948, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1:3])",
+        opts: ["['香蕉', '橙子']", "['香蕉', '橙子', '葡萄']", "['苹果', '香蕉', '橙子']", "['橙子']"],
+        why: '切片包含起点、不包含终点：a[1:3] 取的是下标 1 和 2。',
+        subs: [[-15, '如果想一次取一段，用切片'], [-5, '冒号前面是起点，后面是终点'], [5, '记住一句话：包含起点，不包含终点'], [14, '所以 a[1:3] 拿到的是下标 1 和 2，两个元素']] },
+      { id: 'q21', seg: 2, kw: 'append', t: 1290, q: '输出是什么？', code: 'nums = [1, 2]\nnums.append([3, 4])\nprint(len(nums))',
+        opts: ['3', '4', '2', '报错'],
+        why: 'append 把整个 [3, 4] 当成一个元素加进去，所以长度是 3。想逐个加入要用 extend。',
+        subs: [[-15, '往列表末尾加东西，用 append'], [-5, 'append 每次只加一个元素'], [5, '如果你 append 一个列表进去，它会整个作为一个元素'], [14, '想把元素一个个加进去，要用 extend']] },
+      { id: 'q22', seg: 2, kw: 'pop', t: 1502, q: '输出是什么？', code: 'nums = [10, 20, 30]\nx = nums.pop()\nprint(x)',
+        opts: ['30', '10', '[10, 20]', 'None'],
+        why: 'pop() 不传参数时，删除并返回最后一个元素。',
+        subs: [[-15, '删除元素可以用 pop'], [-5, 'pop 不写参数，默认删最后一个'], [5, '而且它会把删掉的那个值返回给你'], [14, '所以 x = nums.pop()，x 就是原来的最后一个']] },
+      { id: 'q23', seg: 2, kw: '可变', t: 1736, q: '输出是什么？', code: 'b = [1, 2]\nc = b\nc.append(3)\nprint(b)',
+        opts: ['[1, 2, 3]', '[1, 2]', '[3]', '报错'],
+        why: 'c = b 没有复制列表，两个名字指向同一个列表对象，改 c 就是改 b。',
+        subs: [[-15, '这里有个大坑，大家看屏幕'], [-5, 'c = b，并没有复制一份新列表'], [5, 'b 和 c 是同一个列表的两个名字'], [14, '所以你改 c，打印 b 也变了']] },
+      { id: 'qb1', seg: 3, kw: 'KeyError', t: 2205, q: '执行结果是什么？', code: "d = {'name': '小明', 'age': 12}\nprint(d['score'])",
+        opts: ['抛出 KeyError', '输出 None', '输出 0', "输出 ''（空字符串）"],
+        why: '用方括号取一个不存在的键，会直接抛 KeyError。',
+        subs: [[-15, '字典用键来取值，写法也是方括号'], [-5, '但如果这个键根本不存在呢？'], [5, '程序会直接报错，错误类型叫 KeyError'], [14, '线上代码里，这个错误非常常见']] },
+      { id: 'qb2', seg: 3, kw: 'get', t: 2318, q: '输出是什么？', code: "d = {'name': '小明', 'age': 12}\nprint(d.get('score', 0))",
+        opts: ['0', 'None', '抛出 KeyError', 'score'],
+        why: 'get 取不到键时，返回第二个参数作为默认值。',
+        subs: [[-15, '怎么避免 KeyError？用 get 方法'], [-5, 'get 取不到的时候，默认返回 None'], [5, '你还可以给它第二个参数，当作默认值'], [14, '比如 d.get("score", 0)，取不到就返回 0']] },
+      { id: 'qb3', seg: 3, kw: '键', t: 2490, q: '下面哪个不能作为字典的键？', code: '',
+        opts: ['[1, 2]', "'id'", '42', '(1, 2)'],
+        why: '字典的键必须是不可变的。列表可变，不能当键；元组可以。',
+        subs: [[-15, '最后讲一下，什么东西能当字典的键'], [-5, '规则是：键必须是不可变的'], [5, '字符串、数字、元组都可以'], [14, '列表是可变的，拿列表当键会直接报错']] },
+      { id: 'q41', seg: 4, kw: 'range', t: 2860, q: '输出是什么？', code: "for i in range(3):\n    print(i, end=' ')",
+        opts: ['0 1 2', '1 2 3', '0 1 2 3', '3'],
+        why: 'range(3) 生成 0、1、2，不包含 3。',
+        subs: [[-15, '先看 range，它会生成一串数字'], [-5, 'range(3) 生成的是 0、1、2'], [5, '和切片一样，不包含终点 3'], [14, '所以这个循环会执行三次']] },
+      { id: 'q42', seg: 4, kw: 'enumerate', t: 3105, q: '输出是什么？', code: "for i, v in enumerate(['a', 'b']):\n    print(i, v)\n    break",
+        opts: ['0 a', '1 a', 'a 0', '0 b'],
+        why: 'enumerate 同时给出下标和元素，下标默认从 0 开始。',
+        subs: [[-15, '如果循环的时候既要元素又要下标'], [-5, '不用自己维护计数器，用 enumerate'], [5, '它每轮给你两个值：下标和元素'], [14, '下标默认从 0 开始']] },
+      { id: 'q43', seg: 4, kw: 'items', t: 3340, q: 'for k, v in d.items() 每一轮拿到的是什么？', code: '',
+        opts: ['一个键和它对应的值', '只有键', '只有值', '键的下标和键'],
+        why: 'items() 返回键值对，解包成 k 和 v。',
+        subs: [[-15, '遍历字典有三种方式'], [-5, '直接 for k in d，拿到的是键'], [5, '用 d.items()，每轮拿到一个键和对应的值'], [14, '写成 for k, v in d.items()，最常用']] },
+      { id: 'q51', seg: 5, kw: '计数', t: 3720, q: '输出是什么？', code: "counts = {}\nfor w in ['a', 'b', 'a']:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts)",
+        opts: ["{'a': 2, 'b': 1}", "{'a': 1, 'b': 1}", '抛出 KeyError', "{'a': 2}"],
+        why: 'get(w, 0) 第一次遇到某个词时取到 0，再加 1，所以不会报 KeyError。',
+        subs: [[-15, '综合练习，统计每个词出现了几次'], [-5, '思路是用字典计数：词是键，次数是值'], [5, 'counts.get(w, 0) + 1，第一次出现就从 0 开始加'], [14, '这里就用到了刚才讲的 get 默认值']] },
+      { id: 'q52', seg: 5, kw: '排序', t: 4010, q: '输出是什么？', code: "counts = {'a': 2, 'b': 5, 'c': 1}\ntop = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)\nprint(top[0])",
+        opts: ["('b', 5)", "('a', 2)", "('c', 1)", '5'],
+        why: '按值（kv[1]）从大到小排序，第一个就是出现次数最多的。',
+        subs: [[-15, '统计完了，要找出现最多的词'], [-5, '用 sorted 对 items 排序'], [5, 'key 写 lambda kv: kv[1]，表示按值排序'], [14, 'reverse=True 从大到小，第一个就是最多的']] }
+    ]
+  };
+
+  // 回放列表：同一系列课的 4 讲（查询视频库列表）
+  const SERIES = [
+    { no: 1, title: '变量与类型', views: 2380, date: '2026-09-28', tiers: 2 },
+    { no: 2, title: '条件与循环', views: 2105, date: '2026-10-05', tiers: 2 },
+    { no: 3, title: '列表、字典与循环', views: 1862, date: '2026-10-12', tiers: 3, playable: true },
+    { no: 4, title: '函数与模块', views: 0, date: '2026-10-19 预告', tiers: 1 }
+  ];
+
+  const GOODS = [
+    { id: 'notes', ico: '讲', bg: '#2d5a6b', name: '第 3 讲 · 课堂讲义', desc: '按大纲整理的知识点、易错点与回放时间点（PDF）', price: 0, needJade: 3 },
+    { id: 'course', ico: '课', bg: '#8e2f22', name: '进阶课「函数与模块」', desc: '系列课第 4–6 讲 + 课后答疑', price: 199 },
+    { id: 'fan', ico: '扇', bg: '#5a4a2a', name: '周边「Python 速查折扇」', desc: '常用语法印在扇面上，宋锦扇套', price: 39 }
+  ];
+  const PROPS = [
+    { id: 'hint', ico: '签', bg: '#5a4a2a', name: '提示签', desc: '答题时显示老师在回放里的原话和时间点。只指回原文，不给答案。', price: 10 },
+    { id: 'oil', ico: '油', bg: '#8a4b2b', name: '灯油', desc: '在地宫里点亮整张地图（小地图全开）。', price: 15 }
+  ];
+  const MARKET0 = [
+    { id: 's1', title: '负索引一图看懂', author: '阿杰', kw: '负索引', price: 6, likes: 42,
+      body: '把列表想成一排座位。正着数从 0 开始：a[0] 是第一个；倒着数从 -1 开始：a[-1] 是最后一个，a[-2] 是倒数第二个。记住一句：没有「-0 号座位」，-0 就是 0。' },
+    { id: 's2', title: 'get 和 [] 的区别：一句话版', author: '奶茶三分糖', kw: 'get', price: 8, likes: 57,
+      body: '[] 是「必须有」，没有就报 KeyError；get 是「有就给，没有就给默认值」。所以统计词频时用 counts.get(w, 0) + 1，第一次遇到也不会炸。' },
+    { id: 's3', title: 'append 和 extend 别再混', author: 'Mia', kw: 'append', price: 5, likes: 31,
+      body: 'append 是「整个塞进去」，塞一个列表进去它就是一个元素；extend 是「拆开一个个放」。nums.append([3, 4]) 长度加 1，nums.extend([3, 4]) 长度加 2。' }
+  ];
+
+  const SRC_SURFACE = [
+    { key: 'playback', name: '回放列表', api: 'live/api/channel/playback/get_playback_list', role: '每一讲回放是一座楼阁，观看人次决定楼层' },
+    { key: 'viewlog', name: '观看记录', api: 'live/api/v4/user/viewlog/viewlog_list', role: '看过、通关过的楼阁挂上朱旗' },
+    { key: 'product', name: '商品库 · 商品订单', api: 'channel/operate/add_channel_product · v4/user/product/order/get', role: '课程铺的商品与下单' },
+    { key: 'points', name: '积分', api: 'live/api/donate/donateSetting（积分开发指引）', role: '铜钱对应积分体系，可抵扣' },
+    { key: 'chat', name: '聊天室 JS-SDK', api: 'live/js/chat_js_sdk', role: '酒馆多人卧底（后续）' }
+  ];
+  const SRC_PALACE = [
+    { key: 'outline', name: '视频大纲', api: 'v4/channel/recordfile/get_record_file_outline', role: '殿室 = 大纲分段，宝函 = 关键词' },
+    { key: 'subtitle', name: '智能字幕', api: 'video_management/smart_subtitle/query_smart_subtitle', role: '宝函锁题、提示签原话、复活回放字幕' },
+    { key: 'chat', name: '聊天记录 · 提问记录', api: 'chat/message/get_message_list · live_interaction/get_question_list', role: '高频提问化作书生灯影' },
+    { key: 'avatar', name: '数字人视频创作', api: 'v4/ai/video-produce/video-produce-batch-create', role: '书生灯影的 15 秒讲解' },
+    { key: 'quiz', name: '答题卡作答统计', api: 'live_interaction 答题卡（取数接口待核对）', role: '全班错误率最高的段落由镇墓兽镇守' },
+    { key: 'viewlog', name: '观看记录', api: 'v4/user/viewlog/viewlog_list', role: '没看过的段落被墨雾封住' },
+    { key: 'marker', name: '进度条打点', api: 'video_management/chapter_marker/add_chapter_marker', role: '你倒下的位置回写到回放进度条' }
+  ];
+
+  // ═════════════ 工具 ═════════════
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const Q = Object.fromEntries(DATA.questions.map(q => [q.id, q]));
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+  if (!window.THREE) {
+    $('#screen').insertAdjacentHTML('beforeend', '<div class="fail">3D 引擎没有加载成功（需要联网加载 Three.js），请检查网络后刷新页面。</div>');
+    return;
+  }
+
+  const BOSS_ROOM = DATA.failRate.indexOf(Math.max(...DATA.failRate));
+  const FOG_ROOMS = DATA.outline.map((s, i) => {
+    const seen = DATA.watched.reduce((acc, [a, b]) => acc + Math.max(0, Math.min(b, s.end) - Math.max(a, s.start)), 0);
+    return seen / (s.end - s.start) < 0.5 ? i : -1;
+  }).filter(i => i >= 0);
+  const LAST_ROOM = DATA.outline.length - 1;
+  const JADE_COLORS = [0x8fcfb5, 0xa9d8c8, 0xd9c79a, 0x9fc3c9, 0xe6d3a3, 0xb5d6b0];
+
+  // ═════════════ Three.js 基础 ═════════════
+  const WALL_H = 1.3, EYE = 0.56;
+  const screenEl = $('#screen'), cv = $('#cv');
+  const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: false });
+  renderer.setPixelRatio(1);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(72, 16 / 10, 0.05, 80);
+  camera.rotation.order = 'YXZ';
+
+  function canvasTex(size, paint, repeat, h) {
+    const c = document.createElement('canvas'); c.width = size; c.height = h || size;
+    paint(c.getContext('2d'), size, h || size);
+    const t = new THREE.CanvasTexture(c);
+    t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter;
+    if (repeat) { t.wrapS = t.wrapT = THREE.RepeatWrapping; }
+    return t;
+  }
+  const trnd = mulberry32(7);
+  const wallTex = canvasTex(64, (g) => {
+    // 上：木梁 + 金线；中：青砖；下：须弥座石基
+    g.fillStyle = '#251a14'; g.fillRect(0, 0, 64, 8);
+    g.fillStyle = '#c9a45c'; g.fillRect(0, 7, 64, 1);
+    g.fillStyle = '#2a3036'; g.fillRect(0, 8, 64, 42);
+    for (let r = 0; r < 6; r++) for (let b = -1; b < 5; b++) {
+      const x = b * 16 + (r % 2 ? 8 : 0), s = 64 + Math.floor(trnd() * 16);
+      g.fillStyle = 'rgb(' + (s - 6) + ',' + (s + 2) + ',' + (s + 10) + ')';
+      g.fillRect(x + 1, 9 + r * 7, 14, 6);
+    }
+    g.fillStyle = '#6b6c66'; g.fillRect(0, 50, 64, 14);
+    g.fillStyle = '#7d7e77'; g.fillRect(0, 50, 64, 2);
+    g.fillStyle = '#56574f'; g.fillRect(0, 56, 64, 1); g.fillRect(0, 61, 64, 1);
+    for (let x = 4; x < 64; x += 16) { g.fillStyle = '#5c5d56'; g.fillRect(x, 57, 8, 3); }
+  });
+  const cityWallTex = canvasTex(64, (g) => {
+    g.fillStyle = '#2a3036'; g.fillRect(0, 0, 64, 64);
+    for (let r = 0; r < 9; r++) for (let b = -1; b < 5; b++) {
+      const x = b * 16 + (r % 2 ? 8 : 0), s = 70 + Math.floor(trnd() * 18);
+      g.fillStyle = 'rgb(' + (s - 8) + ',' + s + ',' + (s + 8) + ')';
+      g.fillRect(x + 1, r * 7 + 1, 14, 6);
+    }
+  });
+  const floorTex = canvasTex(64, (g) => {
+    g.fillStyle = '#1b1a17'; g.fillRect(0, 0, 64, 64);
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 2; c++) {
+      const v = Math.floor(trnd() * 10);
+      g.fillStyle = 'rgb(' + (58 + v) + ',' + (56 + v) + ',' + (52 + v) + ')';
+      g.fillRect(c * 32 + 1, r * 32 + 1, 30, 30);
+      g.fillStyle = 'rgba(255,255,255,0.05)'; g.fillRect(c * 32 + 1, r * 32 + 1, 30, 2);
+      for (let k = 0; k < 6; k++) { g.fillStyle = 'rgba(0,0,0,' + (0.08 + trnd() * 0.12) + ')'; g.fillRect(c * 32 + 3 + Math.floor(trnd() * 25), r * 32 + 3 + Math.floor(trnd() * 25), 2, 2); }
+    }
+  });
+  const plazaTex = canvasTex(64, (g) => {
+    g.fillStyle = '#23262a'; g.fillRect(0, 0, 64, 64);
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) {
+      const v = Math.floor(trnd() * 12);
+      g.fillStyle = 'rgb(' + (66 + v) + ',' + (68 + v) + ',' + (70 + v) + ')';
+      g.fillRect(c * 32 + (r % 2 ? 16 : 0) + 1, r * 16 + 1, 30, 14);
+      g.fillRect(c * 32 + (r % 2 ? 16 : 0) - 31, r * 16 + 1, 30, 14);
+    }
+  }, true);
+  const ceilTex = canvasTex(32, (g) => {
+    // 藻井：交叉木梁，交点点金
+    g.fillStyle = '#120d0b'; g.fillRect(0, 0, 32, 32);
+    g.fillStyle = '#2a1d16'; g.fillRect(0, 14, 32, 4); g.fillRect(14, 0, 4, 32);
+    g.fillStyle = '#1d2a2d'; g.fillRect(3, 3, 9, 9); g.fillRect(20, 3, 9, 9); g.fillRect(3, 20, 9, 9); g.fillRect(20, 20, 9, 9);
+    g.fillStyle = '#c9a45c'; g.fillRect(15, 15, 2, 2);
+  });
+  const latticeTex = canvasTex(64, (g) => {
+    // 格扇窗：窗纸透光 + 步步锦格心
+    const gr = g.createRadialGradient(32, 30, 4, 32, 32, 40);
+    gr.addColorStop(0, '#ffe6b0'); gr.addColorStop(1, '#c98f4c');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    g.fillStyle = '#3a2418';
+    g.fillRect(0, 0, 64, 4); g.fillRect(0, 60, 64, 4); g.fillRect(0, 0, 4, 64); g.fillRect(60, 0, 4, 64);
+    for (let k = 12; k < 60; k += 10) { g.fillRect(k, 4, 2, 56); g.fillRect(4, k, 56, 2); }
+    g.fillRect(22, 22, 20, 2); g.fillRect(22, 40, 20, 2); g.fillRect(22, 22, 2, 20); g.fillRect(40, 22, 2, 20);
+  });
+  const glowTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 64;
+    const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,0.55)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+    return new THREE.CanvasTexture(c);
+  })();
+  const mistTex = canvasTex(64, (g) => {
+    for (let k = 0; k < 26; k++) {
+      const x = trnd() * 64, y = trnd() * 64, r = 6 + trnd() * 14;
+      const gr = g.createRadialGradient(x, y, 0, x, y, r);
+      gr.addColorStop(0, 'rgba(205,215,218,0.55)'); gr.addColorStop(1, 'rgba(205,215,218,0)');
+      g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+    }
+  }, true);
+  mistTex.magFilter = THREE.LinearFilter; mistTex.minFilter = THREE.LinearFilter;
+  const swirlTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d');
+    g.translate(64, 64);
+    for (let k = 0; k < 5; k++) {
+      g.rotate(Math.PI * 2 / 5);
+      g.strokeStyle = 'rgba(240,228,200,0.75)'; g.lineWidth = 5;
+      g.beginPath();
+      for (let a = 0; a < 5; a += 0.1) { const rr = a * 11; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      g.stroke();
+    }
+    return new THREE.CanvasTexture(c);
+  })();
+  const moonTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 256;
+    const g = c.getContext('2d');
+    let gr = g.createRadialGradient(128, 128, 30, 128, 128, 128);
+    gr.addColorStop(0, 'rgba(239,230,204,0.35)'); gr.addColorStop(1, 'rgba(239,230,204,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 256, 256);
+    gr = g.createRadialGradient(118, 116, 4, 128, 128, 52);
+    gr.addColorStop(0, '#fbf5e3'); gr.addColorStop(1, '#dccfae');
+    g.fillStyle = gr; g.beginPath(); g.arc(128, 128, 50, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(190,178,150,0.35)';
+    [[112, 116, 9], [146, 140, 6], [134, 104, 7]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); });
+    return new THREE.CanvasTexture(c);
+  })();
+  const mountainTex = (() => {
+    const c = document.createElement('canvas'); c.width = 1024; c.height = 256;
+    const g = c.getContext('2d');
+    const layer = (base, amp, col, seed) => {
+      const r = mulberry32(seed); const ph = [r() * 6, r() * 6, r() * 6];
+      g.fillStyle = col; g.beginPath(); g.moveTo(0, 256);
+      for (let x = 0; x <= 1024; x += 8) {
+        const t = x / 1024 * Math.PI * 2;
+        const v = Math.sin(t * 2 + ph[0]) * 0.5 + Math.sin(t * 5 + ph[1]) * 0.3 + Math.sin(t * 11 + ph[2]) * 0.15;
+        g.lineTo(x, base - amp * (0.55 + v * 0.5));
+      }
+      g.lineTo(1024, 256); g.closePath(); g.fill();
+    };
+    layer(150, 110, 'rgba(70,110,118,0.55)', 3);
+    layer(185, 90, 'rgba(52,92,84,0.85)', 9);
+    const mist = g.createLinearGradient(0, 150, 0, 210);
+    mist.addColorStop(0, 'rgba(200,194,174,0)'); mist.addColorStop(0.5, 'rgba(200,194,174,0.14)'); mist.addColorStop(1, 'rgba(200,194,174,0)');
+    g.fillStyle = mist; g.fillRect(0, 150, 1024, 60);
+    layer(225, 60, 'rgba(26,42,42,1)', 17);
+    g.fillStyle = '#121a1b'; g.fillRect(0, 236, 1024, 20);
+    const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.repeat.set(3, 1);
+    return t;
+  })();
+  function clothTex(c1, c2) {
+    return canvasTex(64, (g) => {
+      for (let i = 0; i < 8; i++) { g.fillStyle = i % 2 ? c2 : c1; g.fillRect(i * 8, 0, 8, 64); }
+      g.fillStyle = 'rgba(0,0,0,0.25)'; g.fillRect(0, 56, 64, 8);
+      g.fillStyle = '#c9a45c'; g.fillRect(0, 58, 64, 2);
+    });
+  }
+
+  const M = {
+    wall: new THREE.MeshLambertMaterial({ map: wallTex }),
+    cityWall: new THREE.MeshLambertMaterial({ map: cityWallTex }),
+    floor: new THREE.MeshLambertMaterial({ map: floorTex }),
+    corridor: new THREE.MeshLambertMaterial({ map: floorTex, color: 0x9a948a }),
+    ceil: new THREE.MeshLambertMaterial({ map: ceilTex }),
+    stone: new THREE.MeshLambertMaterial({ color: 0x6b6c66 }),
+    stoneDark: new THREE.MeshLambertMaterial({ color: 0x4e504b }),
+    wood: new THREE.MeshLambertMaterial({ color: 0x2a1d16 }),
+    lacquer: new THREE.MeshLambertMaterial({ color: 0x1f1513 }),
+    cinna: new THREE.MeshLambertMaterial({ color: 0x8e2f22 }),
+    gold: new THREE.MeshLambertMaterial({ color: 0xc9a45c, emissive: 0x3a2608 }),
+    tile: new THREE.MeshLambertMaterial({ color: 0x2b333a, flatShading: true }),
+    lampOn: new THREE.MeshBasicMaterial({ color: 0xffc070 }),
+    silk: new THREE.MeshBasicMaterial({ color: 0xe0823c }),
+    tassel: new THREE.MeshBasicMaterial({ color: 0xb8432f })
+  };
+
+  // 文字标签
+  const labels = [];
+  function labelTex(text, fg, bg, font) {
+    const c = document.createElement('canvas'), g = c.getContext('2d');
+    const f = font || '500 40px "Noto Sans SC", "PingFang SC", sans-serif';
+    g.font = f;
+    const w = Math.ceil(g.measureText(text).width) + 36;
+    c.width = w; c.height = 64;
+    g.font = f; g.fillStyle = bg; g.fillRect(0, 0, w, 64);
+    g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, 34);
+    const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter;
+    return { t, aspect: w / 64 };
+  }
+  function makeLabel(text, fg, bg, h, font) {
+    const { t, aspect } = labelTex(text, fg, bg, font);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false }));
+    s.userData = { text, fg, bg, h, font };
+    s.scale.set(h * aspect, h, 1);
+    labels.push(s);
+    return s;
+  }
+  function setLabel(s, text, fg, bg) {
+    s.userData.text = text; s.userData.fg = fg || s.userData.fg; s.userData.bg = bg || s.userData.bg;
+    const { t, aspect } = labelTex(s.userData.text, s.userData.fg, s.userData.bg, s.userData.font);
+    if (s.material.map) s.material.map.dispose();
+    s.material.map = t; s.material.needsUpdate = true;
+    s.scale.set(s.userData.h * aspect, s.userData.h, 1);
+  }
+  // 竖排招牌（幌子 / 匾额）
+  const vBanners = [];
+  function vTex(text, bg, fg) {
+    const c = document.createElement('canvas'); c.width = 64; c.height = 64 * text.length + 24;
+    const g = c.getContext('2d');
+    g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height);
+    g.strokeStyle = '#c9a45c'; g.lineWidth = 3; g.strokeRect(4, 4, c.width - 8, c.height - 8);
+    g.fillStyle = fg; g.font = '44px "Ma Shan Zheng", "STKaiti", serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    [...text].forEach((ch, i) => g.fillText(ch, 32, 12 + 32 + i * 64));
+    const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter;
+    return t;
+  }
+  function makeBanner(text, bg, fg, w) {
+    const mat = new THREE.MeshLambertMaterial({ map: vTex(text, bg, fg), side: THREE.DoubleSide });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, w * (64 * text.length + 24) / 64), mat);
+    vBanners.push({ mesh, text, bg, fg });
+    return mesh;
+  }
+  const glowSprite = (color, size) => {
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+    s.scale.set(size, size, 1); return s;
+  };
+  function addPalaceLantern(group, x, y, z, list, seed) {
+    const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.085, 0.085, 0.2, 10), M.silk); lamp.position.set(x, y, z); group.add(lamp);
+    const cap = new THREE.CylinderGeometry(0.06, 0.095, 0.035, 10);
+    const top = new THREE.Mesh(cap, M.gold); top.position.set(x, y + 0.115, z); group.add(top);
+    const bot = new THREE.Mesh(cap, M.gold); bot.position.set(x, y - 0.115, z); bot.rotation.x = Math.PI; group.add(bot);
+    const tassel = new THREE.Mesh(new THREE.BoxGeometry(0.014, 0.1, 0.014), M.tassel); tassel.position.set(x, y - 0.19, z); group.add(tassel);
+    const flame = glowSprite(0xffa860, 0.5); flame.position.set(x, y, z); group.add(flame);
+    list.push({ wx: x, wz: z, wy: y, seed: seed || 0, flame });
+    return lamp;
+  }
+
+  // 灯光：环境光 + 月光 + 手中灯 + 4 盏就近灯（数量固定，避免着色器重编译）
+  const ambient = new THREE.AmbientLight(0x4a5560, 0.62); scene.add(ambient);
+  const moonLight = new THREE.DirectionalLight(0xa8bccf, 0); moonLight.position.set(-6, 10, -4); scene.add(moonLight);
+  const hand = new THREE.PointLight(0xffb36b, 1.4, 6.5, 1.6); scene.add(hand);
+  const pool = Array.from({ length: 4 }, () => { const l = new THREE.PointLight(0xffa860, 1.25, 4.4, 1.8); scene.add(l); return l; });
+  const bossLight = new THREE.PointLight(0xd9553a, 0, 4.5, 1.8); scene.add(bossLight);
+  const portalLight = new THREE.PointLight(0xf1d9a0, 0, 4, 1.8); scene.add(portalLight);
+
+  // ═════════════ 地上：回放广场 ═════════════
+  const SW = { name: 'surface', cols: 23, rows: 19 };
+  const U = { px: 11, py: 12, dir: 0 };     // 地上的玩家位置
+
+  function hall(group, cx, cz, w, d, tiers, door) {
+    // 宋式殿阁：台基、朱柱、格扇、出檐屋顶、角脊起翘；正面朝 +z
+    const g = new THREE.Group(); g.position.set(cx, 0, cz); group.add(g);
+    const plat = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.22, d + 0.2), M.stone); plat.position.y = 0.11; g.add(plat);
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(w + 0.26, 0.04, d + 0.26), M.stoneDark); lip.position.y = 0.22; g.add(lip);
+    const step = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.11, 0.24), M.stone); step.position.set(0, 0.055, d / 2 + 0.2); g.add(step);
+    let y = 0.24, doorPanel = null;
+    for (let t = 0; t < tiers; t++) {
+      const bw = (w - 0.5) * (1 - t * 0.24), bd = (d - 0.6) * (1 - t * 0.26), bh = t === 0 ? 0.92 : 0.5;
+      const body = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), M.wood); body.position.y = y + bh / 2; g.add(body);
+      const n = t === 0 ? 4 : 3;
+      for (let i = 0; i < n; i++) {
+        const x = -bw / 2 + 0.05 + i * (bw - 0.1) / (n - 1);
+        const col = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, bh, 8), M.cinna); col.position.set(x, y + bh / 2, bd / 2 + 0.05); g.add(col);
+        if (i < n - 1) {
+          const pw = (bw - 0.1) / (n - 1) - 0.12;
+          const isDoor = t === 0 && i === Math.floor((n - 1) / 2);
+          const mat = new THREE.MeshBasicMaterial({ map: latticeTex, color: isDoor ? (door === 'open' ? 0xffe0a0 : door === 'locked' ? 0x3a3530 : 0xb89a70) : 0xb89a70 });
+          const pnl = new THREE.Mesh(new THREE.PlaneGeometry(pw, bh * 0.78), mat);
+          pnl.position.set(x + (bw - 0.1) / (n - 1) / 2, y + bh * 0.48, bd / 2 + 0.012); g.add(pnl);
+          if (isDoor) doorPanel = pnl;
+        }
+      }
+      // 阑额与斗拱（简化）
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.12, 0.06, 0.08), M.cinna); beam.position.set(0, y + bh - 0.03, bd / 2 + 0.06); g.add(beam);
+      for (let i = 0; i < 5; i++) { const dg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.12), M.gold); dg.position.set(-bw / 2 + i * bw / 4, y + bh + 0.03, bd / 2 + 0.08); g.add(dg); }
+      y += bh + 0.06;
+      // 屋顶：出檐 + 四坡 + 角脊起翘 + 宝顶
+      const rw = bw + 0.8, rd = bd + 0.8, rh = t === tiers - 1 ? 0.62 : 0.44;
+      const eave = new THREE.Mesh(new THREE.BoxGeometry(rw, 0.05, rd), M.wood); eave.position.y = y + 0.02; g.add(eave);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(1, rh, 4, 1), M.tile);
+      roof.rotation.y = Math.PI / 4; roof.scale.set(rw / 1.414, 1, rd / 1.414); roof.position.y = y + 0.05 + rh / 2; g.add(roof);
+      [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([sx, sz]) => {
+        const c = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.22, 5), M.gold);
+        c.position.set(sx * rw / 2, y + 0.1, sz * rd / 2); c.rotation.z = -sx * 0.7; c.rotation.x = sz * 0.7; g.add(c);
+      });
+      if (t === tiers - 1) { const pearl = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), M.gold); pearl.position.y = y + 0.05 + rh + 0.03; g.add(pearl); }
+      y += 0.05 + rh * 0.5;
+    }
+    return { g, doorPanel, top: y };
+  }
+
+  function stoneLantern(group, x, z, list) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); group.add(g);
+    const base = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.34), M.stone); base.position.y = 0.06; g.add(base);
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.5, 8), M.stone); post.position.y = 0.37; g.add(post);
+    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.2, 0.24), M.lampOn); lamp.position.y = 0.72; g.add(lamp);
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.16, 4), M.stoneDark); roof.rotation.y = Math.PI / 4; roof.position.y = 0.9; g.add(roof);
+    const glow = glowSprite(0xffb36b, 0.8); glow.position.y = 0.72; g.add(glow);
+    list.push({ wx: x, wz: z, wy: 0.72, seed: x * 3 + z, flame: glow });
+  }
+
+  function stall(group, cx, cz, w, c1, c2, name, list) {
+    // 宋式摊棚：正面朝 -z（朝向广场）
+    const g = new THREE.Group(); g.position.set(cx, 0, cz); group.add(g);
+    const counter = new THREE.Mesh(new THREE.BoxGeometry(w - 0.3, 0.44, 0.42), M.wood); counter.position.set(0, 0.22, -0.12); g.add(counter);
+    const top = new THREE.Mesh(new THREE.BoxGeometry(w - 0.2, 0.04, 0.5), M.cinna); top.position.set(0, 0.46, -0.12); g.add(top);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(w - 0.3, 0.9, 0.06), M.wood); back.position.set(0, 0.45, 0.42); g.add(back);
+    const r = mulberry32(Math.round(cx * 10));
+    for (let i = 0; i < 5; i++) {
+      const kind = i % 3;
+      const mat = new THREE.MeshLambertMaterial({ color: [0xd8c39a, 0x8e2f22, 0x2d5a6b, 0xc9a45c][Math.floor(r() * 4)] });
+      const geo = kind === 0 ? new THREE.CylinderGeometry(0.05, 0.05, 0.28, 8) : kind === 1 ? new THREE.BoxGeometry(0.16, 0.1, 0.12) : new THREE.CylinderGeometry(0.07, 0.05, 0.12, 8);
+      const it = new THREE.Mesh(geo, mat);
+      it.position.set(-w / 2 + 0.35 + i * (w - 0.7) / 4, 0.54, -0.14);
+      if (kind === 0) it.rotation.z = Math.PI / 2;
+      g.add(it);
+    }
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+      const p = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2, 6), M.wood); p.position.set(sx * (w / 2 - 0.1), 0.6, sz * 0.42 - 0.05); g.add(p);
+    });
+    const canopy = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.2, 1.15), new THREE.MeshLambertMaterial({ map: clothTex(c1, c2), side: THREE.DoubleSide }));
+    canopy.rotation.x = -Math.PI / 2 - 0.32; canopy.position.set(0, 1.22, -0.05); g.add(canopy);
+    const banner = makeBanner(name, '#efe2c4', '#2a1d16', 0.2);
+    banner.position.set(-(w / 2 - 0.1), 0.78, -0.5); banner.rotation.y = Math.PI; g.add(banner);
+    const lbl = makeLabel(name, '#e6cf98', 'rgba(20,16,12,0.9)', 0.16, '400 46px "Ma Shan Zheng", "STKaiti", serif'); lbl.position.set(0, 1.62, -0.1); g.add(lbl);
+    addPalaceLantern(g, w / 2 - 0.1, 1.0, -0.5, [], 0);
+    list.push({ wx: cx + w / 2 - 0.1, wz: cz - 0.5, wy: 1.0, seed: cx, flame: null });
+    return g;
+  }
+
+  function buildSurface() {
+    const W = SW;
+    W.group = new THREE.Group(); scene.add(W.group);
+    W.grid = Array.from({ length: W.rows }, (_, y) => Array.from({ length: W.cols }, (_, x) => (x === 0 || y === 0 || x === W.cols - 1 || y === W.rows - 1) ? 2 : 1));
+    W.lights = []; W.entities = []; W.seen = new Uint8Array(W.cols * W.rows).fill(1);
+    const grp = W.group;
+    // 地面
+    const outer = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), new THREE.MeshLambertMaterial({ color: 0x141a1d })); outer.rotation.x = -Math.PI / 2; outer.position.set(W.cols / 2, -0.01, W.rows / 2); grp.add(outer);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(W.cols - 2, W.rows - 2), new THREE.MeshLambertMaterial({ map: plazaTex }));
+    plazaTex.repeat.set(W.cols - 2, W.rows - 2);
+    ground.rotation.x = -Math.PI / 2; ground.position.set(W.cols / 2, 0, W.rows / 2); grp.add(ground);
+    // 御道：中轴一条石板路
+    const road = new THREE.Mesh(new THREE.PlaneGeometry(1.2, W.rows - 6), M.stone); road.rotation.x = -Math.PI / 2; road.position.set(11.5, 0.004, W.rows / 2 + 0.5); grp.add(road);
+    // 城墙 + 垛口
+    const m = new THREE.Matrix4();
+    const walls = []; for (let y = 0; y < W.rows; y++) for (let x = 0; x < W.cols; x++) if (W.grid[y][x] === 2) walls.push([x, y]);
+    const wm = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1.2, 1), M.cityWall, walls.length);
+    walls.forEach(([x, y], i) => { m.makeTranslation(x + 0.5, 0.6, y + 0.5); wm.setMatrixAt(i, m); });
+    wm.instanceMatrix.needsUpdate = true; wm.frustumCulled = false; grp.add(wm);
+    const cm = new THREE.InstancedMesh(new THREE.BoxGeometry(0.45, 0.22, 0.45), M.cityWall, walls.length);
+    walls.forEach(([x, y], i) => { m.makeTranslation(x + 0.5, 1.31, y + 0.5); cm.setMatrixAt(i, m); });
+    cm.instanceMatrix.needsUpdate = true; cm.frustumCulled = false; grp.add(cm);
+    // 城墙内侧挂灯
+    for (let x = 3; x < W.cols - 2; x += 4) { addPalaceLantern(grp, x + 0.5, 0.95, 1.12, W.lights, x); addPalaceLantern(grp, x + 0.5, 0.95, W.rows - 1.12, W.lights, x + 1); }
+    // 南门城楼（玩家身后）
+    hall(grp, 11.5, W.rows - 0.5, 4.2, 1.6, 2, 'deco').g.position.y = 1.2;
+    // 远山、月、星
+    const mtn = new THREE.Mesh(new THREE.CylinderGeometry(42, 42, 16, 48, 1, true), new THREE.MeshBasicMaterial({ map: mountainTex, transparent: true, side: THREE.BackSide, fog: false, depthWrite: false }));
+    mtn.position.set(W.cols / 2, 5.5, W.rows / 2); grp.add(mtn);
+    const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex, fog: false, depthWrite: false, transparent: true }));
+    moon.scale.set(14, 14, 1); moon.position.set(W.cols / 2 - 14, 22, -26); grp.add(moon);
+    const starPos = []; const sr = mulberry32(11);
+    for (let i = 0; i < 500; i++) { const a = sr() * Math.PI * 2, e = 0.25 + sr() * 1.2, R = 60; starPos.push(W.cols / 2 + Math.cos(a) * Math.cos(e) * R, Math.sin(e) * R, W.rows / 2 + Math.sin(a) * Math.cos(e) * R); }
+    const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+    grp.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xe8e2d0, size: 0.18, fog: false, transparent: true, opacity: 0.8 })));
+
+    // 回放楼阁（北侧一排）
+    const HX = [2, 7, 13, 18];
+    SERIES.forEach((s, i) => {
+      const x0 = HX[i], tiles = [];
+      for (let y = 2; y <= 3; y++) for (let x = x0; x < x0 + 3; x++) tiles.push([x, y]);
+      const h = hall(grp, x0 + 1.5, 3, 3, 2, s.tiers, 'locked');
+      const plaque = makeLabel('第 ' + s.no + ' 讲 · ' + s.title, '#e6cf98', 'rgba(30,18,12,0.92)', 0.2, '400 44px "Ma Shan Zheng", "STKaiti", serif');
+      plaque.position.set(x0 + 1.5, h.top + 0.35, 4.1); grp.add(plaque);
+      const flagPole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.4, 6), M.wood); flagPole.position.set(x0 + 0.15, 0.7, 4.25); grp.add(flagPole);
+      const flag = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.28), new THREE.MeshLambertMaterial({ color: 0xb8432f, side: THREE.DoubleSide })); flag.position.set(x0 + 0.37, 1.24, 4.25); grp.add(flag);
+      const doorGlow = glowSprite(0xffc070, 1.4); doorGlow.position.set(x0 + 1.5, 0.7, 4.3); grp.add(doorGlow);
+      W.entities.push({ id: 'hall' + s.no, type: 'hall', series: s, tiles, x: x0 + 1, y: 3, hall: h, plaque, flag, flagPole, doorGlow });
+      W.lights.push({ wx: x0 + 1.5, wz: 4.4, wy: 0.7, seed: i, flame: null, hallNo: s.no });
+    });
+    // 石灯笼
+    [[6, 6], [16, 6], [6, 11], [16, 11]].forEach(([x, y]) => {
+      stoneLantern(grp, x + 0.5, y + 0.5, W.lights);
+      W.entities.push({ id: 'lamp' + x + y, type: 'deco', tiles: [[x, y]], x, y });
+    });
+    // 回放榜
+    {
+      const bx = 11, by = 8;
+      const g = new THREE.Group(); g.position.set(bx + 0.5, 0, by + 0.5); grp.add(g);
+      [-0.45, 0.45].forEach(px => { const p = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.3, 6), M.cinna); p.position.set(px, 0.65, 0); g.add(p); });
+      const boardTex = canvasTex(256, (c, w, h) => {
+        c.fillStyle = '#efe2c4'; c.fillRect(0, 0, w, h);
+        c.strokeStyle = '#8e2f22'; c.lineWidth = 8; c.strokeRect(6, 6, w - 12, h - 12);
+        c.fillStyle = '#2a1d16'; c.font = '44px "Ma Shan Zheng", serif'; c.textAlign = 'center'; c.fillText('回放榜', w / 2, 56);
+        c.font = '20px "Noto Serif SC", serif'; c.textAlign = 'left';
+        SERIES.forEach((s, i) => c.fillText('第' + s.no + '讲 ' + s.title, 24, 100 + i * 30));
+      }, false, 180);
+      boardTex.minFilter = THREE.LinearFilter; boardTex.magFilter = THREE.LinearFilter;
+      const board = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.63), new THREE.MeshLambertMaterial({ map: boardTex })); board.position.set(0, 0.95, 0.04); g.add(board);
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(0.7, 0.18, 4), M.tile); cap.rotation.y = Math.PI / 4; cap.scale.set(1, 1, 0.3); cap.position.set(0, 1.38, 0); g.add(cap);
+      W.entities.push({ id: 'board', type: 'board', tiles: [[bx, by]], x: bx, y: by });
+    }
+    // 酒馆（东侧）
+    {
+      const tiles = []; for (let y = 8; y <= 9; y++) for (let x = 19; x <= 21; x++) tiles.push([x, y]);
+      const h = hall(grp, 20.5, 9, 3, 2, 1, 'deco');
+      const sign = makeBanner('酒', '#8e2f22', '#f6e9dc', 0.32); sign.position.set(19.2, 1.05, 10.12); grp.add(sign);
+      const lbl = makeLabel('酒馆 · 谁是卧底', '#e6cf98', 'rgba(30,18,12,0.92)', 0.17, '400 44px "Ma Shan Zheng", "STKaiti", serif'); lbl.position.set(20.5, h.top + 0.3, 10.1); grp.add(lbl);
+      W.entities.push({ id: 'tavern', type: 'tavern', tiles, x: 20, y: 9 });
+    }
+    // 商店街（南侧一排，面朝广场）
+    [[3, '课程铺', '#2d5a6b', '#e6dccb', 'course'], [10, '道具铺', '#8a4b2b', '#ead8bd', 'props'], [17, '卷轴集市', '#3e6e64', '#e6dccb', 'market']].forEach(([x0, name, c1, c2, kind]) => {
+      stall(grp, x0 + 1.5, 14.5, 3, c1, c2, name, W.lights);
+      const tiles = []; for (let x = x0; x < x0 + 3; x++) tiles.push([x, 14]);
+      W.entities.push({ id: 'shop-' + kind, type: 'shop', kind, name, tiles, x: x0 + 1, y: 14 });
+    });
+    return W;
+  }
+
+  function applySurfaceState() {
+    SW.entities.filter(e => e.type === 'hall').forEach(e => {
+      const st = hallStatus(e.series);
+      e.flag.visible = e.flagPole.visible = st === 'cleared';
+      e.doorGlow.visible = st === 'open';
+      if (e.hall.doorPanel) e.hall.doorPanel.material.color.setHex(st === 'open' ? 0xffe0a0 : st === 'locked' ? 0x3a3530 : 0xb89a70);
+      const tag = st === 'cleared' ? ' · 已通关' : st === 'locked' ? ' · 未开启' : st === 'soon' ? ' · 已开启' : ' · 可进入';
+      setLabel(e.plaque, '第 ' + e.series.no + ' 讲 · ' + e.series.title + tag);
+    });
+  }
+  function hallStatus(s) {
+    if (G.cleared.includes(s.no)) return 'cleared';
+    if (s.playable) return 'open';
+    if (s.no === 4) return G.cleared.includes(3) ? 'soon' : 'locked';
+    return 'locked';
+  }
+
+  // ═════════════ 地下：地宫（第 3 讲） ═════════════
+  const PW = { name: 'palace' };
+  const CW = 13, CH = 11;
+  PW.cols = CW * 3 + 1; PW.rows = CH * 2 + 1;
+  const LAYOUT = [[0, 0], [1, 0], [2, 0], [2, 1], [1, 1], [0, 1]];
+
+  function genPalace() {
+    const W = PW;
+    const rnd = mulberry32(Number(DATA.course.channelId));
+    const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+    W.grid = Array.from({ length: W.rows }, () => new Array(W.cols).fill(0));
+    W.roomOf = Array.from({ length: W.rows }, () => new Array(W.cols).fill(-1));
+    W.rooms = LAYOUT.map(([cx, cy], i) => {
+      const w = ri(8, 10), h = ri(6, 8);
+      const x = cx * CW + 2 + ri(0, CW - 3 - w), y = cy * CH + 2 + ri(0, CH - 3 - h);
+      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { W.grid[yy][xx] = 1; W.roomOf[yy][xx] = i; }
+      return { i, x, y, w, h, cx: x + Math.floor(w / 2), cy: y + Math.floor(h / 2) };
+    });
+    for (let i = 0; i < W.rooms.length - 1; i++) {
+      const a = W.rooms[i], b = W.rooms[i + 1];
+      let x = a.cx, y = a.cy;
+      while (x !== b.cx) { x += Math.sign(b.cx - x); if (W.grid[y][x] === 0) W.grid[y][x] = 1; }
+      while (y !== b.cy) { y += Math.sign(b.cy - y); if (W.grid[y][x] === 0) W.grid[y][x] = 1; }
+    }
+    for (let y = 0; y < W.rows; y++) for (let x = 0; x < W.cols; x++) {
+      if (W.grid[y][x] !== 0) continue;
+      let near = false;
+      for (let dy = -1; dy <= 1 && !near; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const yy = y + dy, xx = x + dx;
+        if (yy >= 0 && yy < W.rows && xx >= 0 && xx < W.cols && W.grid[yy][xx] === 1) { near = true; break; }
+      }
+      if (near) W.grid[y][x] = 2;
+    }
+    W.lampSpots = [];
+    W.rooms.forEach(r => { [r.x + 1, r.x + r.w - 2].forEach(tx => { if (W.grid[r.y - 1][tx] === 2) W.lampSpots.push({ x: tx, y: r.y - 1, seed: rnd() * 10 }); }); });
+    W.entities = [];
+    const taken = [];
+    const free = (x, y) => !taken.some(([a, b]) => Math.abs(a - x) <= 1 && Math.abs(b - y) <= 1);
+    const place = r => {
+      const cand = [];
+      for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) {
+        if (x === r.cx || y === r.cy) continue; // 十字通道保持畅通
+        if (free(x, y)) cand.push([x, y]);
+      }
+      const p = cand[Math.floor(rnd() * cand.length)];
+      taken.push(p);
+      return p;
+    };
+    W.rooms.forEach(r => {
+      DATA.clusters.filter(c => c.seg === r.i).forEach((c, k) => { const [x, y] = place(r); W.entities.push({ id: 'npc' + r.i + '_' + k, type: 'npc', room: r.i, x, y, cluster: c }); });
+      if (r.i === BOSS_ROOM) {
+        const [x, y] = place(r);
+        W.entities.push({ id: 'boss', type: 'boss', room: r.i, x, y, kw: 'KeyError 镇墓兽', qids: DATA.questions.filter(q => q.seg === r.i).map(q => q.id) });
+      } else {
+        DATA.questions.filter(q => q.seg === r.i).forEach(q => { const [x, y] = place(r); W.entities.push({ id: q.id, type: 'chest', room: r.i, x, y, kw: q.kw, qids: [q.id], color: JADE_COLORS[r.i % JADE_COLORS.length] }); });
+      }
+    });
+    const last = W.rooms[LAST_ROOM];
+    W.entities.push({ id: 'portal', type: 'portal', room: LAST_ROOM, x: last.cx, y: last.cy });
+  }
+
+  function buildPalace() {
+    const W = PW;
+    genPalace();
+    W.group = new THREE.Group(); scene.add(W.group);
+    const grp = W.group;
+    W.lights = [];
+    const walls = [], floors = [], corrs = [];
+    for (let y = 0; y < W.rows; y++) for (let x = 0; x < W.cols; x++) {
+      if (W.grid[y][x] === 2) walls.push([x, y]);
+      else if (W.grid[y][x] === 1) (W.roomOf[y][x] >= 0 ? floors : corrs).push([x, y]);
+    }
+    const m = new THREE.Matrix4();
+    const inst = (geo, mat, list, yy) => {
+      const mesh = new THREE.InstancedMesh(geo, mat, list.length);
+      list.forEach(([x, y], i) => { m.makeTranslation(x + 0.5, yy, y + 0.5); mesh.setMatrixAt(i, m); });
+      mesh.instanceMatrix.needsUpdate = true; mesh.frustumCulled = false; grp.add(mesh);
+    };
+    inst(new THREE.BoxGeometry(1, WALL_H, 1), M.wall, walls, WALL_H / 2);
+    const fg = new THREE.PlaneGeometry(1, 1); fg.rotateX(-Math.PI / 2);
+    inst(fg, M.floor, floors, 0);
+    inst(fg, M.corridor, corrs, 0);
+    const cg = new THREE.PlaneGeometry(1, 1); cg.rotateX(Math.PI / 2);
+    inst(cg, M.ceil, floors.concat(corrs), WALL_H);
+    // 格扇窗与朱漆立柱
+    const panels = [], cols = [];
+    const Qy = (ry) => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), ry);
+    W.rooms.forEach(r => {
+      for (let k = 0; k < r.w; k += 2) {
+        if (W.grid[r.y - 1][r.x + k] === 2) panels.push([r.x + k + 0.5, r.y + 0.012, 0]);
+        if (W.grid[r.y + r.h][r.x + k] === 2) panels.push([r.x + k + 0.5, r.y + r.h - 0.012, Math.PI]);
+      }
+      for (let k = 0; k < r.h; k += 2) {
+        if (W.grid[r.y + k][r.x - 1] === 2) panels.push([r.x + 0.012, r.y + k + 0.5, Math.PI / 2]);
+        if (W.grid[r.y + k][r.x + r.w] === 2) panels.push([r.x + r.w - 0.012, r.y + k + 0.5, -Math.PI / 2]);
+      }
+      for (let k = 0; k <= r.w; k += 2) { cols.push([r.x + k, r.y + 0.07]); cols.push([r.x + k, r.y + r.h - 0.07]); }
+      for (let k = 2; k < r.h; k += 2) { cols.push([r.x + 0.07, r.y + k]); cols.push([r.x + r.w - 0.07, r.y + k]); }
+    });
+    const pm = new THREE.InstancedMesh(new THREE.PlaneGeometry(0.62, 0.6), new THREE.MeshBasicMaterial({ map: latticeTex, color: 0xd9b98a }), panels.length);
+    const one = new THREE.Vector3(1, 1, 1);
+    panels.forEach(([x, z, ry], i) => { m.compose(new THREE.Vector3(x, 0.66, z), Qy(ry), one); pm.setMatrixAt(i, m); });
+    pm.instanceMatrix.needsUpdate = true; pm.frustumCulled = false; grp.add(pm);
+    const colPart = (geo, mat, y) => {
+      const im = new THREE.InstancedMesh(geo, mat, cols.length);
+      cols.forEach(([x, z], i) => { m.makeTranslation(x, y, z); im.setMatrixAt(i, m); });
+      im.instanceMatrix.needsUpdate = true; im.frustumCulled = false; grp.add(im);
+    };
+    colPart(new THREE.CylinderGeometry(0.05, 0.056, WALL_H - 0.1, 10), M.cinna, WALL_H / 2);
+    colPart(new THREE.CylinderGeometry(0.08, 0.095, 0.08, 10), M.stone, 0.04);
+    colPart(new THREE.BoxGeometry(0.15, 0.06, 0.15), M.gold, WALL_H - 0.08);
+    // 宫灯
+    W.lampSpots.forEach(sp => {
+      const x = sp.x + 0.5, z = sp.y + 1.24;
+      addPalaceLantern(grp, x, 0.95, z, W.lights, sp.seed);
+      grp.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x, 1.08, z), new THREE.Vector3(x, WALL_H, z)]), new THREE.LineBasicMaterial({ color: 0x5a4030 })));
+    });
+    // 入口：楼梯光（第一个殿室中心上方）
+    buildPalaceEntities();
+    buildPalaceOverlays();
+    W.seen = new Uint8Array(W.cols * W.rows);
+  }
+
+  function buildPalaceEntities() {
+    const W = PW, grp = W.group;
+    W.entities.forEach(e => {
+      const g = new THREE.Group();
+      g.position.set(e.x + 0.5, 0, e.y + 0.5);
+      if (e.type === 'chest') {
+        // 宝函：黑漆木函，朱漆腰带，铜金包角
+        const r = W.rooms[e.room];
+        g.rotation.y = Math.atan2(r.cx - e.x, r.cy - e.y);
+        const stand = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.05, 0.42), M.stoneDark); stand.position.y = 0.025; g.add(stand);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.26, 0.34), M.lacquer); body.position.y = 0.18; g.add(body);
+        const band = new THREE.Mesh(new THREE.BoxGeometry(0.515, 0.06, 0.355), M.cinna); band.position.y = 0.2; g.add(band);
+        [[-0.24, -0.16], [0.24, -0.16], [-0.24, 0.16], [0.24, 0.16]].forEach(([cx, cz]) => { const c = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.27, 0.04), M.gold); c.position.set(cx, 0.18, cz); g.add(c); });
+        const lock = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.02, 12), M.gold); lock.rotation.x = Math.PI / 2; lock.position.set(0, 0.24, 0.18); g.add(lock);
+        const pivot = new THREE.Group(); pivot.position.set(0, 0.31, -0.17); g.add(pivot);
+        const lid = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.09, 0.36), M.lacquer); lid.position.set(0, 0.045, 0.17); pivot.add(lid);
+        const lidTrim = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.012, 0.22), M.gold); lidTrim.position.set(0, 0.095, 0.17); pivot.add(lidTrim);
+        const gem = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.03, 10, 28), new THREE.MeshLambertMaterial({ color: e.color, emissive: new THREE.Color(e.color).multiplyScalar(0.45) }));
+        gem.position.y = 0.66; g.add(gem);
+        const glow = glowSprite(e.color, 0.5); glow.position.y = 0.66; g.add(glow);
+        const label = makeLabel('宝函 · ' + e.kw, '#f2e9d5', 'rgba(14,18,22,0.88)', 0.12); label.position.y = 0.95; g.add(label);
+        Object.assign(e, { lid: pivot, gem, glow, label });
+      } else if (e.type === 'boss') {
+        // 镇墓兽：青铜兽首，朱目金角
+        const core = new THREE.Group(); core.position.y = 0.74; g.add(core);
+        const bronze = new THREE.MeshLambertMaterial({ color: 0x3e4a40, emissive: 0x0d120e, flatShading: true });
+        core.add(new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.4, 0.4), bronze));
+        const mask = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.32, 0.04), new THREE.MeshLambertMaterial({ color: 0x5a6b55, flatShading: true })); mask.position.z = 0.215; core.add(mask);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff6a4a });
+        [-0.11, 0.11].forEach(ex => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8), eyeMat); eye.position.set(ex, 0.04, 0.24); core.add(eye);
+          const brow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.025, 0.03), M.gold); brow.position.set(ex, 0.11, 0.24); brow.rotation.z = ex > 0 ? -0.35 : 0.35; core.add(brow);
+          const horn = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.3, 6), M.gold); horn.position.set(ex * 1.4, 0.32, 0); horn.rotation.z = ex > 0 ? -0.45 : 0.45; core.add(horn);
+          const ear = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.14, 4), bronze); ear.position.set(ex * 2.3, 0.12, 0.05); ear.rotation.z = ex > 0 ? -1.2 : 1.2; core.add(ear);
+        });
+        const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.05, 0.02), new THREE.MeshBasicMaterial({ color: 0x140808 })); mouth.position.set(0, -0.09, 0.24); core.add(mouth);
+        [-0.08, 0.08].forEach(tx => { const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.06, 4), new THREE.MeshLambertMaterial({ color: 0xe6dcc2 })); tooth.position.set(tx, -0.12, 0.245); tooth.rotation.x = Math.PI; core.add(tooth); });
+        const plinth = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.34, 0.12, 8), M.stoneDark); plinth.position.y = 0.06; g.add(plinth);
+        const hoard = new THREE.Group(); g.add(hoard);
+        for (let k = 0; k < 9; k++) { const coin = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.018, 10), M.gold); coin.position.set((k % 3 - 1) * 0.12, 0.13 + Math.floor(k / 3) * 0.02, (Math.floor(k / 3) - 1) * 0.06 + 0.3); hoard.add(coin); }
+        const glow = glowSprite(0xc8442f, 1.4); glow.position.y = 0.78; g.add(glow);
+        const label = makeLabel('镇墓兽 · KeyError ♥♥♥', '#ffd2c6', 'rgba(60,20,14,0.92)', 0.14); label.position.y = 1.3; g.add(label);
+        Object.assign(e, { core, glow, label, hoard });
+        bossLight.position.set(e.x + 0.5, 0.9, e.y + 0.5);
+      } else if (e.type === 'npc') {
+        // 书生灯影：月白襕衫，展脚幞头，手提小灯
+        const mat = new THREE.MeshLambertMaterial({ color: 0xe6eeee, emissive: 0x3f5a60, transparent: true, opacity: 0.72, side: THREE.DoubleSide });
+        const body = new THREE.Group(); g.add(body);
+        const robe = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.58, 14, 1, true), mat); robe.position.y = 0.44; body.add(robe);
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 12), new THREE.MeshLambertMaterial({ color: 0xf0e2cf, emissive: 0x3a3028, transparent: true, opacity: 0.85 })); head.position.y = 0.82; body.add(head);
+        const hatMat = new THREE.MeshLambertMaterial({ color: 0x15181c });
+        const hat = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.18), hatMat); hat.position.y = 0.95; body.add(hat);
+        const wings = new THREE.Mesh(new THREE.BoxGeometry(0.78, 0.014, 0.03), hatMat); wings.position.set(0, 0.93, -0.04); body.add(wings);
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0x1a1430 });
+        [-0.045, 0.045].forEach(ex => { const eye = new THREE.Mesh(new THREE.SphereGeometry(0.018, 8, 6), eyeMat); eye.position.set(ex, 0.83, 0.12); body.add(eye); });
+        const lamp = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.1, 10), M.lampOn); lamp.position.set(0.24, 0.5, 0.1); body.add(lamp);
+        const lampGlow = glowSprite(0xffb36b, 0.4); lampGlow.position.set(0.24, 0.5, 0.1); body.add(lampGlow);
+        const glow = glowSprite(0x9fc3c9, 0.9); glow.position.y = 0.65; g.add(glow);
+        const label = makeLabel('! ' + e.cluster.count + ' 人问过', '#ffe7a0', 'rgba(16,30,34,0.92)', 0.12); label.position.y = 1.15; g.add(label);
+        Object.assign(e, { body, glow, label });
+      } else if (e.type === 'portal') {
+        // 月洞门
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.06, 10, 40), new THREE.MeshBasicMaterial({ color: 0x5a5f5c }));
+        const disc = new THREE.Mesh(new THREE.CircleGeometry(0.38, 40), new THREE.MeshBasicMaterial({ map: swirlTex, color: 0x3a3f44, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }));
+        const stand = new THREE.Group(); stand.position.y = 0.6; stand.add(ring); stand.add(disc); g.add(stand);
+        const base = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.2), M.stoneDark); base.position.y = 0.04; g.add(base);
+        const label = makeLabel('月洞门（未开启）', '#ece3cf', 'rgba(16,22,26,0.9)', 0.12); label.position.y = 1.15; g.add(label);
+        Object.assign(e, { stand, ring, disc, label });
+        portalLight.position.set(e.x + 0.5, 0.6, e.y + 0.5);
+      }
+      grp.add(g);
+      e.obj = g;
+    });
+  }
+
+  const mists = {}, heat = new THREE.Group();
+  function buildPalaceOverlays() {
+    const W = PW;
+    W.group.add(heat);
+    FOG_ROOMS.forEach(ri => {
+      const r = W.rooms[ri], seg = DATA.outline[ri];
+      const grp = new THREE.Group();
+      const box = new THREE.Mesh(new THREE.BoxGeometry(r.w, WALL_H, r.h), new THREE.MeshBasicMaterial({ map: mistTex, color: 0x6f8088, transparent: true, opacity: 0.85, depthWrite: false, side: THREE.DoubleSide }));
+      box.position.set(r.x + r.w / 2, WALL_H / 2, r.y + r.h / 2);
+      grp.add(box);
+      const label = makeLabel('? 墨雾 · 你没看过 ' + fmt(seg.start) + '–' + fmt(seg.end), '#ece3cf', 'rgba(16,22,26,0.9)', 0.16);
+      label.position.set(r.x + r.w / 2, 0.75, r.y + r.h / 2); label.material.depthTest = false; label.renderOrder = 5;
+      grp.add(label);
+      W.group.add(grp);
+      mists[ri] = { grp, box };
+    });
+    W.rooms.forEach(r => {
+      const rate = DATA.failRate[r.i];
+      const plane = new THREE.Mesh(new THREE.PlaneGeometry(r.w, r.h), new THREE.MeshBasicMaterial({ color: 0xb8432f, transparent: true, opacity: rate / 100 * 0.75, depthWrite: false }));
+      plane.rotation.x = -Math.PI / 2; plane.position.set(r.x + r.w / 2, 0.012, r.y + r.h / 2);
+      heat.add(plane);
+      const label = makeLabel('卡关 ' + rate + '% · ' + Math.round(rate / 100 * DATA.course.students) + '/' + DATA.course.students + ' 人', '#fff3e6', 'rgba(90,25,20,0.9)', 0.18);
+      label.position.set(r.x + r.w / 2, 1.05, r.y + r.h / 2);
+      heat.add(label);
+    });
+  }
+
+  // ═════════════ 状态 ═════════════
+  const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+  let mode = 'surface', CUR = SW;
+  let G, S = null, P, curRoom = -1;
+  const freshG = () => ({ coins: 30, jadeBase: 9, items: { hint: 1, oil: 0 }, cleared: [1, 2], owned: [], ordered: [], market: MARKET0.map(s => Object.assign({}, s)), mine: [] });
+  const freshS = () => ({ px: PW.rooms[0].cx, py: PW.rooms[0].cy, dir: 1, hp: 5, xp: 0, dead: [], explored: [], visited: [], wrong: [], falls: 0, answered: 0, correct: 0, bossHp: 3, teacher: false, seenNpc: [], oilLit: false, startedAt: Date.now() });
+  const mv = { t: 1, fx: 0, fz: 0, tx: 0, tz: 0 }, tn = { t: 1, f: 0, to: 0 }, bump = { t: 1, dx: 0, dz: 0 };
+  const anims = [];
+  const pl = () => mode === 'palace' ? S : U;
+
+  function syncPlayer() {
+    const p = pl();
+    P = { x: p.px + 0.5, z: p.py + 0.5, yaw: -p.dir * Math.PI / 2 };
+    mv.t = 1; tn.t = 1; bump.t = 1;
+  }
+
+  // ═════════════ 切换地上 / 地下 ═════════════
+  let fading = false;
+  function transition(text, cb) {
+    if (fading) return; fading = true; held.length = 0;
+    const f = $('#fade'); $('#fadeText').textContent = text; f.classList.add('on');
+    setTimeout(() => { cb(); setTimeout(() => { f.classList.remove('on'); fading = false; }, 120); }, reduceMotion ? 50 : 480);
+  }
+  function setMode(m) {
+    mode = m; CUR = m === 'palace' ? PW : SW;
+    SW.group.visible = m === 'surface';
+    if (PW.group) PW.group.visible = m === 'palace';
+    if (m === 'surface') {
+      scene.background = new THREE.Color(0x0c1520); scene.fog = new THREE.FogExp2(0x0c1520, 0.045);
+      ambient.color.setHex(0x55657a); ambient.intensity = 0.55; moonLight.intensity = 0.55;
+      hand.intensity = 0.7; bossLight.intensity = 0; portalLight.intensity = 0;
+    } else {
+      scene.background = new THREE.Color(0x0b1016); scene.fog = new THREE.FogExp2(0x0b1016, 0.16);
+      ambient.color.setHex(0x4a5560); ambient.intensity = 0.62; moonLight.intensity = 0;
+      hand.intensity = 1.4;
+    }
+    const mm = $('#mm'); mm.width = CUR.cols * 4; mm.height = CUR.rows * 4;
+    $('#hpStat').hidden = $('#teacherBtn').hidden = $('#upBtn').hidden = $('#oilBtn').hidden = m !== 'palace';
+    $('#subtitle').textContent = m === 'palace' ? '地下 · 第 3 讲地宫' : '地上 · 回放广场';
+    $('#where').textContent = m === 'palace' ? '地宫' : '回放广场';
+    $('#courseLine').innerHTML = m === 'palace'
+      ? '<span>' + esc(DATA.course.title) + '</span><span>频道 <b>' + DATA.course.channelId + '</b></span><span>' + DATA.course.date + ' · ' + fmt(DATA.course.duration) + ' · ' + DATA.course.teacher + '</span>'
+      : '<span>系列课 <b>Python 入门</b> · 4 讲</span><span>频道 <b>' + DATA.course.channelId + '</b></span><span>回放列表生成广场，商品库生成店铺</span>';
+    syncPlayer(); updateHud();
+  }
+
+  function enterPalace() {
+    transition('入 地 宫', () => {
+      if (!PW.group) buildPalace();
+      if (!S) { S = freshS(); PW.seen = new Uint8Array(PW.cols * PW.rows); }
+      setMode('palace');
+      curRoom = -1;
+      markSeen(S.px, S.py, 2);
+      enterRoom(PW.roomOf[S.py][S.px] >= 0 ? PW.roomOf[S.py][S.px] : 0);
+      applyPalaceState();
+      addLog('沿石阶下到第 3 讲地宫', 'warn');
+      toast('↑ 前进 · ← → 转身 · 面对宝函按 ↑ 开锁');
+    });
+  }
+  function exitPalace(cleared) {
+    transition('回 地 面', () => {
+      if (cleared && !G.cleared.includes(3)) { G.cleared.push(3); addLog('第 3 讲已通关 · 楼阁挂上朱旗 · 第 4 讲开启', 'ok'); }
+      U.px = 14; U.py = 4; U.dir = 2;
+      setMode('surface');
+      applySurfaceState();
+      renderSurfacePanel();
+      if (cleared) toast('回到地面。去商店街花点铜钱吧');
+    });
+  }
+
+  // ═════════════ 移动与交互 ═════════════
+  function doAction(a) {
+    const p = pl();
+    if (a === 'left' || a === 'right') {
+      p.dir = (p.dir + (a === 'left' ? 3 : 1)) % 4;
+      tn.f = P.yaw; tn.to = P.yaw + (a === 'left' ? 1 : -1) * Math.PI / 2; tn.t = 0;
+      return;
+    }
+    const off = { fwd: 0, back: 2, sl: 3, sr: 1 }[a];
+    const [dx, dy] = DIRS[(p.dir + off) % 4];
+    tryStep(dx, dy, a === 'fwd');
+  }
+  function onTile(e, x, y) { return e.tiles ? e.tiles.some(([a, b]) => a === x && b === y) : (e.x === x && e.y === y); }
+  function blocker(x, y) {
+    return CUR.entities.find(e => onTile(e, x, y) && !(e.type === 'boss' && S && S.dead.includes('boss')));
+  }
+  function tryStep(dx, dy, facing) {
+    const p = pl();
+    const nx = p.px + dx, ny = p.py + dy;
+    if (ny < 0 || ny >= CUR.rows || nx < 0 || nx >= CUR.cols || CUR.grid[ny][nx] !== 1) { bump.t = 0; bump.dx = dx; bump.dz = dy; return; }
+    if (mode === 'palace') {
+      const r = PW.roomOf[ny][nx];
+      if (r >= 0 && FOG_ROOMS.includes(r) && !S.explored.includes(r)) { held.length = 0; openExplore(r); return; }
+    }
+    const e = blocker(nx, ny);
+    if (e) {
+      held.length = 0;
+      if (e.type === 'deco') { bump.t = 0; bump.dx = dx; bump.dz = dy; return; }
+      if (!facing) { toast('转过身面对它，再按前进'); return; }
+      interact(e); return;
+    }
+    p.px = nx; p.py = ny;
+    mv.fx = P.x; mv.fz = P.z; mv.tx = nx + 0.5; mv.tz = ny + 0.5; mv.t = 0;
+    if (mode === 'palace') {
+      markSeen(nx, ny, 2);
+      const r = PW.roomOf[ny][nx];
+      if (r >= 0) enterRoom(r);
+    } else renderSurfacePanel();
+  }
+  function enterRoom(r) {
+    if (!S.visited.includes(r)) {
+      S.visited.push(r);
+      const seg = DATA.outline[r];
+      addLog('进入第 ' + (r + 1) + ' 殿「' + seg.title + '」' + fmt(seg.start) + '–' + fmt(seg.end));
+    }
+    const rm = PW.rooms[r];
+    for (let y = rm.y - 1; y <= rm.y + rm.h; y++) for (let x = rm.x - 1; x <= rm.x + rm.w; x++) PW.seen[y * PW.cols + x] = 1;
+    if (r !== curRoom) { curRoom = r; renderPanel(r); }
+  }
+  function markSeen(px, py, rad) {
+    for (let y = py - rad; y <= py + rad; y++) for (let x = px - rad; x <= px + rad; x++) if (y >= 0 && y < PW.rows && x >= 0 && x < PW.cols) PW.seen[y * PW.cols + x] = 1;
+  }
+  function interact(e) {
+    if (e.type === 'chest') { if (S.dead.includes(e.id)) toast('空宝函，玉璧「' + e.kw + '」已经在你行囊里了'); else openBattle(e); }
+    else if (e.type === 'boss') openBattle(e);
+    else if (e.type === 'npc') openNpc(e);
+    else if (e.type === 'portal') { if (S.dead.includes('boss')) openResult(); else toast('月洞门还没开启：先降服第 ' + (BOSS_ROOM + 1) + ' 殿的镇墓兽'); }
+    else if (e.type === 'hall') openHall(e);
+    else if (e.type === 'shop') openShop(e.kind);
+    else if (e.type === 'board') openBoard();
+    else if (e.type === 'tavern') openTavern();
+  }
+
+  // ═════════════ 面板 / HUD / 日志 ═════════════
+  function roomCleared(i) { return PW.entities.filter(e => e.room === i && (e.type === 'chest' || e.type === 'boss')).every(e => S.dead.includes(e.id)); }
+  function gems() { return S ? PW.entities.filter(e => (e.type === 'chest' || e.type === 'boss') && S.dead.includes(e.id)).length : 0; }
+  const jadeTotal = () => G.jadeBase + gems();
+  function updateHud() {
+    if (S) $('#hpView').innerHTML = Array.from({ length: 5 }, (_, i) => '<span class="' + (i < S.hp ? 'on' : 'off') + '">♥</span>').join('');
+    $('#coinView').textContent = G.coins;
+    $('#jadeView').textContent = jadeTotal();
+    $('#bagView').textContent = '提示签 ' + G.items.hint + ' · 灯油 ' + G.items.oil;
+    $('#oilBtn').disabled = !G.items.oil || (S && S.oilLit);
+    $('#teacherBtn').setAttribute('aria-pressed', String(!!(S && S.teacher)));
+    heat.visible = !!(S && S.teacher);
+  }
+  function sourcesHtml(list, on) {
+    return list.map(s => '<div class="src' + (on.has(s.key) ? ' on' : '') + '"><span class="dot"></span><div><b>' + esc(s.name) + '</b><div class="role">' + esc(s.role) + '</div><div class="api">' + esc(s.api) + '</div></div></div>').join('');
+  }
+  function renderPanel(i) {
+    const seg = DATA.outline[i];
+    const tags = [];
+    if (i === BOSS_ROOM) tags.push('<span class="tag boss">镇墓兽镇守 · 全班错误率 ' + DATA.failRate[i] + '%</span>');
+    if (FOG_ROOMS.includes(i)) tags.push('<span class="tag fog">' + (S.explored.includes(i) ? '墨雾已散' : '你没看过这段') + '</span>');
+    if (DATA.clusters.some(c => c.seg === i)) tags.push('<span class="tag npc">有书生灯影</span>');
+    if (roomCleared(i)) tags.push('<span class="tag done">宝藏已清空</span>');
+    $('#roomCard').innerHTML =
+      '<div class="eyebrow">地宫 · 第 ' + (i + 1) + ' / ' + DATA.outline.length + ' 殿（大纲分段）</div>' +
+      '<h2 class="room-title">' + esc(seg.title) + '</h2>' +
+      '<div class="room-time">回放 ' + fmt(seg.start) + ' – ' + fmt(seg.end) + '</div>' +
+      (tags.length ? '<div class="chips">' + tags.join('') + '</div>' : '') +
+      '<p class="room-sum">' + esc(seg.summary) + '</p>' +
+      '<div class="chips">' + seg.keyword.map(k => '<span class="chip">' + esc(k) + '</span>').join('') + '</div>';
+    const on = new Set(['outline', 'subtitle']);
+    if (DATA.clusters.some(c => c.seg === i)) { on.add('chat'); on.add('avatar'); }
+    if (i === BOSS_ROOM) on.add('quiz');
+    if (FOG_ROOMS.includes(i)) on.add('viewlog');
+    if (i === LAST_ROOM) on.add('marker');
+    $('#sources').innerHTML = sourcesHtml(SRC_PALACE, on);
+  }
+  let lastZone = '';
+  function renderSurfacePanel(force) {
+    const y = U.py;
+    const zone = y <= 6 ? 'halls' : y >= 12 ? 'shops' : 'plaza';
+    if (zone === lastZone && !force) return;
+    lastZone = zone;
+    const Z = {
+      halls: ['楼阁街', '系列课的每一讲回放是一座楼阁。观看人次越高，楼层越多；你通关过的楼阁挂朱旗，下一讲在通关后开启。', ['playback', 'viewlog']],
+      plaza: ['广场', '中轴御道，回放榜立在正中，东侧是酒馆。石灯笼下，大家来来往往。', ['playback', 'chat']],
+      shops: ['商店街', '课程铺卖真实商品，道具铺卖提示签和灯油，卷轴集市里是同学写的讲解。地宫里赚的铜钱在这里花。', ['product', 'points']]
+    }[zone];
+    $('#roomCard').innerHTML = '<div class="eyebrow">地上 · 回放广场</div><h2 class="room-title">' + Z[0] + '</h2><p class="room-sum">' + Z[1] + '</p>' +
+      '<div class="chips"><span class="chip">铜钱 ' + G.coins + '</span><span class="chip">玉璧 ' + jadeTotal() + '</span><span class="chip">已通关 ' + G.cleared.length + ' / ' + SERIES.length + ' 讲</span></div>';
+    $('#sources').innerHTML = sourcesHtml(SRC_SURFACE, new Set(Z[2]));
+  }
+  function addLog(text, kind) {
+    const d = new Date();
+    const el = document.createElement('div');
+    el.innerHTML = '<span class="t">' + [d.getHours(), d.getMinutes(), d.getSeconds()].map(n => String(n).padStart(2, '0')).join(':') + '</span><span class="' + (kind || '') + '">' + esc(text) + '</span>';
+    const log = $('#log'); log.prepend(el);
+    while (log.children.length > 60) log.lastChild.remove();
+  }
+  let toastTimer;
+  function toast(text) {
+    const el = $('#toast'); el.textContent = text; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
+  }
+  function hurt() {
+    const s = screenEl; s.classList.remove('shake'); void s.offsetWidth; if (!reduceMotion) s.classList.add('shake');
+    const f = $('#flash'); f.classList.add('on'); requestAnimationFrame(() => requestAnimationFrame(() => f.classList.remove('on')));
+  }
+  function earn(n, why) { G.coins += n; addLog(why + ' +' + n + ' 铜钱', 'ok'); updateHud(); }
+
+  // ═════════════ 弹窗 ═════════════
+  const modal = $('#modal'), dialog = $('#dialog');
+  function openModal(html) { dialog.innerHTML = html; modal.hidden = false; held.length = 0; const f = dialog.querySelector('button'); if (f) f.focus({ preventScroll: true }); }
+  function closeModal() { modal.hidden = true; screenEl.focus({ preventScroll: true }); if (mode === 'surface') renderSurfacePanel(true); }
+
+  // —— 地上 ——
+  function openHall(e) {
+    const s = e.series, st = hallStatus(s);
+    if (st === 'open') {
+      openModal(
+        '<div class="eyebrow">楼阁 · 回放列表第 ' + s.no + ' 讲</div><h2>第 ' + s.no + ' 讲 · ' + esc(s.title) + '</h2>' +
+        '<p>' + s.date + ' 直播回放 · ' + fmt(DATA.course.duration) + ' · 观看 ' + s.views.toLocaleString() + ' 人次</p>' +
+        '<p class="note">楼阁之下是这一讲回放生成的地宫：6 座殿室对应 6 段大纲，宝函里是关键词，镇墓兽守在全班最难的那一段。</p>' +
+        '<div class="actions"><button class="btn" type="button" id="no">再逛逛</button><button class="btn primary" type="button" id="go">推门，下地宫</button></div>');
+      $('#no').onclick = closeModal;
+      $('#go').onclick = () => { modal.hidden = true; enterPalace(); };
+    } else if (st === 'cleared') {
+      openModal('<div class="eyebrow">楼阁 · 已通关</div><h2>第 ' + s.no + ' 讲 · ' + esc(s.title) + '</h2>' +
+        '<p>你已通关这一讲' + (s.no === 3 ? '' : '（示例数据）') + '。按遗忘曲线，系统会在第 1、3、7 天推送复习副本。</p>' +
+        '<div class="actions">' + (s.playable ? '<button class="btn" type="button" id="re">再下一次地宫</button>' : '') + '<button class="btn primary" type="button" id="ok">好</button></div>');
+      $('#ok').onclick = closeModal;
+      if (s.playable) $('#re').onclick = () => { modal.hidden = true; S = null; anims.length = 0; enterPalace(); };
+    } else if (st === 'soon') {
+      toast('第 4 讲已开启 · 演示数据只包含第 3 讲的地宫');
+    } else toast('第 ' + s.no + ' 讲还没开启：先通关第 ' + (s.no - 1) + ' 讲');
+  }
+  function openBoard() {
+    openModal('<div class="eyebrow">回放榜 · 来自回放列表接口</div><h2>Python 入门 · 系列回放</h2>' +
+      '<div class="review">' + SERIES.map(s => { const st = hallStatus(s); return '<div><b>第 ' + s.no + ' 讲 · ' + esc(s.title) + '</b><span class="note">' + s.date + ' · ' + (s.views ? s.views.toLocaleString() + ' 人次' : '未开播') + '</span><span class="when">' + ({ cleared: '已通关', open: '可进入', locked: '未开启', soon: '已开启' })[st] + '</span></div>'; }).join('') + '</div>' +
+      '<p class="note">广场布局由回放列表生成：每讲一座楼阁，楼层数按观看人次分档，顺序就是系列课顺序。</p>' +
+      '<div class="actions"><button class="btn primary" type="button" id="ok">知道了</button></div>');
+    $('#ok').onclick = closeModal;
+  }
+  function openTavern() {
+    openModal('<div class="eyebrow">酒馆 · 后续开放</div><h2>谁是卧底</h2>' +
+      '<p>六人一桌，五人拿到同一个概念，一人拿到相似但不同的概念（比如 <b>append</b> 和 <b>extend</b>）。轮流一句话描述，投票找出卧底；复盘时 AI 逐句点评你的描述准不准，并给出回放里讲这两个概念的时间点。</p>' +
+      '<p class="note">词对从全班错题里挖：学员答错时选的那个干扰项，就是他脑子里和正确答案混在一起的概念。多人同桌基于聊天室 JS-SDK。</p>' +
+      '<div class="actions"><button class="btn primary" type="button" id="ok">下次再来</button></div>');
+    $('#ok').onclick = closeModal;
+  }
+  function wallet() { return '<div class="wallet"><span>铜钱 <b class="coin">' + G.coins + '</b></span><span>玉璧 <b class="jade">' + jadeTotal() + '</b></span><span>行囊 提示签 ' + G.items.hint + ' · 灯油 ' + G.items.oil + '</span></div>'; }
+  function openShop(kind) {
+    if (kind === 'course') {
+      const deduct = Math.min(30, Math.floor(G.coins / 10));
+      const off = jadeTotal() >= 10 ? 0.9 : 1;
+      openModal('<div class="eyebrow">课程铺 · 商品来自商品库</div><h2>课程铺</h2>' + wallet() +
+        '<div class="rule">学得越多越便宜：每 10 铜钱抵 1 元（最多抵 30 元）；玉璧满 10 枚再打九折。</div>' +
+        '<div class="goods">' + GOODS.map(gd => {
+          let price;
+          if (gd.needJade) price = gems() >= gd.needJade ? '免费领取' : '需本讲 ' + gd.needJade + ' 枚玉璧（现有 ' + gems() + '）';
+          else { const p = Math.max(0, Math.round((gd.price - deduct) * off)); price = '<s>¥' + gd.price + '</s>¥' + p; }
+          const done = G.ordered.includes(gd.id);
+          const can = gd.needJade ? gems() >= gd.needJade : true;
+          return '<div class="good"><div class="ico" style="background:' + gd.bg + '">' + gd.ico + '</div><div><div class="nm">' + esc(gd.name) + '</div><div class="ds">' + esc(gd.desc) + '</div><div class="pr">' + price + '</div></div>' +
+            '<div class="act"><button class="btn ' + (can && !done ? 'primary' : '') + '" type="button" data-g="' + gd.id + '"' + (!can || done ? ' disabled' : '') + '>' + (done ? '已下单' : gd.needJade ? '领取' : '下单') + '</button></div></div>';
+        }).join('') + '</div>' +
+        '<p class="note">正式版：商品来自商品库接口，下单走商品订单接口，铜钱对应积分体系。</p>' +
+        '<div class="actions"><button class="btn" type="button" id="ok">离开</button></div>');
+      dialog.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+        const gd = GOODS.find(x => x.id === b.dataset.g);
+        if (gd.id === 'notes') { G.ordered.push('notes'); openHandout(); return; }
+        const used = Math.min(30, Math.floor(G.coins / 10)) * 10;
+        G.coins -= used; G.ordered.push(gd.id);
+        addLog('课程铺下单「' + gd.name + '」，抵扣 ' + used + ' 铜钱（演示）', 'ok');
+        updateHud(); openShop('course');
+      });
+    } else if (kind === 'props') {
+      openModal('<div class="eyebrow">道具铺</div><h2>道具铺</h2>' + wallet() +
+        '<div class="rule">本铺规矩：道具只能帮你找到回放原文，不能替你答题，也不能跳过补看。</div>' +
+        '<div class="goods">' + PROPS.map(p => '<div class="good"><div class="ico" style="background:' + p.bg + '">' + p.ico + '</div><div><div class="nm">' + esc(p.name) + '</div><div class="ds">' + esc(p.desc) + '</div><div class="pr">' + p.price + ' 铜钱 · 已有 ' + G.items[p.id] + '</div></div>' +
+          '<div class="act"><button class="btn primary" type="button" data-p="' + p.id + '"' + (G.coins < p.price ? ' disabled' : '') + '>买一个</button></div></div>').join('') + '</div>' +
+        '<div class="actions"><button class="btn" type="button" id="ok">离开</button></div>');
+      dialog.querySelectorAll('[data-p]').forEach(b => b.onclick = () => {
+        const p = PROPS.find(x => x.id === b.dataset.p);
+        if (G.coins < p.price) return;
+        G.coins -= p.price; G.items[p.id]++;
+        addLog('道具铺买了「' + p.name + '」−' + p.price + ' 铜钱', 'warn');
+        updateHud(); openShop('props');
+      });
+    } else openMarket('buy');
+    $('#ok') && ($('#ok').onclick = closeModal);
+  }
+  function openHandout() {
+    openModal('<div class="eyebrow">课堂讲义 · 由大纲与字幕生成</div><h2>第 3 讲 · 列表、字典与循环</h2>' +
+      '<div class="review">' + DATA.outline.map((s, i) => '<div><b>' + (i + 1) + '. ' + esc(s.title) + '</b><span class="when">' + fmt(s.start) + '</span><span class="note">' + esc(s.summary) + '</span></div>').join('') + '</div>' +
+      '<div class="actions"><button class="btn primary" type="button" id="ok">收好了</button></div>');
+    addLog('领取第 3 讲课堂讲义', 'ok');
+    $('#ok').onclick = closeModal;
+  }
+  function openMarket(tab) {
+    const canWrite = gems() > 0;
+    const kws = S ? PW.entities.filter(e => e.type === 'chest' && S.dead.includes(e.id)).map(e => e.kw) : [];
+    const head = '<div class="eyebrow">卷轴集市 · 同学写的讲解</div><h2>卷轴集市</h2>' + wallet() +
+      '<div class="tabs"><button class="btn" type="button" data-tab="buy" aria-selected="' + (tab === 'buy') + '">逛卷轴</button><button class="btn" type="button" data-tab="write" aria-selected="' + (tab === 'write') + '">写一卷</button></div>';
+    let body;
+    if (tab === 'buy') {
+      body = '<div class="goods">' + G.market.map(s => {
+        const own = G.owned.includes(s.id) || s.author === '你';
+        return '<div class="good"><div class="ico" style="background:#8e2f22">卷</div><div><div class="nm">' + esc(s.title) + '</div><div class="ds">' + esc(s.author) + ' · 关键词「' + esc(s.kw) + '」· ♥ ' + s.likes + '</div><div class="pr">' + s.price + ' 铜钱</div></div>' +
+          '<div class="act"><button class="btn ' + (own ? '' : 'primary') + '" type="button" data-s="' + s.id + '"' + (!own && G.coins < s.price ? ' disabled' : '') + '>' + (own ? '展开' : '买下') + '</button></div></div>';
+      }).join('') + '</div>';
+    } else if (!canWrite) {
+      body = '<div class="rule">先去地宫打开至少一只宝函，拿到玉璧，才能就那个关键词写卷轴。</div>';
+    } else {
+      body = '<div class="rule">把一个你拿到玉璧的知识点讲给别人听：讲清楚了，有人买，你就赚铜钱。上架前会先过一道 AI 审核。</div>' +
+        '<label class="f">关键词<select id="wkw">' + kws.map(k => '<option>' + esc(k) + '</option>').join('') + '</select></label>' +
+        '<label class="f">卷轴标题<textarea id="wtitle" style="min-height:44px">我理解的「' + esc(kws[0] || '') + '」</textarea></label>' +
+        '<label class="f">讲解正文（用你自己的话）<textarea id="wbody" placeholder="比如：把列表想成一排座位……"></textarea></label>' +
+        '<label class="f">定价<select id="wprice"><option>3</option><option selected>5</option><option>8</option></select></label>' +
+        '<div id="wfb" hidden></div>' +
+        '<div class="actions"><button class="btn seal" type="button" id="wsubmit">送审上架</button></div>';
+    }
+    openModal(head + body + '<div class="actions"><button class="btn" type="button" id="ok">离开</button></div>');
+    $('#ok').onclick = closeModal;
+    dialog.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => openMarket(b.dataset.tab));
+    dialog.querySelectorAll('[data-s]').forEach(b => b.onclick = () => {
+      const s = G.market.find(x => x.id === b.dataset.s);
+      const own = G.owned.includes(s.id) || s.author === '你';
+      if (!own) { if (G.coins < s.price) return; G.coins -= s.price; G.owned.push(s.id); addLog('买下卷轴「' + s.title + '」−' + s.price + ' 铜钱', 'warn'); updateHud(); }
+      openModal('<div class="eyebrow">卷轴 · ' + esc(s.author) + '</div><h2>' + esc(s.title) + '</h2><div class="scroll-body">' + esc(s.body) + '</div>' +
+        '<div class="actions"><button class="btn" type="button" id="back">回集市</button><button class="btn primary" type="button" id="like">有用 ♥</button></div>');
+      $('#back').onclick = () => openMarket('buy');
+      $('#like').onclick = () => { s.likes++; toast('已点赞，作者会收到 1 铜钱打赏'); openMarket('buy'); };
+    });
+    const sub = $('#wsubmit');
+    if (sub) sub.onclick = () => {
+      const kw = $('#wkw').value, title = $('#wtitle').value.trim(), text = $('#wbody').value.trim(), price = Number($('#wprice').value);
+      const fb = $('#wfb'); fb.hidden = false;
+      let err = '';
+      if (text.length < 20) err = '讲得太短了：至少 20 个字，才讲得清楚一个概念。';
+      else if (!text.toLowerCase().includes(kw.toLowerCase())) err = '正文里没有提到关键词「' + kw + '」，读者不知道你在讲什么。';
+      if (err) { fb.className = 'fb bad'; fb.textContent = 'AI 审核未通过：' + err; return; }
+      const id = 'm' + Date.now();
+      G.market.unshift({ id, title: title || ('我理解的「' + kw + '」'), author: '你', kw, price, likes: 0, body: text });
+      G.mine.push(id);
+      fb.className = 'fb ok'; fb.textContent = 'AI 审核通过：讲解与回放原文一致，已上架。';
+      addLog('卷轴「' + (title || kw) + '」上架，定价 ' + price + ' 铜钱', 'ok');
+      setTimeout(() => { const s = G.market.find(x => x.id === id); if (!s) return; s.likes += 3; earn(price, '同学买下了你的卷轴「' + s.title + '」'); toast('有同学买下了你的卷轴 +' + price + ' 铜钱'); }, 4000);
+      setTimeout(() => openMarket('buy'), 900);
+    };
+  }
+
+  // —— 地下 ——
+  function openBattle(e) {
+    const isBoss = e.type === 'boss';
+    const qi = isBoss ? 3 - S.bossHp : 0;
+    const q = Q[e.qids[qi]], seg = DATA.outline[e.room];
+    const opts = shuffle(q.opts.map((o, i) => ({ o, ok: i === 0 })));
+    openModal(
+      '<div class="eyebrow">' + (isBoss ? '镇墓兽 · 全班错误率 ' + DATA.failRate[e.room] + '% · 第 ' + (qi + 1) + ' / 3 击' : '上锁的宝函') + ' · 第 ' + (e.room + 1) + ' 殿 ' + fmt(seg.start) + '–' + fmt(seg.end) + '</div>' +
+      '<h2>' + esc(isBoss ? '镇墓兽 · KeyError' : '「' + e.kw + '」宝函') + '</h2>' +
+      (isBoss ? '<div class="bossbar">' + [0, 1, 2].map(k => '<i class="' + (k < 3 - S.bossHp ? 'gone' : '') + '"></i>').join('') + '</div>' : '<p class="note">函锁上刻着一道题。答对开函得玉璧，答错触发机关。</p>') +
+      '<p class="q">' + esc(q.q) + '</p>' + (q.code ? '<pre class="code">' + esc(q.code) + '</pre>' : '') +
+      '<div class="opts">' + opts.map((x, i) => '<button class="opt" type="button" data-i="' + i + '">' + esc(x.o) + '</button>').join('') + '</div>' +
+      '<div id="hintBox" hidden></div><div id="fb" hidden></div>' +
+      '<div class="actions" id="acts">' + (G.items.hint ? '<button class="btn" type="button" id="useHint">用提示签（' + G.items.hint + '）</button><span class="spacer"></span>' : '') + '<button class="btn" type="button" id="flee">先离开</button></div>'
+    );
+    $('#flee').onclick = closeModal;
+    const uh = $('#useHint');
+    if (uh) uh.onclick = () => {
+      G.items.hint--; updateHud();
+      const line = q.subs[2];
+      const hb = $('#hintBox'); hb.hidden = false; hb.className = 'fb hint';
+      hb.innerHTML = '<b>提示签 · 回放 ' + fmt(q.t + line[0]) + '</b> 老师原话：「' + esc(line[1]) + '」';
+      uh.remove(); addLog('使用提示签：' + q.kw, 'warn');
+    };
+    dialog.querySelectorAll('.opt').forEach(btn => btn.onclick = () => {
+      const pick = opts[Number(btn.dataset.i)];
+      const fb = $('#fb');
+      S.answered++;
+      if (pick.ok) {
+        S.correct++;
+        btn.classList.add('right');
+        dialog.querySelectorAll('.opt').forEach(b => b.disabled = true);
+        fb.className = 'fb ok'; fb.hidden = false;
+        if (isBoss) {
+          S.bossHp--;
+          setLabel(e.label, '镇墓兽 · KeyError ' + '♥'.repeat(Math.max(0, S.bossHp)));
+          if (S.bossHp > 0) {
+            fb.innerHTML = '<b>命中！</b>镇墓兽还剩 ' + S.bossHp + ' 点血。' + esc(q.why);
+            $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">下一击</button>';
+            $('#nx').onclick = () => openBattle(e);
+          } else {
+            fb.innerHTML = '<b>镇墓兽伏地，宝藏到手！+100 XP +50 铜钱</b> ' + esc(q.why) + ' 月洞门已在第 ' + (LAST_ROOM + 1) + ' 殿开启。';
+            $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">继续</button>';
+            $('#nx').onclick = closeModal;
+            defeat(e, 100, 50);
+          }
+        } else {
+          fb.innerHTML = '<b>咔哒，宝函开了！得玉璧「' + esc(e.kw) + '」+20 XP +10 铜钱</b> ' + esc(q.why);
+          $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">收下玉璧</button>';
+          $('#nx').onclick = closeModal;
+          defeat(e, 20, 10);
+        }
+        $('#nx').focus({ preventScroll: true });
+      } else {
+        btn.classList.add('wrong'); btn.disabled = true;
+        S.hp = Math.max(0, S.hp - 1);
+        if (!S.wrong.includes(q.id)) S.wrong.push(q.id);
+        hurt(); updateHud();
+        fb.className = 'fb bad'; fb.hidden = false;
+        fb.innerHTML = '<b>机关触发！−1 ♥</b> 老师在回放 ' + fmt(q.t) + ' 讲过这个点。';
+        addLog('答错「' + q.kw + '」→ 记录错题，回放锚点 ' + fmt(q.t), 'bad');
+        if (S.hp <= 0) setTimeout(() => openReplay(q), 650);
+      }
+      updateHud();
+    });
+  }
+  function defeat(e, xp, coins) {
+    S.dead.push(e.id); S.xp += xp;
+    if (e.type === 'chest') anims.push({ e, kind: 'open', t: 0 });
+    if (e.type === 'boss') anims.push({ e, kind: 'die', t: 0 });
+    earn(coins, e.type === 'boss' ? '降服镇墓兽' : '打开宝函「' + e.kw + '」');
+    if (roomCleared(e.room)) addLog('第 ' + (e.room + 1) + ' 殿的宝藏已清空', 'ok');
+    updateHud(); renderPanel(e.room); applyPalaceState();
+  }
+  function openReplay(q) {
+    S.falls++;
+    const seg = DATA.outline[q.seg];
+    const t0 = q.t - 20, t1 = q.t + 20, DUR = 6500;
+    openModal(
+      '<div class="eyebrow">生命耗尽 · 复活条件</div><h2>回到回放里，补上这 40 秒</h2>' +
+      '<p class="note">第 ' + (q.seg + 1) + ' 段「' + esc(seg.title) + '」。演示按 6 倍速播放；正式版用播放器 SDK 跳到 ' + fmt(t0) + ' 正常播放 40 秒。</p>' +
+      '<div class="video"><div class="slide"><div class="st">' + esc(seg.title) + '</div><pre>' + esc(q.code || seg.summary) + '</pre></div>' +
+      '<div class="cam"></div><div class="sub" id="sub"></div><div class="bar"><i id="barI"></i></div></div>' +
+      '<div class="vt"><span id="vcur">' + fmt(t0) + '</span><span>' + fmt(t1) + '</span></div>' +
+      '<div class="actions"><button class="btn primary" type="button" id="revive" disabled>播放中…</button></div>');
+    const start = performance.now();
+    const tick = () => {
+      if (modal.hidden || !$('#barI')) return;
+      const p = Math.min(1, (performance.now() - start) / DUR);
+      const cur = t0 + (t1 - t0) * p;
+      $('#barI').style.width = (p * 100) + '%';
+      $('#vcur').textContent = fmt(cur);
+      const line = q.subs.filter(([o]) => q.t + o <= cur).pop();
+      $('#sub').textContent = line ? line[1] : '';
+      if (p < 1) requestAnimationFrame(tick);
+      else {
+        const b = $('#revive'); b.disabled = false; b.textContent = '复活（♥ × 3）';
+        b.onclick = () => { S.hp = 3; updateHud(); addLog('看完回放 ' + fmt(t0) + '–' + fmt(t1) + ' → 复活', 'warn'); closeModal(); };
+        b.focus({ preventScroll: true });
+      }
+    };
+    requestAnimationFrame(tick);
+    addLog('倒下 → 回放 ' + fmt(t0) + '–' + fmt(t1) + '（智能字幕片段）', 'warn');
+  }
+  function openExplore(ri) {
+    const seg = DATA.outline[ri];
+    const qs = DATA.questions.filter(q => q.seg === ri);
+    openModal(
+      '<div class="eyebrow">墨雾封印 · 来自观看记录</div><h2>这一段你还没看过</h2>' +
+      '<p>观看记录显示，你在 <b>' + fmt(seg.start) + '–' + fmt(seg.end) + '</b> 离开了直播间，错过了「' + esc(seg.title) + '」。读完这段的大纲，墨雾才会散开。</p>' +
+      '<h3>AI 大纲摘要</h3><p>' + esc(seg.summary) + '</p>' +
+      '<h3>老师原话（智能字幕节选）</h3>' +
+      '<div class="chat">' + qs.map(q => '<div class="msg"><span class="tm">' + fmt(q.t + q.subs[2][0]) + '</span><span>' + esc(q.subs[2][1]) + '</span><span></span></div>').join('') + '</div>' +
+      '<div class="actions"><button class="btn" type="button" id="later">等会儿再来</button><button class="btn primary" type="button" id="lit" disabled>阅读中…</button></div>');
+    $('#later').onclick = closeModal;
+    setTimeout(() => {
+      const b = $('#lit'); if (!b) return;
+      b.disabled = false; b.textContent = '读完了，驱散墨雾';
+      b.onclick = () => { S.explored.push(ri); S.xp += 10; earn(5, '驱散墨雾：第 ' + (ri + 1) + ' 殿'); applyPalaceState(); renderPanel(curRoom >= 0 ? curRoom : ri); closeModal(); };
+    }, 1800);
+  }
+  function openNpc(e) {
+    const c = e.cluster, seg = DATA.outline[c.seg];
+    const first = !S.seenNpc.includes(e.id);
+    openModal(
+      '<div class="eyebrow">书生灯影 · 来自聊天记录和提问记录</div><h2>' + c.count + ' 位同学问过同一个问题</h2>' +
+      '<p class="q">' + esc(c.q) + '</p><h3>直播时聊天室里的原话</h3>' +
+      '<div class="chat">' + c.msgs.map(([n, m, tm]) => '<div class="msg"><span class="n">' + esc(n) + '</span><span>' + esc(m) + '</span><span class="tm">' + tm + '</span></div>').join('') + '</div>' +
+      '<h3>数字人' + esc(DATA.course.teacher) + '的回答</h3><div class="answer"><div class="avatar" aria-hidden="true"></div><p>' + esc(c.answer) + '</p></div>' +
+      '<p class="note">正式版：赛前用视频创作接口为每个高频问题生成一段 15 秒的数字人讲解。本段时间范围 ' + fmt(seg.start) + '–' + fmt(seg.end) + '。</p>' +
+      '<div class="actions"><button class="btn primary" type="button" id="ok">' + (first ? '受教了（+5 铜钱）' : '关闭') + '</button></div>');
+    $('#ok').onclick = () => { if (first) { S.seenNpc.push(e.id); earn(5, '听完书生灯影讲解'); applyPalaceState(); } closeModal(); };
+  }
+  function openResult() {
+    const acc = S.answered ? Math.round(S.correct / S.answered * 100) : 0;
+    const secs = Math.round((Date.now() - S.startedAt) / 1000);
+    const day = n => { const d = new Date(); d.setDate(d.getDate() + n); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+    const wrong = S.wrong.map(id => Q[id]);
+    const markers = wrong.map(q => ({ time: q.t, desc: '你在这里踩中过机关：' + q.kw }));
+    openModal(
+      '<div class="eyebrow">出地宫 · 结算</div><h2>第 3 讲地宫已通关</h2>' +
+      '<div class="grid4"><div><div class="v">' + gems() + '</div><div class="k">本讲玉璧</div></div><div><div class="v">' + acc + '%</div><div class="k">答题正确率</div></div><div><div class="v">' + S.falls + '</div><div class="k">倒下次数</div></div><div><div class="v">' + G.coins + '</div><div class="k">铜钱</div></div></div>' +
+      '<h3>巩固计划（按遗忘曲线推送每日副本）</h3>' +
+      '<div class="review">' + (wrong.length ? wrong.map(q => '<div><b>' + esc(q.kw) + '</b><span class="note">第 ' + (q.seg + 1) + ' 段 · 回放 ' + fmt(q.t) + '</span><span class="when">' + day(1) + ' · ' + day(3) + ' · ' + day(7) + '</span></div>').join('') : '<div><b>全部一次答对</b><span class="when">' + day(7) + ' 推送一次综合复习</span></div>') + '</div>' +
+      '<h3>回写到回放进度条的打点（请求体示意）</h3>' +
+      '<pre class="code">' + esc(JSON.stringify(markers.length ? markers : [{ time: 0, desc: '全部通关，无机关点' }], null, 2)) + '</pre>' +
+      '<p class="note">用时 ' + fmt(secs) + '。你的错题会计入讲师端的全班卡关热力图。</p>' +
+      '<div class="actions"><button class="btn" type="button" id="stay">留在地宫</button><button class="btn primary" type="button" id="up">回到地面</button></div>');
+    addLog('出地宫结算：正确率 ' + acc + '%，错题 ' + wrong.length + ' 个', 'ok');
+    $('#stay').onclick = closeModal;
+    $('#up').onclick = () => { modal.hidden = true; exitPalace(true); };
+  }
+
+  function applyPalaceState() {
+    if (!PW.group || !S) return;
+    PW.entities.forEach(e => {
+      e.obj.visible = !(FOG_ROOMS.includes(e.room) && !S.explored.includes(e.room));
+      const done = S.dead.includes(e.id);
+      const animating = anims.some(a => a.e === e);
+      if (e.type === 'chest') {
+        if (!animating) { e.lid.rotation.x = done ? -1.9 : 0; e.gem.visible = e.glow.visible = !done; e.gem.position.y = 0.66; e.gem.scale.setScalar(1); e.glow.material.opacity = 1; }
+        e.label.visible = !done;
+      } else if (e.type === 'boss') {
+        if (!animating) { e.core.visible = e.glow.visible = e.hoard.visible = !done; e.core.scale.setScalar(1); }
+        e.label.visible = !done;
+        bossLight.intensity = done || mode !== 'palace' ? 0 : 1.3;
+        setLabel(e.label, '镇墓兽 · KeyError ' + '♥'.repeat(Math.max(0, S.bossHp)));
+      } else if (e.type === 'npc') {
+        const seenIt = S.seenNpc.includes(e.id);
+        setLabel(e.label, (seenIt ? '' : '! ') + e.cluster.count + ' 人问过', seenIt ? '#cfe0e0' : '#ffe7a0');
+      } else if (e.type === 'portal') {
+        const on = S.dead.includes('boss');
+        e.ring.material.color.setHex(on ? 0xc9a45c : 0x5a5f5c);
+        e.disc.material.color.setHex(on ? 0xf1e6c8 : 0x3a3f44);
+        portalLight.intensity = on && mode === 'palace' ? 1.6 : 0;
+        setLabel(e.label, on ? '月洞门：出地宫' : '月洞门（未开启）');
+      }
+    });
+    Object.keys(mists).forEach(ri => { mists[ri].grp.visible = !S.explored.includes(Number(ri)); });
+  }
+
+  // ═════════════ 小地图 ═════════════
+  const mm = $('#mm'), mctx = mm.getContext('2d');
+  function drawMinimap() {
+    const T = 4, W = CUR;
+    mctx.clearRect(0, 0, mm.width, mm.height);
+    const allSeen = mode === 'surface' || (S && S.oilLit);
+    for (let y = 0; y < W.rows; y++) for (let x = 0; x < W.cols; x++) {
+      if (!allSeen && !W.seen[y * W.cols + x]) continue;
+      const g = W.grid[y][x];
+      if (!g) continue;
+      if (g === 2) mctx.fillStyle = '#3a3f46';
+      else if (mode === 'palace') {
+        const r = PW.roomOf[y][x];
+        mctx.fillStyle = r >= 0 && FOG_ROOMS.includes(r) && !S.explored.includes(r) ? '#4a5a62' : r >= 0 ? '#5e5b52' : '#45433d';
+      } else mctx.fillStyle = '#4a4c4d';
+      mctx.fillRect(x * T, y * T, T, T);
+    }
+    if (mode === 'palace' && S.teacher) PW.rooms.forEach(r => { mctx.fillStyle = 'rgba(184,67,47,' + (DATA.failRate[r.i] / 100 * 0.85) + ')'; mctx.fillRect(r.x * T, r.y * T, r.w * T, r.h * T); });
+    W.entities.forEach(e => {
+      const tiles = e.tiles || [[e.x, e.y]];
+      let c = null;
+      if (mode === 'palace') {
+        if (!allSeen && !W.seen[e.y * W.cols + e.x]) return;
+        if (!e.obj.visible || (e.type === 'boss' && S.dead.includes('boss'))) return;
+        c = e.type === 'chest' ? (S.dead.includes(e.id) ? '#6b6457' : '#e6cf98') : e.type === 'boss' ? '#d9553a' : e.type === 'npc' ? '#cfe0e0' : (S.dead.includes('boss') ? '#e6cf98' : '#5a5f5c');
+      } else {
+        c = e.type === 'hall' ? (hallStatus(e.series) === 'open' ? '#e6cf98' : hallStatus(e.series) === 'cleared' ? '#b8432f' : '#6b5a3a') : e.type === 'shop' ? '#8fcfb5' : e.type === 'tavern' ? '#c4503a' : e.type === 'board' ? '#efe2c4' : '#ffc070';
+      }
+      mctx.fillStyle = c; tiles.forEach(([x, y]) => mctx.fillRect(x * T, y * T, T, T));
+    });
+    const cx = P.x * T, cy = P.z * T, a = -P.yaw, fx = Math.sin(a), fz = -Math.cos(a);
+    mctx.fillStyle = '#fff3d0';
+    mctx.beginPath(); mctx.moveTo(cx + fx * 6, cy + fz * 6); mctx.lineTo(cx - fx * 3 + fz * 4, cy - fz * 3 - fx * 4); mctx.lineTo(cx - fx * 3 - fz * 4, cy - fz * 3 + fx * 4); mctx.closePath(); mctx.fill();
+  }
+
+  // ═════════════ 前方提示 ═════════════
+  let lastAhead = '';
+  function updateAhead() {
+    let text = '';
+    if (mv.t >= 1 && tn.t >= 1 && modal.hidden && !fading) {
+      const p = pl(); const [dx, dy] = DIRS[p.dir];
+      const nx = p.px + dx, ny = p.py + dy;
+      if (ny >= 0 && ny < CUR.rows && nx >= 0 && nx < CUR.cols) {
+        const e = blocker(nx, ny);
+        if (mode === 'palace') {
+          const r = PW.roomOf[ny][nx];
+          if (r >= 0 && FOG_ROOMS.includes(r) && !S.explored.includes(r)) text = '前方：墨雾封印 · 按前进查看';
+          else if (e && e.type === 'chest') text = S.dead.includes(e.id) ? '前方：空宝函' : '前方：上锁的宝函「' + e.kw + '」· 按前进开锁';
+          else if (e && e.type === 'boss') text = '前方：镇墓兽 · 按前进挑战';
+          else if (e && e.type === 'npc') text = '前方：书生灯影 · 按前进请教';
+          else if (e && e.type === 'portal') text = S.dead.includes('boss') ? '前方：月洞门 · 按前进出地宫' : '前方：未开启的月洞门';
+        } else if (e) {
+          if (e.type === 'hall') { const st = hallStatus(e.series); text = '前方：第 ' + e.series.no + ' 讲楼阁 · ' + ({ open: '按前进推门', cleared: '已通关', locked: '未开启', soon: '已开启' })[st]; }
+          else if (e.type === 'shop') text = '前方：' + e.name + ' · 按前进进店';
+          else if (e.type === 'board') text = '前方：回放榜 · 按前进查看';
+          else if (e.type === 'tavern') text = '前方：酒馆 · 按前进看看';
+        }
+      }
+    }
+    if (text !== lastAhead) { lastAhead = text; const el = $('#ahead'); el.textContent = text; el.hidden = !text; }
+  }
+
+  // ═════════════ 主循环 ═════════════
+  const held = [];
+  let last = performance.now();
+  const camPos = new THREE.Vector3();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const t = now / 1000;
+    if (mv.t < 1) { mv.t = Math.min(1, mv.t + dt / 0.22); const k = ease(mv.t); P.x = mv.fx + (mv.tx - mv.fx) * k; P.z = mv.fz + (mv.tz - mv.fz) * k; }
+    if (tn.t < 1) { tn.t = Math.min(1, tn.t + dt / 0.2); P.yaw = tn.f + (tn.to - tn.f) * ease(tn.t); }
+    if (bump.t < 1) bump.t = Math.min(1, bump.t + dt / 0.18);
+    if (mv.t >= 1 && tn.t >= 1 && bump.t >= 1 && held.length && modal.hidden && !fading) doAction(held[held.length - 1]);
+
+    const b = Math.sin(bump.t * Math.PI) * 0.1;
+    const bob = reduceMotion ? 0 : Math.sin(mv.t * Math.PI) * 0.025;
+    camera.position.set(P.x + bump.dx * b, EYE + bob, P.z + bump.dz * b);
+    camera.rotation.set(mode === 'surface' ? 0.02 : -0.05, P.yaw, 0);
+    camPos.copy(camera.position);
+
+    const flick = reduceMotion ? 0 : Math.sin(t * 11) * 0.06 + Math.sin(t * 23) * 0.04;
+    hand.position.set(P.x, EYE + 0.15, P.z);
+    hand.intensity = (mode === 'palace' ? 1.35 : 0.6) + flick;
+    CUR.lights.slice().sort((a, c) => ((a.wx - P.x) ** 2 + (a.wz - P.z) ** 2) - ((c.wx - P.x) ** 2 + (c.wz - P.z) ** 2))
+      .slice(0, pool.length).forEach((lt, i) => { pool[i].position.set(lt.wx, (lt.wy || 0.9) - 0.05, lt.wz + 0.1); pool[i].intensity = 1.15 + (reduceMotion ? 0 : Math.sin(t * 9 + lt.seed) * 0.12); });
+    CUR.lights.forEach(lt => { if (lt.flame) { const s = reduceMotion ? 1 : 1 + Math.sin(t * 7 + lt.seed) * 0.07; lt.flame.scale.set(0.5 * s, 0.5 * s, 1); } });
+
+    if (mode === 'palace') {
+      PW.entities.forEach(e => {
+        if (!e.obj.visible) return;
+        const face = () => { e.obj.rotation.y = Math.atan2(camPos.x - e.obj.position.x, camPos.z - e.obj.position.z); };
+        if (e.type === 'chest' && !S.dead.includes(e.id)) {
+          e.gem.rotation.y = t * 1.6; e.gem.position.y = 0.66 + (reduceMotion ? 0 : Math.sin(t * 2.2 + e.x) * 0.03);
+          e.glow.position.y = e.gem.position.y; e.label.visible = S.visited.includes(e.room);
+        } else if (e.type === 'boss' && e.core.visible) {
+          face(); e.core.position.y = 0.74 + (reduceMotion ? 0 : Math.sin(t * 1.8) * 0.05);
+          e.glow.material.opacity = 0.55 + Math.abs(Math.sin(t * 2)) * 0.3;
+        } else if (e.type === 'npc') {
+          face(); e.body.position.y = reduceMotion ? 0 : Math.sin(t * 2 + e.x) * 0.05; e.label.visible = S.visited.includes(e.room);
+        } else if (e.type === 'portal') {
+          face(); e.disc.rotation.z = -t * (S.dead.includes('boss') ? 2.4 : 0.4); e.label.visible = S.visited.includes(e.room);
+        }
+      });
+      for (let i = anims.length - 1; i >= 0; i--) {
+        const a = anims[i]; a.t += dt;
+        if (a.kind === 'open') {
+          a.e.lid.rotation.x = -1.9 * ease(Math.min(1, a.t / 0.5));
+          const g = Math.min(1, Math.max(0, (a.t - 0.25) / 0.6));
+          a.e.gem.position.y = 0.66 + g * 0.9; a.e.gem.scale.setScalar(1 + g * 0.6); a.e.gem.rotation.y += dt * 12;
+          a.e.glow.position.y = a.e.gem.position.y; a.e.glow.material.opacity = 1 - g;
+          if (a.t > 0.9) { a.e.gem.visible = false; a.e.glow.visible = false; a.e.glow.material.opacity = 1; anims.splice(i, 1); }
+        } else {
+          const k = Math.min(1, a.t / 0.9);
+          a.e.core.scale.setScalar(1 - ease(k)); a.e.core.rotation.y += dt * 14;
+          a.e.glow.scale.setScalar(1.4 + k * 1.5); a.e.glow.material.opacity = 1 - k;
+          bossLight.intensity = 1.3 + Math.sin(k * Math.PI) * 3;
+          if (k >= 1) { a.e.core.visible = a.e.glow.visible = a.e.hoard.visible = false; a.e.glow.scale.setScalar(1.4); a.e.glow.material.opacity = 1; bossLight.intensity = 0; anims.splice(i, 1); }
+        }
+      }
+      Object.values(mists).forEach(m => { if (m.grp.visible) { m.box.material.map.offset.x = (t * 0.05) % 1; m.box.material.map.offset.y = (t * 0.02) % 1; m.box.material.opacity = 0.75 + Math.sin(t * 1.5) * 0.1; } });
+    } else {
+      SW.entities.forEach(e => { if (e.type === 'hall' && e.doorGlow.visible) e.doorGlow.material.opacity = 0.6 + Math.sin(t * 2.4) * 0.3; if (e.flag && e.flag.visible && !reduceMotion) e.flag.rotation.y = Math.sin(t * 2 + e.x) * 0.25; });
+    }
+
+    renderer.render(scene, camera);
+    drawMinimap();
+    updateAhead();
+    requestAnimationFrame(frame);
+  }
+  function resize() {
+    const r = screenEl.getBoundingClientRect();
+    const w = Math.max(1, r.width), h = Math.max(1, r.height);
+    const iw = Math.round(Math.min(w * (window.devicePixelRatio || 1), 800));
+    renderer.setSize(iw, Math.round(iw * h / w), false);
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+  }
+
+  // ═════════════ 输入 ═════════════
+  const KEYS = { ArrowUp: 'fwd', w: 'fwd', W: 'fwd', ArrowDown: 'back', s: 'back', S: 'back', ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', q: 'sl', Q: 'sl', e: 'sr', E: 'sr' };
+  window.addEventListener('keydown', ev => {
+    const act = KEYS[ev.key];
+    if (!act || !modal.hidden) return;
+    if (ev.target && /INPUT|TEXTAREA|SELECT/.test(ev.target.tagName)) return;
+    ev.preventDefault();
+    if (!held.includes(act)) held.push(act);
+  });
+  window.addEventListener('keyup', ev => { const act = KEYS[ev.key]; if (!act) return; const i = held.indexOf(act); if (i >= 0) held.splice(i, 1); });
+  window.addEventListener('blur', () => { held.length = 0; });
+  document.querySelectorAll('.pad button').forEach(b => {
+    const act = b.dataset.act;
+    const release = () => { const i = held.indexOf(act); if (i >= 0) held.splice(i, 1); };
+    b.addEventListener('pointerdown', ev => { ev.preventDefault(); if (modal.hidden && !held.includes(act)) held.push(act); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => b.addEventListener(n, release));
+  });
+  $('#teacherBtn').onclick = () => { if (!S) return; S.teacher = !S.teacher; updateHud(); addLog(S.teacher ? '切到讲师视角：地面叠加全班卡关率' : '回到学员视角', 'warn'); };
+  $('#upBtn').onclick = () => exitPalace(false);
+  $('#oilBtn').onclick = () => { if (!S || !G.items.oil || S.oilLit) return; G.items.oil--; S.oilLit = true; updateHud(); addLog('点上灯油：地宫全图点亮', 'warn'); toast('灯油点亮了整座地宫的地图'); };
+  $('#resetBtn').onclick = () => {
+    G = freshG(); S = null; anims.length = 0; U.px = 11; U.py = 12; U.dir = 0;
+    if (mode === 'palace') transition('回 地 面', () => { setMode('surface'); applySurfaceState(); renderSurfacePanel(true); });
+    else { applySurfaceState(); syncPlayer(); updateHud(); renderSurfacePanel(true); }
+    addLog('重新开始', 'warn');
+  };
+
+  // ═════════════ 启动 ═════════════
+  G = freshG();
+  buildSurface();
+  setMode('surface');
+  applySurfaceState();
+  renderSurfacePanel(true);
+  resize();
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(screenEl); else window.addEventListener('resize', resize);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+    labels.forEach(s => setLabel(s, s.userData.text));
+    vBanners.forEach(v => { v.mesh.material.map.dispose(); v.mesh.material.map = vTex(v.text, v.bg, v.fg); v.mesh.material.needsUpdate = true; });
+  });
+  [
+    ['GET 回放列表 → 系列课 4 讲，生成 4 座楼阁', ''],
+    ['GET 观看记录 → 第 1、2 讲已通关，挂朱旗', 'ok'],
+    ['GET 商品库 → 3 件商品上架课程铺', ''],
+    ['积分体系 → 铜钱，初始 30', ''],
+    ['回放广场生成完毕。第 3 讲楼阁的门开着', 'warn']
+  ].forEach(([tx, k], i) => setTimeout(() => addLog(tx, k), 120 + i * 260));
+  setTimeout(() => toast('↑ 往前走是楼阁街，转身是商店街'), 500);
+  screenEl.focus({ preventScroll: true });
+  requestAnimationFrame(tt => { last = tt; frame(tt); });
+})();
+</script>
+</body>
+</html>

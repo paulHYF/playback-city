@@ -1,0 +1,967 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>回放地下城</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Pixelify+Sans:wght@500;700&family=ZCOOL+QingKe+HuangYou&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #111217;
+    --panel: #1a1c23;
+    --panel-2: #22252e;
+    --line: #2f3340;
+    --text: #ece3cf;
+    --muted: #9b9484;
+    --ember: #e8a245;
+    --ember-2: #f5c97c;
+    --blood: #d65a4e;
+    --moss: #73b99c;
+    --arcane: #a395f2;
+    --display: "ZCOOL QingKe HuangYou", "Noto Sans SC", system-ui, sans-serif;
+    --pixel: "Pixelify Sans", "JetBrains Mono", ui-monospace, monospace;
+    --body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  html, body { background: var(--bg); }
+  body { color: var(--text); font-family: var(--body); font-size: 14px; line-height: 1.6; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 32px; display: grid; gap: 16px; }
+
+  /* top bar */
+  .top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+  .brand h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 34px; line-height: 1.1; letter-spacing: 0.04em; color: var(--ember-2); text-wrap: balance; }
+  .brand h1 small { font-family: var(--pixel); font-size: 15px; color: var(--muted); letter-spacing: 0.08em; margin-left: 10px; }
+  .course { margin-top: 4px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+  .course code { font-family: var(--mono); font-size: 12px; color: var(--text); }
+  .hud { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+  .stat { display: grid; gap: 0; }
+  .stat .k { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+  .stat .v { font-family: var(--pixel); font-size: 20px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .hearts { font-size: 18px; letter-spacing: 2px; }
+  .hearts .on { color: var(--blood); }
+  .hearts .off { color: #3a3d48; }
+  .btn { font: inherit; font-size: 13px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 7px 12px; cursor: pointer; }
+  .btn:hover { border-color: var(--ember); }
+  .btn:focus-visible, .opt:focus-visible, .pad button:focus-visible { outline: 2px solid var(--ember-2); outline-offset: 2px; }
+  .btn[aria-pressed="true"] { background: #3a2a1a; border-color: var(--ember); color: var(--ember-2); }
+  .btn.primary { background: var(--ember); color: #1d1408; border-color: var(--ember); font-weight: 700; }
+  .btn.primary:disabled { background: #4a4235; border-color: #4a4235; color: #8b8270; cursor: wait; }
+
+  /* stage */
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+  .game { display: grid; gap: 10px; min-width: 0; }
+  .screen { position: relative; border: 2px solid #000; box-shadow: 0 0 0 1px var(--line); background: #07080b; }
+  .screen canvas { display: block; width: 100%; height: auto; aspect-ratio: 640 / 448; image-rendering: pixelated; }
+  .screen.shake { animation: shake 0.32s linear; }
+  @keyframes shake { 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, 1px); } 80% { transform: translate(3px, 0); } }
+  .toast { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); background: rgba(10, 10, 14, 0.9); border: 1px solid var(--ember); color: var(--ember-2); padding: 6px 14px; font-size: 13px; border-radius: 3px; pointer-events: none; max-width: calc(100% - 32px); text-align: center; }
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .hint { color: var(--muted); font-size: 12.5px; }
+  .hint kbd { font-family: var(--mono); font-size: 11px; border: 1px solid var(--line); border-bottom-width: 2px; padding: 0 5px; border-radius: 3px; color: var(--text); }
+  .pad { display: grid; grid-template-columns: repeat(3, 46px); grid-template-rows: repeat(2, 40px); gap: 4px; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .pad button { font-family: var(--pixel); font-size: 16px; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; touch-action: none; }
+  .pad button:active { background: #3a2a1a; border-color: var(--ember); }
+  .pad .u { grid-column: 2; grid-row: 1; }
+  .pad .l { grid-column: 1; grid-row: 2; }
+  .pad .d { grid-column: 2; grid-row: 2; }
+  .pad .r { grid-column: 3; grid-row: 2; }
+
+  /* side panel */
+  .panel { display: grid; gap: 14px; min-width: 0; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 14px; display: grid; gap: 8px; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.1em; color: var(--muted); }
+  .room-title { font-family: var(--display); font-size: 22px; line-height: 1.2; color: var(--ember-2); margin: 0; text-wrap: balance; }
+  .room-time { font-family: var(--mono); font-size: 12px; color: var(--text); }
+  .room-sum { margin: 0; color: #d6cdb9; font-size: 13.5px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { font-family: var(--mono); font-size: 11.5px; padding: 1px 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--text); background: var(--panel-2); }
+  .tag { font-size: 11px; padding: 1px 7px; border-radius: 2px; }
+  .tag.boss { background: #4a1f1b; color: #ffb3a8; }
+  .tag.fog { background: #262838; color: #c7c2ff; }
+  .tag.npc { background: #2b2546; color: #cfc6ff; }
+  .tag.done { background: #1d3a2f; color: #a7e5c9; }
+  .sources { display: grid; gap: 0; }
+  .src { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); opacity: 0.38; transition: opacity 0.25s; }
+  .src:first-child { border-top: 0; }
+  .src.on { opacity: 1; }
+  .src .dot { width: 8px; height: 8px; margin-top: 6px; background: var(--muted); }
+  .src.on .dot { background: var(--ember); box-shadow: 0 0 8px var(--ember); }
+  .src b { font-weight: 500; font-size: 13px; }
+  .src .role { color: #d6cdb9; font-size: 12.5px; }
+  .src .api { font-family: var(--mono); font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+  .log { font-family: var(--mono); font-size: 11.5px; line-height: 1.55; max-height: 190px; overflow-y: auto; display: grid; gap: 3px; color: #c9c1ad; }
+  .log .t { color: var(--muted); margin-right: 6px; }
+  .log .ok { color: var(--moss); }
+  .log .warn { color: var(--ember-2); }
+  .log .bad { color: #ff9b8f; }
+
+  /* legend */
+  .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .lg { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; align-items: center; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 3px; }
+  .lg canvas { width: 40px; height: 40px; image-rendering: pixelated; }
+  .lg b { display: block; font-weight: 500; font-size: 13px; }
+  .lg span { color: var(--muted); font-size: 12px; line-height: 1.45; display: block; }
+  .foot { color: var(--muted); font-size: 12px; max-width: 75ch; }
+
+  /* modal */
+  .modal { position: fixed; inset: 0; background: rgba(5, 6, 9, 0.74); display: grid; place-items: center; z-index: 20; padding: 16px; }
+  .dialog { width: min(580px, 100%); max-height: 88vh; overflow-y: auto; background: var(--panel); border: 1px solid #4a3d2a; border-radius: 4px; box-shadow: 0 0 0 2px #000, 0 24px 60px rgba(0, 0, 0, 0.6); padding: 18px; display: grid; gap: 12px; }
+  .dialog h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 26px; line-height: 1.2; color: var(--ember-2); text-wrap: balance; }
+  .dialog h3 { margin: 4px 0 0; font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0.06em; }
+  .dialog p { margin: 0; }
+  .q { font-size: 15px; font-weight: 500; }
+  pre.code { margin: 0; font-family: var(--mono); font-size: 13px; line-height: 1.6; background: #0d0e12; border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; overflow-x: auto; color: #e9e1cc; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opt { font-family: var(--mono); font-size: 13px; text-align: left; color: var(--text); background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 10px 12px; cursor: pointer; min-height: 44px; }
+  .opt:hover:not(:disabled) { border-color: var(--ember); }
+  .opt.right { border-color: var(--moss); background: #183026; color: #c8f0dd; }
+  .opt.wrong { border-color: var(--blood); background: #3a1a17; color: #ffc3ba; text-decoration: line-through; }
+  .opt:disabled { cursor: default; }
+  .fb { font-size: 13.5px; padding: 10px 12px; border-radius: 3px; border: 1px solid var(--line); background: var(--panel-2); }
+  .fb.ok { border-color: #2f6b52; }
+  .fb.bad { border-color: #7a322b; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+  .bossbar { display: flex; gap: 4px; }
+  .bossbar i { flex: 1; height: 8px; background: var(--blood); }
+  .bossbar i.gone { background: #3a2422; }
+  .video { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background: linear-gradient(160deg, #1d2230, #10131b); border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+  .slide { position: absolute; inset: 8% 26% 22% 5%; background: #f3efe4; color: #22252e; border-radius: 2px; padding: 4% 5%; display: grid; align-content: start; gap: 6px; overflow: hidden; }
+  .slide .st { font-weight: 700; font-size: clamp(11px, 2.4vw, 15px); }
+  .slide pre { margin: 0; font-family: var(--mono); font-size: clamp(9px, 1.9vw, 12px); line-height: 1.5; white-space: pre-wrap; }
+  .cam { position: absolute; right: 4%; top: 8%; width: 18%; aspect-ratio: 3 / 4; background: #2b3242; border-radius: 2px; display: grid; place-items: end center; overflow: hidden; }
+  .cam::before { content: ""; position: absolute; top: 22%; left: 50%; width: 36%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: #c99f80; }
+  .cam::after { content: ""; width: 78%; height: 34%; border-radius: 40% 40% 0 0; background: #3e5a7a; }
+  .sub { position: absolute; left: 4%; right: 4%; bottom: 9%; text-align: center; font-size: clamp(11px, 2.5vw, 15px); color: #fff; text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+  .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255, 255, 255, 0.15); }
+  .bar i { display: block; height: 100%; width: 0; background: var(--ember); }
+  .vt { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .chat { display: grid; gap: 6px; }
+  .msg { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; font-size: 13px; padding: 6px 10px; background: var(--panel-2); border-radius: 3px; }
+  .msg .n { color: var(--arcane); }
+  .msg .tm { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+  .answer { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; padding: 12px; background: #201d33; border: 1px solid #3d3566; border-radius: 3px; }
+  .avatar { width: 64px; aspect-ratio: 3 / 4; border-radius: 3px; background: linear-gradient(#4b3f8c, #2a2350); position: relative; overflow: hidden; }
+  .avatar::before { content: ""; position: absolute; top: 18%; left: 50%; width: 42%; aspect-ratio: 1; transform: translateX(-50%); border-radius: 50%; background: #e2bd9c; }
+  .avatar::after { content: ""; position: absolute; bottom: 0; left: 12%; right: 12%; height: 36%; border-radius: 40% 40% 0 0; background: #a395f2; }
+  .note { font-size: 12px; color: var(--muted); }
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .grid4 > div { background: var(--panel-2); border: 1px solid var(--line); border-radius: 3px; padding: 8px 10px; }
+  .grid4 .v { font-family: var(--pixel); font-size: 22px; font-variant-numeric: tabular-nums; color: var(--ember-2); }
+  .grid4 .k { font-size: 11px; color: var(--muted); }
+  .review { display: grid; gap: 6px; }
+  .review > div { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: baseline; padding: 8px 10px; background: var(--panel-2); border-radius: 3px; }
+  .review b { font-weight: 500; }
+  .review .when { font-family: var(--mono); font-size: 11.5px; color: var(--moss); }
+
+  @media (max-width: 900px) {
+    .stage { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 520px) {
+    .brand h1 { font-size: 28px; }
+    .opts { grid-template-columns: 1fr; }
+    .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen.shake { animation: none; }
+    .src { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>回放地下城<small>REPLAY DUNGEON</small></h1>
+      <div class="course">
+        <span id="courseTitle"></span>
+        <span>频道 <code id="courseCh"></code></span>
+        <span id="courseMeta"></span>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="stat"><span class="k">生命</span><span class="v hearts" id="hpView"></span></div>
+      <div class="stat"><span class="k">经验</span><span class="v" id="xpView">0</span></div>
+      <div class="stat"><span class="k">已清理房间</span><span class="v" id="roomView">0 / 6</span></div>
+      <button class="btn" id="teacherBtn" type="button" aria-pressed="false">讲师视角：全班卡关热力</button>
+      <button class="btn" id="resetBtn" type="button">重新开始</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="game">
+      <div class="screen" id="screen">
+        <canvas id="cv" width="640" height="448" aria-label="地下城地图，方向键移动，撞到怪物开始答题"></canvas>
+        <div class="toast" id="toast" hidden></div>
+      </div>
+      <div class="controls">
+        <p class="hint">方向键 / <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 移动，撞上怪物开始答题。打败 Boss 后去最后一个房间的传送门结算。</p>
+        <div class="pad" aria-label="方向键">
+          <button class="u" type="button" data-dir="0,-1" aria-label="上">▲</button>
+          <button class="l" type="button" data-dir="-1,0" aria-label="左">◀</button>
+          <button class="d" type="button" data-dir="0,1" aria-label="下">▼</button>
+          <button class="r" type="button" data-dir="1,0" aria-label="右">▶</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <div class="card" id="roomCard"></div>
+      <div class="card">
+        <div class="eyebrow">这个房间由哪些数据生成</div>
+        <div class="sources" id="sources"></div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">数据流</div>
+        <div class="log" id="log" aria-live="polite"></div>
+      </div>
+    </aside>
+  </main>
+
+  <section class="legend" id="legend"></section>
+
+  <p class="foot">示例数据：模拟一节 72 分钟的 Python 直播课回放（大纲、字幕、聊天、观看记录、答题卡统计都是按公开 OpenAPI 的数据形态编的）。正式版把这些数据换成接口实时拉取即可；「答题卡作答统计」用哪个接口取数还需要核对。</p>
+
+  <div class="modal" id="modal" hidden>
+    <div class="dialog" id="dialog" role="dialog" aria-modal="true"></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // ───────────── 示例数据（形态对齐公开 OpenAPI） ─────────────
+  const DATA = {
+    course: { channelId: '3958201', title: 'Python 入门 · 第 3 课：列表、字典与循环', teacher: '林老师', date: '2026-10-12 20:00', duration: 4320, students: 186 },
+    // 查询暂存视频大纲：outlineContent[]
+    outline: [
+      { title: '开场：为什么需要数据结构', start: 0, end: 400, summary: '用「存全班 50 人成绩」的例子引出问题：变量一多就没法批量处理，需要把数据装进一个容器。', keyword: ['数据结构', '列表'] },
+      { title: '列表的创建与索引', start: 400, end: 1155, summary: '列表用方括号创建，下标从 0 开始；负索引从末尾往回数；切片取一段，包含起点不包含终点。', keyword: ['索引', '负索引', '切片'] },
+      { title: '列表的增删改', start: 1155, end: 1910, summary: 'append 在末尾加一个元素，pop 删除并返回元素；列表是可变对象，两个变量可能指向同一个列表。', keyword: ['append', 'pop', '可变'] },
+      { title: '字典：键值对', start: 1910, end: 2730, summary: '字典用键找值。方括号取不存在的键会抛 KeyError，get 可以给默认值；键必须是不可变类型。', keyword: ['KeyError', 'get', '键'] },
+      { title: 'for 循环遍历', start: 2730, end: 3490, summary: 'range 生成数字序列，enumerate 同时拿下标和元素，items 遍历字典的键值对。', keyword: ['range', 'enumerate', 'items'] },
+      { title: '综合练习：统计词频', start: 3490, end: 4320, summary: '用字典计数，再按出现次数排序，找出一段文字里最常出现的词。', keyword: ['计数', '排序'] }
+    ],
+    // 查询观看记录：这位同学在 45:30–58:10 离开了直播间
+    watched: [[0, 2730], [3490, 4320]],
+    // 答题卡作答统计：每段相关题目的全班错误率（%）
+    failRate: [8, 24, 17, 62, 41, 29],
+    // 聊天记录 + 提问记录聚类出的高频问题
+    clusters: [
+      { seg: 1, count: 27, q: 'a[-1] 到底是哪一个？负数索引从哪开始数？',
+        msgs: [['阿杰', '老师 -1 是倒数第一个吗', '12:41'], ['Mia', '负数索引从哪开始数啊', '12:44'], ['土豆', 'a[-0] 是什么？', '12:50']],
+        answer: '负索引从末尾往回数：a[-1] 是最后一个，a[-2] 是倒数第二个，等价于 a[len(a) - 1]。另外 -0 就是 0，所以 a[-0] 取到的是第一个。' },
+      { seg: 3, count: 34, q: 'd.get("k") 和 d["k"] 有什么区别？',
+        msgs: [['小周', 'get 和 [] 有啥区别', '37:02'], ['Kevin', '为啥我这报 KeyError', '37:15'], ['奶茶三分糖', 'get 第二个参数是干嘛的', '38:40']],
+        answer: '键不存在时，d["k"] 直接抛 KeyError；d.get("k") 返回 None，d.get("k", 0) 返回你给的默认值 0。你希望程序报错还是给个默认值，决定了用哪一个。这也是 Boss 的弱点。' }
+    ],
+    // 题目：由智能字幕片段 + 大纲关键词生成；opts[0] 为正确答案，展示时打乱
+    questions: [
+      { id: 'q01', seg: 0, kw: '数据结构', t: 212, q: '用 s1、s2 … s50 五十个变量存全班成绩，最大的麻烦是什么？', code: '',
+        opts: ['没法用循环批量处理，求平均分要写 50 遍', '变量名里不能带数字', 'Python 最多只能有 32 个变量', '会让程序明显变慢'],
+        why: '变量一多就没法统一处理。把同类数据放进一个列表，一个循环就能处理全部。',
+        subs: [[-16, '假设我们要存全班五十个同学的成绩'], [-6, '按前两节课学的，你得写 s1、s2，一直写到 s50'], [4, '那要算个平均分怎么办？五十个变量挨个加'], [13, '这就是今天要解决的问题：把同类数据装进一个容器']] },
+      { id: 'q02', seg: 0, kw: '列表', t: 318, q: '下面哪个是合法的 Python 列表？', code: '',
+        opts: ['[90, 85, 77]', '(90; 85; 77)', '<90, 85, 77>', '{90: 85: 77}'],
+        why: '列表用方括号，元素之间用逗号分隔。',
+        subs: [[-15, 'Python 里最常用的容器，叫列表'], [-5, '写法很简单，一对方括号'], [5, '里面的元素用英文逗号隔开，比如 90, 85, 77'], [14, '注意是方括号，不是圆括号，也不是花括号']] },
+      { id: 'q11', seg: 1, kw: '索引', t: 520, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1])",
+        opts: ['香蕉', '苹果', '橙子', '报错 IndexError'],
+        why: '索引从 0 开始，a[0] 是苹果，a[1] 才是香蕉。',
+        subs: [[-16, '列表里每个元素都有一个位置编号，叫索引'], [-6, '重点来了：索引是从 0 开始数的'], [4, '所以 a[0] 是苹果，a[1] 是香蕉'], [13, '很多同学第一次写都会差一位，大家注意']] },
+      { id: 'q12', seg: 1, kw: '负索引', t: 762, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[-1])",
+        opts: ['葡萄', '苹果', '报错，索引不能是负数', '橙子'],
+        why: '负索引从末尾往回数，-1 就是最后一个。',
+        subs: [[-15, '那我想取最后一个怎么办？不用去数长度'], [-5, 'Python 支持负数索引'], [5, 'a[-1] 就是最后一个，a[-2] 是倒数第二个'], [14, '你可以理解成从尾巴往回数']] },
+      { id: 'q13', seg: 1, kw: '切片', t: 948, q: '输出是什么？', code: "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1:3])",
+        opts: ["['香蕉', '橙子']", "['香蕉', '橙子', '葡萄']", "['苹果', '香蕉', '橙子']", "['橙子']"],
+        why: '切片包含起点、不包含终点：a[1:3] 取的是下标 1 和 2。',
+        subs: [[-15, '如果想一次取一段，用切片'], [-5, '冒号前面是起点，后面是终点'], [5, '记住一句话：包含起点，不包含终点'], [14, '所以 a[1:3] 拿到的是下标 1 和 2，两个元素']] },
+      { id: 'q21', seg: 2, kw: 'append', t: 1290, q: '输出是什么？', code: 'nums = [1, 2]\nnums.append([3, 4])\nprint(len(nums))',
+        opts: ['3', '4', '2', '报错'],
+        why: 'append 把整个 [3, 4] 当成一个元素加进去，所以长度是 3。想逐个加入要用 extend。',
+        subs: [[-15, '往列表末尾加东西，用 append'], [-5, 'append 每次只加一个元素'], [5, '如果你 append 一个列表进去，它会整个作为一个元素'], [14, '想把元素一个个加进去，要用 extend']] },
+      { id: 'q22', seg: 2, kw: 'pop', t: 1502, q: '输出是什么？', code: 'nums = [10, 20, 30]\nx = nums.pop()\nprint(x)',
+        opts: ['30', '10', '[10, 20]', 'None'],
+        why: 'pop() 不传参数时，删除并返回最后一个元素。',
+        subs: [[-15, '删除元素可以用 pop'], [-5, 'pop 不写参数，默认删最后一个'], [5, '而且它会把删掉的那个值返回给你'], [14, '所以 x = nums.pop()，x 就是原来的最后一个']] },
+      { id: 'q23', seg: 2, kw: '可变', t: 1736, q: '输出是什么？', code: 'b = [1, 2]\nc = b\nc.append(3)\nprint(b)',
+        opts: ['[1, 2, 3]', '[1, 2]', '[3]', '报错'],
+        why: 'c = b 没有复制列表，两个名字指向同一个列表对象，改 c 就是改 b。',
+        subs: [[-15, '这里有个大坑，大家看屏幕'], [-5, 'c = b，并没有复制一份新列表'], [5, 'b 和 c 是同一个列表的两个名字'], [14, '所以你改 c，打印 b 也变了']] },
+      { id: 'qb1', seg: 3, kw: 'KeyError', t: 2205, q: '执行结果是什么？', code: "d = {'name': '小明', 'age': 12}\nprint(d['score'])",
+        opts: ['抛出 KeyError', '输出 None', '输出 0', "输出 ''（空字符串）"],
+        why: '用方括号取一个不存在的键，会直接抛 KeyError。',
+        subs: [[-15, '字典用键来取值，写法也是方括号'], [-5, '但如果这个键根本不存在呢？'], [5, '程序会直接报错，错误类型叫 KeyError'], [14, '线上代码里，这个错误非常常见']] },
+      { id: 'qb2', seg: 3, kw: 'get', t: 2318, q: '输出是什么？', code: "d = {'name': '小明', 'age': 12}\nprint(d.get('score', 0))",
+        opts: ['0', 'None', '抛出 KeyError', 'score'],
+        why: 'get 取不到键时，返回第二个参数作为默认值。',
+        subs: [[-15, '怎么避免 KeyError？用 get 方法'], [-5, 'get 取不到的时候，默认返回 None'], [5, '你还可以给它第二个参数，当作默认值'], [14, '比如 d.get("score", 0)，取不到就返回 0']] },
+      { id: 'qb3', seg: 3, kw: '键', t: 2490, q: '下面哪个不能作为字典的键？', code: '',
+        opts: ['[1, 2]', "'id'", '42', '(1, 2)'],
+        why: '字典的键必须是不可变的。列表可变，不能当键；元组可以。',
+        subs: [[-15, '最后讲一下，什么东西能当字典的键'], [-5, '规则是：键必须是不可变的'], [5, '字符串、数字、元组都可以'], [14, '列表是可变的，拿列表当键会直接报错']] },
+      { id: 'q41', seg: 4, kw: 'range', t: 2860, q: '输出是什么？', code: "for i in range(3):\n    print(i, end=' ')",
+        opts: ['0 1 2', '1 2 3', '0 1 2 3', '3'],
+        why: 'range(3) 生成 0、1、2，不包含 3。',
+        subs: [[-15, '先看 range，它会生成一串数字'], [-5, 'range(3) 生成的是 0、1、2'], [5, '和切片一样，不包含终点 3'], [14, '所以这个循环会执行三次']] },
+      { id: 'q42', seg: 4, kw: 'enumerate', t: 3105, q: '输出是什么？', code: "for i, v in enumerate(['a', 'b']):\n    print(i, v)\n    break",
+        opts: ['0 a', '1 a', 'a 0', '0 b'],
+        why: 'enumerate 同时给出下标和元素，下标默认从 0 开始。',
+        subs: [[-15, '如果循环的时候既要元素又要下标'], [-5, '不用自己维护计数器，用 enumerate'], [5, '它每轮给你两个值：下标和元素'], [14, '下标默认从 0 开始']] },
+      { id: 'q43', seg: 4, kw: 'items', t: 3340, q: 'for k, v in d.items() 每一轮拿到的是什么？', code: '',
+        opts: ['一个键和它对应的值', '只有键', '只有值', '键的下标和键'],
+        why: 'items() 返回键值对，解包成 k 和 v。',
+        subs: [[-15, '遍历字典有三种方式'], [-5, '直接 for k in d，拿到的是键'], [5, '用 d.items()，每轮拿到一个键和对应的值'], [14, '写成 for k, v in d.items()，最常用']] },
+      { id: 'q51', seg: 5, kw: '计数', t: 3720, q: '输出是什么？', code: "counts = {}\nfor w in ['a', 'b', 'a']:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts)",
+        opts: ["{'a': 2, 'b': 1}", "{'a': 1, 'b': 1}", '抛出 KeyError', "{'a': 2}"],
+        why: 'get(w, 0) 第一次遇到某个词时取到 0，再加 1，所以不会报 KeyError。',
+        subs: [[-15, '综合练习，统计每个词出现了几次'], [-5, '思路是用字典计数：词是键，次数是值'], [5, 'counts.get(w, 0) + 1，第一次出现就从 0 开始加'], [14, '这里就用到了刚才讲的 get 默认值']] },
+      { id: 'q52', seg: 5, kw: '排序', t: 4010, q: '输出是什么？', code: "counts = {'a': 2, 'b': 5, 'c': 1}\ntop = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)\nprint(top[0])",
+        opts: ["('b', 5)", "('a', 2)", "('c', 1)", '5'],
+        why: '按值（kv[1]）从大到小排序，第一个就是出现次数最多的。',
+        subs: [[-15, '统计完了，要找出现最多的词'], [-5, '用 sorted 对 items 排序'], [5, 'key 写 lambda kv: kv[1]，表示按值排序'], [14, 'reverse=True 从大到小，第一个就是最多的']] }
+    ]
+  };
+
+  const SOURCES = [
+    { key: 'outline', name: '视频大纲', api: 'v4/channel/recordfile/get_record_file_outline', role: '房间 = 大纲分段，怪物 = 关键词' },
+    { key: 'subtitle', name: '智能字幕', api: 'video_management/smart_subtitle/query_smart_subtitle', role: '题目素材，复活时回放的字幕原文' },
+    { key: 'chat', name: '聊天记录 · 提问记录', api: 'chat/message/get_message_list · live_interaction/get_question_list', role: '高频提问聚类成隐藏 NPC' },
+    { key: 'avatar', name: '数字人视频创作', api: 'v4/ai/video-produce/video-produce-batch-create', role: 'NPC 的 15 秒讲解短片' },
+    { key: 'quiz', name: '答题卡作答统计', api: 'live_interaction 答题卡（取数接口待核对）', role: '全班错误率最高的段落成为 Boss 房' },
+    { key: 'viewlog', name: '观看记录', api: 'v4/user/viewlog/viewlog_list', role: '你没看过的段落被迷雾覆盖' },
+    { key: 'marker', name: '进度条打点', api: 'video_management/chapter_marker/add_chapter_marker', role: '你倒下的位置回写到回放进度条' }
+  ];
+
+  // ───────────── 工具 ─────────────
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const fmt = s => { s = Math.max(0, Math.round(s)); return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); };
+  const Q = Object.fromEntries(DATA.questions.map(q => [q.id, q]));
+  const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  // ───────────── 由数据推导游戏结构 ─────────────
+  const BOSS_ROOM = DATA.failRate.indexOf(Math.max(...DATA.failRate));
+  const FOG_ROOMS = DATA.outline.map((s, i) => {
+    const len = s.end - s.start;
+    const seen = DATA.watched.reduce((acc, [a, b]) => acc + Math.max(0, Math.min(b, s.end) - Math.max(a, s.start)), 0);
+    return seen / len < 0.5 ? i : -1;
+  }).filter(i => i >= 0);
+  const LAST_ROOM = DATA.outline.length - 1;
+
+  // ───────────── 地图生成 ─────────────
+  const TILE = 32, VW = 20, VH = 14, W = TILE * VW, H = TILE * VH;
+  const CW = 13, CH = 11, COLS = CW * 3 + 1, ROWS = CH * 2 + 1;
+  const LAYOUT = [[0, 0], [1, 0], [2, 0], [2, 1], [1, 1], [0, 1]];
+  let grid, roomOf, rooms, entities, torches;
+
+  function buildWorld() {
+    const rnd = mulberry32(Number(DATA.course.channelId));
+    const ri = (a, b) => a + Math.floor(rnd() * (b - a + 1));
+    grid = Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
+    roomOf = Array.from({ length: ROWS }, () => new Array(COLS).fill(-1));
+    rooms = LAYOUT.map(([cx, cy], i) => {
+      const w = ri(8, 10), h = ri(6, 8);
+      const x = cx * CW + 2 + ri(0, CW - 3 - w), y = cy * CH + 2 + ri(0, CH - 3 - h);
+      for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { grid[yy][xx] = 1; roomOf[yy][xx] = i; }
+      return { i, x, y, w, h, cx: x + Math.floor(w / 2), cy: y + Math.floor(h / 2) };
+    });
+    for (let i = 0; i < rooms.length - 1; i++) {
+      const a = rooms[i], b = rooms[i + 1];
+      let x = a.cx, y = a.cy;
+      while (x !== b.cx) { x += Math.sign(b.cx - x); if (grid[y][x] === 0) grid[y][x] = 1; }
+      while (y !== b.cy) { y += Math.sign(b.cy - y); if (grid[y][x] === 0) grid[y][x] = 1; }
+    }
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
+      if (grid[y][x] !== 0) continue;
+      let near = false;
+      for (let dy = -1; dy <= 1 && !near; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const yy = y + dy, xx = x + dx;
+        if (yy >= 0 && yy < ROWS && xx >= 0 && xx < COLS && grid[yy][xx] === 1) { near = true; break; }
+      }
+      if (near) grid[y][x] = 2;
+    }
+    torches = [];
+    rooms.forEach(r => {
+      [r.x + 1, r.x + r.w - 2].forEach(tx => { if (grid[r.y - 1][tx] === 2) torches.push({ x: tx, y: r.y - 1, seed: rnd() * 10 }); });
+    });
+
+    entities = [];
+    const taken = [];
+    const free = (x, y) => !taken.some(([a, b]) => Math.abs(a - x) <= 1 && Math.abs(b - y) <= 1);
+    const place = r => {
+      const cand = [];
+      for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) {
+        if (x === r.cx || y === r.cy) continue; // 十字通道保持畅通
+        if (free(x, y)) cand.push([x, y]);
+      }
+      const p = cand[Math.floor(rnd() * cand.length)];
+      taken.push(p);
+      return p;
+    };
+    const SLIME = ['#7cc36a', '#5fb3d9', '#c9a2ff', '#e0784c', '#e7c55a', '#ef8fb0'];
+    rooms.forEach(r => {
+      DATA.clusters.filter(c => c.seg === r.i).forEach((c, k) => {
+        const [x, y] = place(r);
+        entities.push({ id: 'npc' + r.i + '_' + k, type: 'npc', room: r.i, x, y, cluster: c });
+      });
+      if (r.i === BOSS_ROOM) {
+        const [x, y] = place(r);
+        entities.push({ id: 'boss', type: 'boss', room: r.i, x, y, kw: 'KeyError 字典魔', qids: DATA.questions.filter(q => q.seg === r.i).map(q => q.id) });
+      } else {
+        DATA.questions.filter(q => q.seg === r.i).forEach(q => {
+          const [x, y] = place(r);
+          entities.push({ id: q.id, type: 'mob', room: r.i, x, y, kw: q.kw, qids: [q.id], color: SLIME[r.i % SLIME.length] });
+        });
+      }
+    });
+    const last = rooms[LAST_ROOM];
+    entities.push({ id: 'portal', type: 'portal', room: LAST_ROOM, x: last.cx, y: last.cy });
+  }
+
+  // ───────────── 状态 ─────────────
+  let S, P, curRoom = -1;
+  const fresh = () => ({ px: rooms[0].cx, py: rooms[0].cy, hp: 5, xp: 0, dead: [], explored: [], visited: [], wrong: [], falls: 0, answered: 0, correct: 0, bossHp: 3, teacher: false, seenNpc: [], startedAt: Date.now() });
+
+  // ───────────── 像素精灵 ─────────────
+  const SPR = {
+    player: ['..hhhh..', '.hhhhhh.', '.hesseh.', '..ssss..', '.bbbbbb.', 'sbbbbbbs', '..bbbb..', '..l..l..'],
+    slime: ['........', '...gg...', '..gggg..', '.gggggg.', '.gwggwg.', 'gggggggg', 'gggggggg', '.g.gg.g.'],
+    npc: ['...pp...', '..pppp..', '.ppsspp.', '.pessep.', '..pssp..', '.pppppp.', 'pppyyppp', '.pp..pp.'],
+    boss: ['r......r', 'rr.rr.rr', '.rrrrrr.', 'rryrryrr', 'rrrrrrrr', 'r.kkkk.r', '.rrrrrr.', 'rr....rr']
+  };
+  const PAL = {
+    player: { h: '#3b2b22', s: '#f0c9a0', e: '#1a1410', b: '#4f9e8f', l: '#2c3340' },
+    npc: { p: '#6d5bd0', s: '#e9c6a3', e: '#1a1410', y: '#e8c45a' },
+    boss: { r: '#c2413a', y: '#ffd76a', k: '#2a0f0f' }
+  };
+  function spr(c, rows, pal, x, y, scale, flip) {
+    for (let j = 0; j < rows.length; j++) for (let i = 0; i < 8; i++) {
+      const ch = rows[j][flip ? 7 - i : i];
+      if (ch === '.' || !pal[ch]) continue;
+      c.fillStyle = pal[ch];
+      c.fillRect(Math.round(x + i * scale), Math.round(y + j * scale), Math.ceil(scale), Math.ceil(scale));
+    }
+  }
+  const slimePal = color => ({ g: color, w: '#f4f0e6' });
+
+  // ───────────── 渲染 ─────────────
+  const cv = $('#cv'), ctx = cv.getContext('2d');
+  const lc = document.createElement('canvas'); lc.width = W; lc.height = H;
+  const lctx = lc.getContext('2d');
+  let particles = [];
+
+  function draw(now) {
+    const t = now / 1000;
+    const camX = Math.max(0, Math.min(COLS * TILE - W, P.rx * TILE - W / 2 + TILE / 2));
+    const camY = Math.max(0, Math.min(ROWS * TILE - H, P.ry * TILE - H / 2 + TILE / 2));
+    ctx.fillStyle = '#07080b';
+    ctx.fillRect(0, 0, W, H);
+    const x0 = Math.floor(camX / TILE), y0 = Math.floor(camY / TILE);
+    for (let ty = y0; ty <= y0 + VH && ty < ROWS; ty++) for (let tx = x0; tx <= x0 + VW && tx < COLS; tx++) {
+      const g = grid[ty][tx], sx = tx * TILE - camX, sy = ty * TILE - camY;
+      if (g === 1) {
+        const v = (tx * 7 + ty * 13) % 5;
+        const corridor = roomOf[ty][tx] < 0;
+        ctx.fillStyle = corridor ? '#211e1a' : ['#2b2721', '#2e2a23', '#29251f', '#302b24', '#2c2822'][v];
+        ctx.fillRect(sx, sy, TILE, TILE);
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        ctx.fillRect(sx, sy + TILE - 2, TILE, 2);
+        ctx.fillRect(sx + TILE - 2, sy, 2, TILE);
+        if (v === 2) { ctx.fillStyle = 'rgba(255,240,210,0.05)'; ctx.fillRect(sx + 8, sy + 10, 6, 3); }
+      } else if (g === 2) {
+        const front = ty + 1 < ROWS && grid[ty + 1][tx] === 1;
+        if (front) {
+          ctx.fillStyle = '#3a3e49'; ctx.fillRect(sx, sy, TILE, TILE);
+          ctx.fillStyle = '#4c5161'; ctx.fillRect(sx, sy, TILE, 6);
+          ctx.fillStyle = '#2b2e37';
+          ctx.fillRect(sx, sy + 16, TILE, 2);
+          ctx.fillRect(sx + ((ty % 2) ? 10 : 22), sy + 6, 2, 10);
+          ctx.fillRect(sx + ((ty % 2) ? 22 : 8), sy + 18, 2, 14);
+        } else {
+          ctx.fillStyle = '#23252d'; ctx.fillRect(sx, sy, TILE, TILE);
+          ctx.fillStyle = '#2c2f38'; ctx.fillRect(sx + 2, sy + 2, TILE - 4, TILE - 4);
+        }
+      }
+    }
+    // 火把
+    torches.forEach(tc => {
+      const sx = tc.x * TILE - camX, sy = tc.y * TILE - camY;
+      if (sx < -TILE || sx > W || sy < -TILE || sy > H) return;
+      const f = reduceMotion ? 0 : Math.sin(t * 9 + tc.seed) * 2;
+      ctx.fillStyle = '#5a3d22'; ctx.fillRect(sx + 14, sy + 14, 4, 12);
+      ctx.fillStyle = '#e8702e'; ctx.fillRect(sx + 12, sy + 6 - f * 0.5, 8, 9 + f * 0.5);
+      ctx.fillStyle = '#ffd27a'; ctx.fillRect(sx + 14, sy + 9 - f * 0.3, 4, 5);
+    });
+    // 实体
+    const fogged = r => FOG_ROOMS.includes(r) && !S.explored.includes(r);
+    entities.forEach(e => {
+      if (S.dead.includes(e.id) || fogged(e.room)) return;
+      const sx = e.x * TILE - camX, sy = e.y * TILE - camY;
+      if (sx < -64 || sx > W + 32 || sy < -64 || sy > H + 32) return;
+      const bob = reduceMotion ? 0 : Math.sin(t * 3 + e.x) * 2;
+      if (e.type === 'mob') {
+        spr(ctx, SPR.slime, slimePal(e.color), sx, sy + 2 + bob * 0.5, 4);
+        ctx.fillStyle = '#111'; ctx.fillRect(sx + 9, sy + 20 + bob * 0.5, 3, 3); ctx.fillRect(sx + 21, sy + 20 + bob * 0.5, 3, 3);
+      } else if (e.type === 'boss') {
+        const s = 6;
+        ctx.fillStyle = 'rgba(214,90,78,' + (0.18 + Math.abs(Math.sin(t * 2)) * 0.12) + ')';
+        ctx.beginPath(); ctx.arc(sx + 16, sy + 16, 30, 0, Math.PI * 2); ctx.fill();
+        spr(ctx, SPR.boss, PAL.boss, sx + 16 - 4 * s, sy + 16 - 4 * s + bob, s);
+      } else if (e.type === 'npc') {
+        spr(ctx, SPR.npc, PAL.npc, sx, sy + bob * 0.4, 4);
+        if (!S.seenNpc.includes(e.id)) {
+          ctx.fillStyle = '#ffd76a';
+          ctx.fillRect(sx + 14, sy - 14 + bob, 4, 8); ctx.fillRect(sx + 14, sy - 4 + bob, 4, 3);
+        }
+      } else if (e.type === 'portal') {
+        const on = S.dead.includes('boss');
+        for (let k = 0; k < 3; k++) {
+          const ph = (t * (on ? 1.4 : 0.4) + k / 3) % 1;
+          ctx.strokeStyle = on ? 'rgba(163,149,242,' + (1 - ph) + ')' : 'rgba(120,120,135,' + (0.6 - ph * 0.5) + ')';
+          ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.ellipse(sx + 16, sy + 18, 6 + ph * 12, 3 + ph * 6, 0, 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+    });
+    // 玩家
+    spr(ctx, SPR.player, PAL.player, P.rx * TILE - camX, P.ry * TILE - camY, 4, P.face < 0);
+    // 粒子
+    particles.forEach(p => { ctx.fillStyle = p.c; ctx.globalAlpha = Math.max(0, p.life); ctx.fillRect(p.x - camX, p.y - camY, 4, 4); });
+    ctx.globalAlpha = 1;
+    // 迷雾房间
+    FOG_ROOMS.forEach(ri => {
+      if (S.explored.includes(ri)) return;
+      const r = rooms[ri];
+      const rx = r.x * TILE - camX, ry = r.y * TILE - camY;
+      ctx.fillStyle = '#0b0c12'; ctx.fillRect(rx, ry, r.w * TILE, r.h * TILE);
+      for (let k = 0; k < 40; k++) {
+        const px = (k * 97 + t * (reduceMotion ? 0 : 14) * (k % 3 + 1)) % (r.w * TILE);
+        const py = (k * 53) % (r.h * TILE);
+        ctx.fillStyle = 'rgba(163,149,242,0.10)'; ctx.fillRect(rx + px, ry + py, 14, 3);
+      }
+    });
+
+    // 光照
+    lctx.globalCompositeOperation = 'source-over';
+    lctx.clearRect(0, 0, W, H);
+    lctx.fillStyle = S.teacher ? 'rgba(6,7,10,0.30)' : 'rgba(6,7,10,0.88)';
+    lctx.fillRect(0, 0, W, H);
+    lctx.globalCompositeOperation = 'destination-out';
+    S.visited.forEach(ri => {
+      const r = rooms[ri];
+      lctx.fillStyle = 'rgba(0,0,0,0.5)';
+      lctx.fillRect((r.x - 1) * TILE - camX, (r.y - 1) * TILE - camY, (r.w + 2) * TILE, (r.h + 2) * TILE);
+    });
+    const light = (x, y, rad, a) => {
+      const gr = lctx.createRadialGradient(x, y, 0, x, y, rad);
+      gr.addColorStop(0, 'rgba(0,0,0,' + a + ')'); gr.addColorStop(0.6, 'rgba(0,0,0,' + a * 0.8 + ')'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      lctx.fillStyle = gr; lctx.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+    };
+    light(P.rx * TILE - camX + 16, P.ry * TILE - camY + 16, 175, 1);
+    torches.forEach(tc => light(tc.x * TILE - camX + 16, tc.y * TILE - camY + 14, 78 + (reduceMotion ? 0 : Math.sin(t * 7 + tc.seed) * 5), 0.75));
+    ctx.drawImage(lc, 0, 0);
+
+    // 标签（画在光照之上，只在去过的房间显示）
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    entities.forEach(e => {
+      if (S.dead.includes(e.id) || fogged(e.room) || !S.visited.includes(e.room)) return;
+      const sx = e.x * TILE - camX + 16, sy = e.y * TILE - camY;
+      let label, fg, bg;
+      if (e.type === 'mob') { label = e.kw; fg = '#f2e9d5'; bg = 'rgba(15,15,20,0.85)'; }
+      else if (e.type === 'boss') { label = 'BOSS · ' + e.kw + ' ' + '♥'.repeat(S.bossHp); fg = '#ffc0b6'; bg = 'rgba(60,18,15,0.92)'; }
+      else if (e.type === 'npc') { label = e.cluster.count + ' 人问过'; fg = '#d9d2ff'; bg = 'rgba(35,28,70,0.92)'; }
+      else { label = S.dead.includes('boss') ? '传送门：结算' : '传送门（未激活）'; fg = '#d9d2ff'; bg = 'rgba(25,22,45,0.9)'; }
+      ctx.font = '500 11px "Noto Sans SC", sans-serif';
+      const w = ctx.measureText(label).width + 10;
+      const ly = e.type === 'boss' ? sy - 22 : sy - 9;
+      ctx.fillStyle = bg; ctx.fillRect(sx - w / 2, ly - 8, w, 16);
+      ctx.fillStyle = fg; ctx.fillText(label, sx, ly + 1);
+    });
+    FOG_ROOMS.forEach(ri => {
+      if (S.explored.includes(ri)) return;
+      const r = rooms[ri], seg = DATA.outline[ri];
+      const cx = (r.x + r.w / 2) * TILE - camX, cy = (r.y + r.h / 2) * TILE - camY;
+      ctx.fillStyle = '#a395f2'; ctx.font = '700 40px "Pixelify Sans", monospace'; ctx.fillText('?', cx, cy - 14);
+      ctx.font = '500 12px "Noto Sans SC", sans-serif'; ctx.fillStyle = '#c9c2f5';
+      ctx.fillText('你没看过 ' + fmt(seg.start) + '–' + fmt(seg.end), cx, cy + 18);
+    });
+    // 讲师视角
+    if (S.teacher) {
+      rooms.forEach(r => {
+        const rate = DATA.failRate[r.i];
+        const rx = r.x * TILE - camX, ry = r.y * TILE - camY, w = r.w * TILE, h = r.h * TILE;
+        ctx.fillStyle = 'rgba(214,90,78,' + (rate / 100 * 0.62) + ')'; ctx.fillRect(rx, ry, w, h);
+        ctx.strokeStyle = 'rgba(255,190,170,0.5)'; ctx.lineWidth = 1; ctx.strokeRect(rx + 0.5, ry + 0.5, w - 1, h - 1);
+        ctx.fillStyle = '#fff3e6';
+        ctx.font = '400 26px "ZCOOL QingKe HuangYou", "Noto Sans SC", sans-serif';
+        ctx.fillText('卡关 ' + rate + '%', rx + w / 2, ry + h / 2 - 10);
+        ctx.font = '500 12px "Noto Sans SC", sans-serif';
+        ctx.fillText(Math.round(rate / 100 * DATA.course.students) + ' / ' + DATA.course.students + ' 人 · ' + DATA.outline[r.i].title, rx + w / 2, ry + h / 2 + 16);
+      });
+    }
+  }
+
+  // ───────────── 循环与移动 ─────────────
+  const held = [];
+  let last = performance.now();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    const sp = 10 * dt;
+    const dx = S.px - P.rx, dy = S.py - P.ry;
+    const d = Math.hypot(dx, dy);
+    if (d <= sp) { P.rx = S.px; P.ry = S.py; } else { P.rx += dx / d * sp; P.ry += dy / d * sp; }
+    const moving = P.rx !== S.px || P.ry !== S.py;
+    if (!moving && held.length && $('#modal').hidden) tryMove(...held[held.length - 1]);
+    particles.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 260 * dt; p.life -= dt * 1.4; });
+    particles = particles.filter(p => p.life > 0);
+    draw(now);
+    requestAnimationFrame(frame);
+  }
+
+  function entityAt(x, y) { return entities.find(e => e.x === x && e.y === y && !S.dead.includes(e.id)); }
+
+  function tryMove(dx, dy) {
+    if (dx) P.face = dx;
+    const nx = S.px + dx, ny = S.py + dy;
+    if (ny < 0 || ny >= ROWS || nx < 0 || nx >= COLS || grid[ny][nx] !== 1) return;
+    const r = roomOf[ny][nx];
+    if (r >= 0 && FOG_ROOMS.includes(r) && !S.explored.includes(r)) { held.length = 0; openExplore(r); return; }
+    const e = entityAt(nx, ny);
+    if (e) { held.length = 0; interact(e); return; }
+    S.px = nx; S.py = ny;
+    if (r >= 0) enterRoom(r);
+  }
+
+  function enterRoom(r) {
+    if (!S.visited.includes(r)) {
+      S.visited.push(r);
+      const seg = DATA.outline[r];
+      addLog('进入第 ' + (r + 1) + ' 段「' + seg.title + '」' + fmt(seg.start) + '–' + fmt(seg.end));
+    }
+    if (r !== curRoom) { curRoom = r; renderPanel(r); }
+  }
+
+  function interact(e) {
+    if (e.type === 'mob' || e.type === 'boss') openBattle(e);
+    else if (e.type === 'npc') openNpc(e);
+    else if (e.type === 'portal') {
+      if (S.dead.includes('boss')) openResult();
+      else toast('传送门还没激活：先打败第 ' + (BOSS_ROOM + 1) + ' 段的 Boss');
+    }
+  }
+
+  // ───────────── 面板 / HUD / 日志 ─────────────
+  function roomCleared(i) { return entities.filter(e => e.room === i && (e.type === 'mob' || e.type === 'boss')).every(e => S.dead.includes(e.id)); }
+  function updateHud() {
+    $('#hpView').innerHTML = Array.from({ length: 5 }, (_, i) => '<span class="' + (i < S.hp ? 'on' : 'off') + '">♥</span>').join('');
+    $('#xpView').textContent = S.xp;
+    $('#roomView').textContent = rooms.filter(r => roomCleared(r.i)).length + ' / ' + rooms.length;
+    $('#teacherBtn').setAttribute('aria-pressed', String(S.teacher));
+  }
+  function renderPanel(i) {
+    const seg = DATA.outline[i];
+    const tags = [];
+    if (i === BOSS_ROOM) tags.push('<span class="tag boss">Boss 房 · 全班错误率 ' + DATA.failRate[i] + '%</span>');
+    if (FOG_ROOMS.includes(i)) tags.push('<span class="tag fog">' + (S.explored.includes(i) ? '迷雾已点亮' : '你没看过这段') + '</span>');
+    if (DATA.clusters.some(c => c.seg === i)) tags.push('<span class="tag npc">有高频提问 NPC</span>');
+    if (roomCleared(i)) tags.push('<span class="tag done">已清理</span>');
+    $('#roomCard').innerHTML =
+      '<div class="eyebrow">当前房间 · 大纲第 ' + (i + 1) + ' / ' + DATA.outline.length + ' 段</div>' +
+      '<h2 class="room-title">' + esc(seg.title) + '</h2>' +
+      '<div class="room-time">回放 ' + fmt(seg.start) + ' – ' + fmt(seg.end) + '</div>' +
+      (tags.length ? '<div class="chips">' + tags.join('') + '</div>' : '') +
+      '<p class="room-sum">' + esc(seg.summary) + '</p>' +
+      '<div class="chips">' + seg.keyword.map(k => '<span class="chip">' + esc(k) + '</span>').join('') + '</div>';
+    const on = new Set(['outline', 'subtitle']);
+    if (DATA.clusters.some(c => c.seg === i)) { on.add('chat'); on.add('avatar'); }
+    if (i === BOSS_ROOM) on.add('quiz');
+    if (FOG_ROOMS.includes(i)) on.add('viewlog');
+    if (i === LAST_ROOM) on.add('marker');
+    $('#sources').innerHTML = SOURCES.map(s =>
+      '<div class="src' + (on.has(s.key) ? ' on' : '') + '"><span class="dot"></span><div><b>' + esc(s.name) + '</b>' +
+      '<div class="role">' + esc(s.role) + '</div><div class="api">' + esc(s.api) + '</div></div></div>').join('');
+  }
+  function addLog(text, kind) {
+    const d = new Date();
+    const el = document.createElement('div');
+    el.innerHTML = '<span class="t">' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0') + '</span><span class="' + (kind || '') + '">' + esc(text) + '</span>';
+    const log = $('#log');
+    log.prepend(el);
+    while (log.children.length > 60) log.lastChild.remove();
+  }
+  let toastTimer;
+  function toast(text) {
+    const el = $('#toast'); el.textContent = text; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2200);
+  }
+  function shake() { const s = $('#screen'); s.classList.remove('shake'); void s.offsetWidth; s.classList.add('shake'); }
+  function burst(e, colors) {
+    for (let k = 0; k < 28; k++) {
+      const a = Math.random() * Math.PI * 2, v = 60 + Math.random() * 140;
+      particles.push({ x: e.x * TILE + 16, y: e.y * TILE + 16, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 80, life: 1, c: colors[k % colors.length] });
+    }
+  }
+
+  // ───────────── 弹窗 ─────────────
+  const modal = $('#modal'), dialog = $('#dialog');
+  function openModal(html) { dialog.innerHTML = html; modal.hidden = false; held.length = 0; const f = dialog.querySelector('button'); if (f) f.focus({ preventScroll: true }); }
+  function closeModal() { modal.hidden = true; cv.focus({ preventScroll: true }); }
+
+  function openBattle(e) {
+    const isBoss = e.type === 'boss';
+    const qi = isBoss ? 3 - S.bossHp : 0;
+    const q = Q[e.qids[qi]], seg = DATA.outline[e.room];
+    const opts = shuffle(q.opts.map((o, i) => ({ o, ok: i === 0 })));
+    openModal(
+      '<div class="eyebrow">' + (isBoss ? 'BOSS 房 · 全班错误率 ' + DATA.failRate[e.room] + '% · 第 ' + (qi + 1) + ' / 3 击' : '关键词怪') + ' · 大纲第 ' + (e.room + 1) + ' 段 ' + fmt(seg.start) + '–' + fmt(seg.end) + '</div>' +
+      '<h2>' + esc(isBoss ? e.kw : '「' + e.kw + '」史莱姆') + '</h2>' +
+      (isBoss ? '<div class="bossbar">' + [0, 1, 2].map(k => '<i class="' + (k < 3 - S.bossHp ? 'gone' : '') + '"></i>').join('') + '</div>' : '') +
+      '<p class="q">' + esc(q.q) + '</p>' +
+      (q.code ? '<pre class="code">' + esc(q.code) + '</pre>' : '') +
+      '<div class="opts">' + opts.map((x, i) => '<button class="opt" type="button" data-i="' + i + '">' + esc(x.o) + '</button>').join('') + '</div>' +
+      '<div id="fb" hidden></div>' +
+      '<div class="actions" id="acts"><button class="btn" type="button" id="flee">先撤退</button></div>'
+    );
+    $('#flee').onclick = closeModal;
+    dialog.querySelectorAll('.opt').forEach(btn => btn.onclick = () => {
+      const pick = opts[Number(btn.dataset.i)];
+      const fb = $('#fb');
+      S.answered++;
+      if (pick.ok) {
+        S.correct++;
+        btn.classList.add('right');
+        dialog.querySelectorAll('.opt').forEach(b => b.disabled = true);
+        fb.className = 'fb ok'; fb.hidden = false;
+        if (isBoss) {
+          S.bossHp--;
+          if (S.bossHp > 0) {
+            fb.innerHTML = '<b>命中！</b>Boss 还剩 ' + S.bossHp + ' 点血。' + esc(q.why);
+            $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">下一击</button>';
+            $('#nx').onclick = () => openBattle(e);
+            addLog('Boss 受到一击：' + q.kw, 'ok');
+          } else {
+            fb.innerHTML = '<b>Boss 倒下了！+100 XP</b> ' + esc(q.why) + ' 传送门已在第 ' + (LAST_ROOM + 1) + ' 段的房间激活。';
+            $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">继续</button>';
+            $('#nx').onclick = closeModal;
+            defeat(e, 100);
+          }
+        } else {
+          fb.innerHTML = '<b>击败！+20 XP</b> ' + esc(q.why);
+          $('#acts').innerHTML = '<button class="btn primary" type="button" id="nx">继续</button>';
+          $('#nx').onclick = closeModal;
+          defeat(e, 20);
+        }
+        $('#nx').focus({ preventScroll: true });
+      } else {
+        btn.classList.add('wrong'); btn.disabled = true;
+        S.hp = Math.max(0, S.hp - 1);
+        if (!S.wrong.includes(q.id)) S.wrong.push(q.id);
+        shake(); updateHud();
+        fb.className = 'fb bad'; fb.hidden = false;
+        fb.innerHTML = '<b>−1 ♥ 不对。</b>老师在回放 ' + fmt(q.t) + ' 讲过这个点。';
+        addLog('答错「' + q.kw + '」→ 记录错题，回放锚点 ' + fmt(q.t), 'bad');
+        if (S.hp <= 0) setTimeout(() => openReplay(q), 650);
+      }
+      updateHud();
+    });
+  }
+
+  function defeat(e, xp) {
+    S.dead.push(e.id); S.xp += xp;
+    burst(e, e.type === 'boss' ? ['#ff8a7a', '#ffd76a', '#c2413a'] : [e.color, '#f4f0e6', '#ffd76a']);
+    addLog((e.type === 'boss' ? '击败 Boss「' + e.kw + '」' : '击败关键词怪「' + e.kw + '」') + ' +' + xp + ' XP', 'ok');
+    if (roomCleared(e.room)) addLog('第 ' + (e.room + 1) + ' 段房间已清理', 'ok');
+    updateHud(); renderPanel(e.room);
+  }
+
+  function openReplay(q) {
+    S.falls++;
+    const seg = DATA.outline[q.seg];
+    const t0 = q.t - 20, t1 = q.t + 20, DUR = 6500;
+    openModal(
+      '<div class="eyebrow">生命耗尽 · 复活条件</div>' +
+      '<h2>回到回放里，补上这 40 秒</h2>' +
+      '<p class="note">第 ' + (q.seg + 1) + ' 段「' + esc(seg.title) + '」。演示按 6 倍速播放；正式版用播放器 SDK 跳到 ' + fmt(t0) + ' 正常播放 40 秒。</p>' +
+      '<div class="video"><div class="slide"><div class="st">' + esc(seg.title) + '</div>' + (q.code ? '<pre>' + esc(q.code) + '</pre>' : '<pre>' + esc(seg.summary) + '</pre>') + '</div>' +
+      '<div class="cam"></div><div class="sub" id="sub"></div><div class="bar"><i id="barI"></i></div></div>' +
+      '<div class="vt"><span id="vcur">' + fmt(t0) + '</span><span>' + fmt(t1) + '</span></div>' +
+      '<div class="actions"><button class="btn primary" type="button" id="revive" disabled>播放中…</button></div>'
+    );
+    const start = performance.now();
+    const tick = () => {
+      if (modal.hidden) return;
+      const p = Math.min(1, (performance.now() - start) / DUR);
+      const cur = t0 + (t1 - t0) * p;
+      $('#barI').style.width = (p * 100) + '%';
+      $('#vcur').textContent = fmt(cur);
+      const line = q.subs.filter(([o]) => q.t + o <= cur).pop();
+      $('#sub').textContent = line ? line[1] : '';
+      if (p < 1) requestAnimationFrame(tick);
+      else {
+        const b = $('#revive'); b.disabled = false; b.textContent = '复活（♥ × 3）';
+        b.onclick = () => { S.hp = 3; updateHud(); addLog('看完回放 ' + fmt(t0) + '–' + fmt(t1) + ' → 复活', 'warn'); closeModal(); };
+        b.focus({ preventScroll: true });
+      }
+    };
+    requestAnimationFrame(tick);
+    addLog('倒下 → 回放 ' + fmt(t0) + '–' + fmt(t1) + '（智能字幕片段）', 'warn');
+  }
+
+  function openExplore(ri) {
+    const seg = DATA.outline[ri];
+    const qs = DATA.questions.filter(q => q.seg === ri);
+    openModal(
+      '<div class="eyebrow">迷雾房间 · 来自观看记录</div>' +
+      '<h2>这一段你还没看过</h2>' +
+      '<p>观看记录显示，你在 <b>' + fmt(seg.start) + '–' + fmt(seg.end) + '</b> 离开了直播间，错过了「' + esc(seg.title) + '」。先读完这段的大纲，才能进去。</p>' +
+      '<h3>AI 大纲摘要</h3><p>' + esc(seg.summary) + '</p>' +
+      '<h3>老师原话（智能字幕节选）</h3>' +
+      '<div class="chat">' + qs.map(q => '<div class="msg"><span class="tm">' + fmt(q.t + q.subs[2][0]) + '</span><span>' + esc(q.subs[2][1]) + '</span><span></span></div>').join('') + '</div>' +
+      '<div class="chips">' + seg.keyword.map(k => '<span class="chip">' + esc(k) + '</span>').join('') + '</div>' +
+      '<div class="actions"><button class="btn" type="button" id="later">等会儿再来</button><button class="btn primary" type="button" id="lit" disabled>阅读中…</button></div>'
+    );
+    $('#later').onclick = closeModal;
+    setTimeout(() => {
+      const b = $('#lit'); if (!b) return;
+      b.disabled = false; b.textContent = '读完了，点亮房间';
+      b.onclick = () => { S.explored.push(ri); S.xp += 10; addLog('点亮迷雾：第 ' + (ri + 1) + ' 段 +10 XP', 'ok'); updateHud(); renderPanel(curRoom >= 0 ? curRoom : ri); closeModal(); };
+    }, 1800);
+  }
+
+  function openNpc(e) {
+    const c = e.cluster, seg = DATA.outline[c.seg];
+    const first = !S.seenNpc.includes(e.id);
+    openModal(
+      '<div class="eyebrow">隐藏 NPC · 来自聊天记录和提问记录</div>' +
+      '<h2>' + c.count + ' 位同学问过同一个问题</h2>' +
+      '<p class="q">' + esc(c.q) + '</p>' +
+      '<h3>直播时聊天室里的原话</h3>' +
+      '<div class="chat">' + c.msgs.map(([n, m, tm]) => '<div class="msg"><span class="n">' + esc(n) + '</span><span>' + esc(m) + '</span><span class="tm">' + tm + '</span></div>').join('') + '</div>' +
+      '<h3>数字人' + esc(DATA.course.teacher) + '的回答</h3>' +
+      '<div class="answer"><div class="avatar" aria-hidden="true"></div><p>' + esc(c.answer) + '</p></div>' +
+      '<p class="note">正式版：赛前用视频创作接口为每个高频问题生成一段 15 秒的数字人讲解。本段时间范围 ' + fmt(seg.start) + '–' + fmt(seg.end) + '。</p>' +
+      '<div class="actions"><button class="btn primary" type="button" id="ok">' + (first ? '记住了（+10 XP）' : '关闭') + '</button></div>'
+    );
+    $('#ok').onclick = () => {
+      if (first) { S.seenNpc.push(e.id); S.xp += 10; addLog('听完 NPC 讲解：' + c.q.slice(0, 16) + '… +10 XP', 'ok'); updateHud(); }
+      closeModal();
+    };
+  }
+
+  function openResult() {
+    const acc = S.answered ? Math.round(S.correct / S.answered * 100) : 0;
+    const secs = Math.round((Date.now() - S.startedAt) / 1000);
+    const day = n => { const d = new Date(); d.setDate(d.getDate() + n); return (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+    const wrong = S.wrong.map(id => Q[id]);
+    const markers = wrong.map(q => ({ time: q.t, desc: '你在这里倒下过：' + q.kw }));
+    openModal(
+      '<div class="eyebrow">通关结算</div>' +
+      '<h2>第 3 课地下城已通关</h2>' +
+      '<div class="grid4">' +
+        '<div><div class="v">' + acc + '%</div><div class="k">答题正确率</div></div>' +
+        '<div><div class="v">' + S.falls + '</div><div class="k">倒下次数</div></div>' +
+        '<div><div class="v">' + S.xp + '</div><div class="k">经验</div></div>' +
+        '<div><div class="v">' + fmt(secs) + '</div><div class="k">用时</div></div>' +
+      '</div>' +
+      '<h3>巩固计划（按遗忘曲线推送每日副本）</h3>' +
+      '<div class="review">' + (wrong.length ? wrong.map(q =>
+        '<div><b>' + esc(q.kw) + '</b><span class="note">第 ' + (q.seg + 1) + ' 段 · 回放 ' + fmt(q.t) + '</span><span class="when">' + day(1) + ' · ' + day(3) + ' · ' + day(7) + '</span></div>').join('')
+        : '<div><b>全部一次答对</b><span class="when">' + day(7) + ' 推送一次综合复习</span></div>') + '</div>' +
+      '<h3>回写到回放进度条的打点（请求体示意）</h3>' +
+      '<pre class="code">' + esc(JSON.stringify(markers.length ? markers : [{ time: 0, desc: '全部通关，无倒下点' }], null, 2)) + '</pre>' +
+      '<p class="note">你的错题会计入讲师端的全班卡关热力图（点上方「讲师视角」查看）。正式版的间隔由 FSRS 算法按你的作答记录计算，这里先用固定的 1 / 3 / 7 天示意。</p>' +
+      '<div class="actions"><button class="btn" type="button" id="stay">留在地图</button><button class="btn primary" type="button" id="again">再闯一次</button></div>'
+    );
+    addLog('通关结算：正确率 ' + acc + '%，错题 ' + wrong.length + ' 个 → 生成巩固计划', 'ok');
+    $('#stay').onclick = closeModal;
+    $('#again').onclick = () => { reset(); closeModal(); };
+  }
+
+  // ───────────── 输入 ─────────────
+  const KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0], W: [0, -1], S: [0, 1], A: [-1, 0], D: [1, 0] };
+  const sameDir = (a, b) => a[0] === b[0] && a[1] === b[1];
+  window.addEventListener('keydown', ev => {
+    const dir = KEYS[ev.key];
+    if (!dir || !modal.hidden) return;
+    if (ev.target && /INPUT|TEXTAREA/.test(ev.target.tagName)) return;
+    ev.preventDefault();
+    if (!held.some(h => sameDir(h, dir))) held.push(dir);
+  });
+  window.addEventListener('keyup', ev => {
+    const dir = KEYS[ev.key];
+    if (!dir) return;
+    for (let i = held.length - 1; i >= 0; i--) if (sameDir(held[i], dir)) held.splice(i, 1);
+  });
+  window.addEventListener('blur', () => { held.length = 0; });
+  document.querySelectorAll('.pad button').forEach(b => {
+    const dir = b.dataset.dir.split(',').map(Number);
+    const release = () => { for (let i = held.length - 1; i >= 0; i--) if (sameDir(held[i], dir)) held.splice(i, 1); };
+    b.addEventListener('pointerdown', ev => { ev.preventDefault(); if (modal.hidden && !held.some(h => sameDir(h, dir))) held.push(dir); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(n => b.addEventListener(n, release));
+  });
+  cv.tabIndex = 0;
+  $('#teacherBtn').onclick = () => { S.teacher = !S.teacher; updateHud(); addLog(S.teacher ? '切到讲师视角：叠加全班卡关率' : '回到学员视角', 'warn'); };
+  $('#resetBtn').onclick = () => reset();
+
+  function reset() {
+    S = fresh(); P = { rx: S.px, ry: S.py, face: 1 }; curRoom = -1; particles = [];
+    enterRoom(0); updateHud();
+    addLog('重新开始', 'warn');
+  }
+
+  // ───────────── 图例 ─────────────
+  function legend() {
+    const items = [
+      ['slime', '关键词怪', '大纲每段的关键词，撞上就答一道由字幕生成的题'],
+      ['boss', 'Boss 房', '全班答题卡错误率最高的那一段（本课 ' + DATA.failRate[BOSS_ROOM] + '%）'],
+      ['npc', '隐藏 NPC', '聊天里被反复问的问题，数字人老师来解答'],
+      ['fog', '迷雾', '观看记录里你没看过的段落，读完大纲才能进'],
+      ['player', '倒下 = 补课', '生命耗尽就回到回放对应的 40 秒，看完复活']
+    ];
+    $('#legend').innerHTML = items.map(([k, t, d], i) => '<div class="lg"><canvas width="40" height="40" id="lg' + i + '"></canvas><div><b>' + t + '</b><span>' + d + '</span></div></div>').join('');
+    items.forEach(([k], i) => {
+      const c = document.getElementById('lg' + i).getContext('2d');
+      c.fillStyle = '#2b2721'; c.fillRect(0, 0, 40, 40);
+      if (k === 'slime') spr(c, SPR.slime, slimePal('#5fb3d9'), 4, 6, 4);
+      if (k === 'boss') spr(c, SPR.boss, PAL.boss, 4, 4, 4);
+      if (k === 'npc') spr(c, SPR.npc, PAL.npc, 4, 4, 4);
+      if (k === 'player') spr(c, SPR.player, PAL.player, 4, 4, 4);
+      if (k === 'fog') { c.fillStyle = '#0b0c12'; c.fillRect(0, 0, 40, 40); c.fillStyle = '#a395f2'; c.font = '700 26px "Pixelify Sans", monospace'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('?', 20, 21); }
+    });
+  }
+
+  // ───────────── 启动 ─────────────
+  function boot(saved) {
+    buildWorld();
+    S = Object.assign(fresh(), saved && saved.S ? saved.S : {});
+    P = { rx: S.px, ry: S.py, face: 1 };
+    $('#courseTitle').textContent = DATA.course.title;
+    $('#courseCh').textContent = DATA.course.channelId;
+    $('#courseMeta').textContent = DATA.course.date + ' 直播回放 · ' + fmt(DATA.course.duration) + ' · ' + DATA.course.teacher;
+    legend();
+    updateHud();
+    const r = roomOf[S.py][S.px];
+    enterRoom(r >= 0 ? r : 0);
+    if (!saved || !saved.S) {
+      const qN = DATA.questions.length;
+      [
+        ['GET 视频大纲 → ' + DATA.outline.length + ' 段，生成 ' + DATA.outline.length + ' 个房间', ''],
+        ['GET 智能字幕 → 412 条，按关键词生成 ' + qN + ' 道题', ''],
+        ['GET 聊天记录 1,288 条 + 提问 96 条 → 聚类出 ' + DATA.clusters.length + ' 个高频问题', ''],
+        ['GET 观看记录 → 缺失 ' + FOG_ROOMS.map(i => fmt(DATA.outline[i].start) + '–' + fmt(DATA.outline[i].end)).join('、') + '，加迷雾', 'warn'],
+        ['答题卡统计 → 第 ' + (BOSS_ROOM + 1) + ' 段错误率 ' + DATA.failRate[BOSS_ROOM] + '%，设为 Boss 房', 'bad'],
+        ['地下城生成完毕（seed = 频道号 ' + DATA.course.channelId + '）', 'ok']
+      ].forEach(([t, k], i) => setTimeout(() => addLog(t, k), 120 + i * 260));
+    }
+    if (window.claude && window.claude.hot && typeof window.claude.hot.snapshot === 'function') {
+      window.claude.hot.snapshot(() => ({ S }));
+    }
+    requestAnimationFrame(t => { last = t; frame(t); });
+  }
+
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(boot);
+  else boot((window.claude && window.claude.hot && window.claude.hot.data) || {});
+})();
+</script>
+
+</body></html>
