@@ -1,0 +1,242 @@
+{
+  "pageNumber": 1,
+  "pageSize": 1000,
+  "totalPages": 1,
+  "totalItems": 26,
+  "contents": [
+    {
+      "viewerId": "bny_m01",
+      "nick": "小鹿乱撞",
+      "viewCount": 2,
+      "totalDuration": "00:08:15",
+      "avgDuration": "00:04:07",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m02",
+      "nick": "精打细算的猫",
+      "viewCount": 1,
+      "totalDuration": "00:06:37",
+      "avgDuration": "00:06:37",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m03",
+      "nick": "杯子收藏家",
+      "viewCount": 1,
+      "totalDuration": "00:07:02",
+      "avgDuration": "00:07:02",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m04",
+      "nick": "黑色控",
+      "viewCount": 1,
+      "totalDuration": "00:06:35",
+      "avgDuration": "00:06:35",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m05",
+      "nick": "凑单小能手",
+      "viewCount": 1,
+      "totalDuration": "00:04:22",
+      "avgDuration": "00:04:22",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m06",
+      "nick": "不喝酸咖啡",
+      "viewCount": 1,
+      "totalDuration": "00:06:32",
+      "avgDuration": "00:06:32",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m07",
+      "nick": "围巾控",
+      "viewCount": 1,
+      "totalDuration": "00:06:34",
+      "avgDuration": "00:06:34",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m08",
+      "nick": "两件装党",
+      "viewCount": 1,
+      "totalDuration": "00:06:44",
+      "avgDuration": "00:06:44",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m09",
+      "nick": "理性消费",
+      "viewCount": 1,
+      "totalDuration": "00:02:52",
+      "avgDuration": "00:02:52",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m10",
+      "nick": "小雨",
+      "viewCount": 1,
+      "totalDuration": "00:07:07",
+      "avgDuration": "00:07:07",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m11",
+      "nick": "开车上班族",
+      "viewCount": 1,
+      "totalDuration": "00:07:02",
+      "avgDuration": "00:07:02",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m12",
+      "nick": "新疆的阿依",
+      "viewCount": 1,
+      "totalDuration": "00:07:07",
+      "avgDuration": "00:07:07",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m13",
+      "nick": "咖啡续命",
+      "viewCount": 1,
+      "totalDuration": "00:02:39",
+      "avgDuration": "00:02:39",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m14",
+      "nick": "成分党",
+      "viewCount": 1,
+      "totalDuration": "00:07:08",
+      "avgDuration": "00:07:08",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m15",
+      "nick": "上班族小陈",
+      "viewCount": 1,
+      "totalDuration": "00:06:53",
+      "avgDuration": "00:06:53",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m16",
+      "nick": "出差狗",
+      "viewCount": 1,
+      "totalDuration": "00:06:56",
+      "avgDuration": "00:06:56",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m17",
+      "nick": "急性子",
+      "viewCount": 1,
+      "totalDuration": "00:02:55",
+      "avgDuration": "00:02:55",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m18",
+      "nick": "怕漏星人",
+      "viewCount": 1,
+      "totalDuration": "00:07:08",
+      "avgDuration": "00:07:08",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m19",
+      "nick": "头围58",
+      "viewCount": 1,
+      "totalDuration": "00:07:03",
+      "avgDuration": "00:07:03",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m20",
+      "nick": "窄杯架车主",
+      "viewCount": 1,
+      "totalDuration": "00:06:40",
+      "avgDuration": "00:06:40",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m21",
+      "nick": "售后关心者",
+      "viewCount": 1,
+      "totalDuration": "00:04:38",
+      "avgDuration": "00:04:38",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_m22",
+      "nick": "宝妈小林",
+      "viewCount": 1,
+      "totalDuration": "00:07:08",
+      "avgDuration": "00:07:08",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r01",
+      "nick": "回放观众1",
+      "viewCount": 1,
+      "totalDuration": "00:07:08",
+      "avgDuration": "00:07:08",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r02",
+      "nick": "回放观众2",
+      "viewCount": 1,
+      "totalDuration": "00:07:08",
+      "avgDuration": "00:07:08",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r09",
+      "nick": "回放观众9",
+      "viewCount": 1,
+      "totalDuration": "00:02:51",
+      "avgDuration": "00:02:51",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r10",
+      "nick": "回放观众10",
+      "viewCount": 1,
+      "totalDuration": "00:02:21",
+      "avgDuration": "00:02:21",
+      "param4": "",
+      "param5": "bny_seed"
+    }
+  ]
+}

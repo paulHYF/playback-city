@@ -1,0 +1,760 @@
+[
+  {
+    "questionnaireId": "hng8aky5ct",
+    "questionnaireTitle": "第 3 讲课后反馈",
+    "questionnaireType": "survey",
+    "lastModified": 1792673609000,
+    "endTime": 1792673609000,
+    "questionStats": {
+      "questions": [
+        {
+          "questionId": "01b1e29c9c",
+          "questionName": "这节课整体难度如何？",
+          "score": null,
+          "totalScore": null,
+          "total": 19,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        },
+        {
+          "questionId": "51d407b8ca",
+          "questionName": "哪些部分没听懂？（可多选）",
+          "score": null,
+          "totalScore": null,
+          "total": 19,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        },
+        {
+          "questionId": "2050c53502",
+          "questionName": "给林老师的讲解打个分",
+          "score": null,
+          "totalScore": null,
+          "total": 19,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        },
+        {
+          "questionId": "2dd16f5a92",
+          "questionName": "还有什么想问或建议？",
+          "score": null,
+          "totalScore": null,
+          "total": 6,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        }
+      ],
+      "total": 19
+    },
+    "users": [
+      {
+        "viewerId": "bny_c01",
+        "nickname": "阿杰",
+        "submitTime": 1792673534000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "C",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "A",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c04",
+        "nickname": "小周",
+        "submitTime": 1792673575000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "D",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "ACDF",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c05",
+        "nickname": "Kevin",
+        "submitTime": 1792673539000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "C",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "2dd16f5a92",
+            "questionName": "还有什么想问或建议？",
+            "answer": "节奏刚好，期待函数那一讲",
+            "score": 0,
+            "type": "Q"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "EFH",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c06",
+        "nickname": "奶茶三分糖",
+        "submitTime": 1792673535000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "CD",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c07",
+        "nickname": "夏夏",
+        "submitTime": 1792673579000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "ACH",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c09",
+        "nickname": "程序媛小鹿",
+        "submitTime": 1792673507000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "ABE",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c10",
+        "nickname": "西瓜",
+        "submitTime": 1792673508000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "BCDEH",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c11",
+        "nickname": "林间",
+        "submitTime": 1792673516000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "C",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "2dd16f5a92",
+            "questionName": "还有什么想问或建议？",
+            "answer": "append 和 extend 能再多举几个例子吗",
+            "score": 0,
+            "type": "Q"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "E",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c12",
+        "nickname": "Zoe",
+        "submitTime": 1792673524000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "C",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "C",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "BCEG",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c14",
+        "nickname": "阿飞",
+        "submitTime": 1792673533000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "DFG",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c15",
+        "nickname": "七七",
+        "submitTime": 1792673594000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "AC",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c16",
+        "nickname": "晚风",
+        "submitTime": 1792673503000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "D",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "2dd16f5a92",
+            "questionName": "还有什么想问或建议？",
+            "answer": "append 和 extend 能再多举几个例子吗",
+            "score": 0,
+            "type": "Q"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "CH",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c17",
+        "nickname": "豆豆妈",
+        "submitTime": 1792673526000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "CE",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c18",
+        "nickname": "北辰",
+        "submitTime": 1792673550000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "ABCDEFH",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c19",
+        "nickname": "小满",
+        "submitTime": 1792673587000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "2dd16f5a92",
+            "questionName": "还有什么想问或建议？",
+            "answer": "KeyError 那里希望多讲讲实际项目里怎么处理",
+            "score": 0,
+            "type": "Q"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "E",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c20",
+        "nickname": "Leo",
+        "submitTime": 1792673561000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "2dd16f5a92",
+            "questionName": "还有什么想问或建议？",
+            "answer": "词频统计能不能出一道课后练习的答案",
+            "score": 0,
+            "type": "Q"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "DF",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c22",
+        "nickname": "一只鱼",
+        "submitTime": 1792673561000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "DE",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c23",
+        "nickname": "秋秋",
+        "submitTime": 1792673576000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "DH",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_c24",
+        "nickname": "小树",
+        "submitTime": 1792673536000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01b1e29c9c",
+            "questionName": "这节课整体难度如何？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "2050c53502",
+            "questionName": "给林老师的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          },
+          {
+            "questionId": "2dd16f5a92",
+            "questionName": "还有什么想问或建议？",
+            "answer": "c = b 那个坑讲得很清楚",
+            "score": 0,
+            "type": "Q"
+          },
+          {
+            "questionId": "51d407b8ca",
+            "questionName": "哪些部分没听懂？（可多选）",
+            "answer": "ABCEH",
+            "score": 0,
+            "type": "C"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      }
+    ],
+    "customQuestionnaireId": null
+  }
+]

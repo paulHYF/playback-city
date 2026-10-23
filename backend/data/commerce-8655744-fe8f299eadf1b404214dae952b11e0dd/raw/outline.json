@@ -1,0 +1,414 @@
+{
+  "status": "success",
+  "outline": {
+    "introduction": "本视频为“不夜城集市秋冬好物专场”直播回放。主播阿月开场介绍本场四样商品：宋锦纹保温杯、羊毛混纺围巾、桑蚕丝遮光眼罩和云南挂耳咖啡，并逐一讲解材质、尺寸、价格与售后。直播间标价即到手价，满199元减30元，可跨商品凑单，全场包邮（偏远地区除外），下单后48小时内发货。保温杯500ml直播间129元、350ml 89元；围巾159元；眼罩单支69元、两件装118元；挂耳咖啡89元20包。全场支持七天无理由退换并赠送运费险，围巾需吊牌未拆，咖啡拆封后不支持无理由退换。直播最后进行价格返场，并提示卖点卡将放在回放中。",
+    "outlineContent": [
+      {
+        "title": "开场与商品总览",
+        "startTime": "00:00:00,000",
+        "endTime": "00:00:24,154",
+        "startIndex": 0,
+        "endIndex": 12,
+        "summary": [
+          "主播阿月开场，欢迎来到不夜城集市秋冬好物专场。",
+          "今晚共上四样商品：保温杯、围巾、眼罩、挂耳咖啡。",
+          "每样都会讲清材质、尺寸、价格和售后，并解答评论区问题。"
+        ],
+        "keyword": [
+          "秋冬好物专场",
+          "四样商品",
+          "材质尺寸价格售后"
+        ]
+      },
+      {
+        "title": "优惠规则",
+        "startTime": "00:00:24,154",
+        "endTime": "00:00:58,179",
+        "startIndex": 13,
+        "endIndex": 28,
+        "summary": [
+          "直播间标价即到手价，不需要再领券。",
+          "满199元减30元，可跨商品凑单，例如保温杯加眼罩。",
+          "全场包邮，新疆、西藏等偏远地区除外；下单后48小时内发货；优惠到今晚直播结束前有效。"
+        ],
+        "keyword": [
+          "到手价",
+          "满199减30",
+          "包邮",
+          "48小时发货"
+        ]
+      },
+      {
+        "title": "宋锦纹保温杯",
+        "startTime": "00:00:58,400",
+        "endTime": "00:02:36,859",
+        "startIndex": 29,
+        "endIndex": 72,
+        "summary": [
+          "纹样取自宋代锦缎，有黛青、朱砂、月白三色；内胆316不锈钢，外壳304不锈钢，容量500毫升。",
+          "日常价169元，直播间129元；316比304耐腐蚀性更好，用于直接接触饮品的内胆。",
+          "实测95度热水、室温20度静置12小时约剩62度；杯身直径7.2厘米、高24厘米、重360克，部分车型杯架较窄需先测量。",
+          "另有350毫升款89元，更短更轻；杯盖密封圈通用，可单独买替换装。办公室喝水、开车通勤选500毫升，出门带一杯选350毫升。",
+          "不建议装碳酸饮料或牛奶，放太久容易变质。"
+        ],
+        "keyword": [
+          "宋锦纹",
+          "316不锈钢",
+          "500毫升",
+          "129元",
+          "350毫升"
+        ]
+      },
+      {
+        "title": "羊毛混纺围巾",
+        "startTime": "00:02:37,220",
+        "endTime": "00:04:06,115",
+        "startIndex": 73,
+        "endIndex": 113,
+        "summary": [
+          "成分70%羊毛、30%锦纶，不是纯羊绒；加锦纶是为了更耐磨、不容易变形。",
+          "尺寸180乘30厘米，含流苏，约160克，可绕脖子两圈；颜色有烟灰、驼色、酒红；日常价199元，直播间159元。",
+          "羊毛混纺手感不如羊绒细腻，但更耐磨，日常通勤骑车不心疼；初期有少量浮毛属正常现象。",
+          "用30度以下冷水手洗或干洗，不可机洗、不可烘干，洗完平铺阴干，不要挂着晾。",
+          "支持七天无理由，但前提是吊牌没有拆；建议收到货先比颜色，确定喜欢再拆吊牌。"
+        ],
+        "keyword": [
+          "70%羊毛",
+          "非纯羊绒",
+          "180乘30厘米",
+          "159元",
+          "手洗"
+        ]
+      },
+      {
+        "title": "桑蚕丝遮光眼罩",
+        "startTime": "00:04:06,120",
+        "endTime": "00:05:04,899",
+        "startIndex": 114,
+        "endIndex": 142,
+        "summary": [
+          "面料是22姆米桑蚕丝，贴脸部分为真丝，内部填充聚酯纤维，并非整只都是真丝。",
+          "单支69元，两件装118元；两件装为同一颜色，想要两个颜色需分开拍。",
+          "主要用于物理遮光，适合午休、坐高铁、出差、住酒店；绑带为弹力松紧带，周长约52到62厘米，可调节。",
+          "不具备任何治疗作用，长期失眠请就医，不要指望一只眼罩解决。",
+          "清洗用30度以下水手洗，不要暴晒。"
+        ],
+        "keyword": [
+          "22姆米桑蚕丝",
+          "物理遮光",
+          "69元",
+          "两件装118元",
+          "不可治疗失眠"
+        ]
+      },
+      {
+        "title": "云南挂耳咖啡",
+        "startTime": "00:05:04,900",
+        "endTime": "00:05:59,965",
+        "startIndex": 143,
+        "endIndex": 166,
+        "summary": [
+          "豆子来自云南保山，是阿拉比卡种小粒咖啡，中度烘焙，有坚果和可可味道，带一点点酸。",
+          "每包10克，一盒20包；日常价109元，直播间89元，算下来一包四块多。",
+          "冲泡用约92度热水，不要用刚烧开的沸水，分三次慢慢注入，总水量约180毫升，先让粉焖20秒左右。",
+          "保质期12个月，单包独立包装，开封后建议尽快喝完；咖啡含咖啡因，孕妇和对咖啡因敏感者请谨慎饮用。"
+        ],
+        "keyword": [
+          "云南保山",
+          "阿拉比卡",
+          "中度烘焙",
+          "89元20包",
+          "92度冲泡"
+        ]
+      },
+      {
+        "title": "统一售后说明",
+        "startTime": "00:06:00,160",
+        "endTime": "00:06:32,493",
+        "startIndex": 167,
+        "endIndex": 179,
+        "summary": [
+          "全场支持七天无理由退换，两个例外：围巾需要吊牌未拆；咖啡属于食品，拆封后不支持无理由退。",
+          "每一单都赠送运费险，退回来的运费不用顾客出。",
+          "收到货有质量问题，48小时内联系客服拍张照片，可直接补发或退款；评价写真实感受即可。"
+        ],
+        "keyword": [
+          "七天无理由",
+          "运费险",
+          "食品拆封不退",
+          "质量问题补发退款"
+        ]
+      },
+      {
+        "title": "价格返场与结束",
+        "startTime": "00:06:32,680",
+        "endTime": "00:07:07,680",
+        "startIndex": 180,
+        "endIndex": 192,
+        "summary": [
+          "返场价格：保温杯500毫升129元、350毫升89元；围巾159元，烟灰、驼色、酒红三色；眼罩单支69元、两件装118元；挂耳咖啡89元20包。",
+          "满199减30可以跨商品凑单；还有问题继续在评论区留言。",
+          "直播结束后会整理一份卖点卡放在回放里，感谢大家，下次见。"
+        ],
+        "keyword": [
+          "价格返场",
+          "满199减30",
+          "卖点卡",
+          "回放"
+        ]
+      }
+    ]
+  },
+  "question": {
+    "questions": [
+      {
+        "questionId": "b3dc268763",
+        "summaryId": 6541,
+        "question": "本次“不夜城集市秋冬好物专场”共上四样商品，以下哪项完全正确？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "保温杯、围巾、眼罩、挂耳咖啡"
+          },
+          {
+            "option": "B",
+            "content": "保温杯、围巾、帽子、挂耳咖啡"
+          },
+          {
+            "option": "C",
+            "content": "保温杯、围巾、眼罩、茶叶"
+          },
+          {
+            "option": "D",
+            "content": "水杯、围巾、眼罩、挂耳咖啡"
+          }
+        ],
+        "answer": "A",
+        "type": "single",
+        "videoReviewTime": 0,
+        "questionTriggerTime": 24,
+        "videoReviewTimeFormat": "00:00:00,000",
+        "questionTriggerFormat": "00:00:24,154"
+      },
+      {
+        "questionId": "a1686f165f",
+        "summaryId": 6546,
+        "question": "关于本次直播间的优惠规则，下列说法正确的有哪些？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "直播间标价即到手价，不需要再领券"
+          },
+          {
+            "option": "B",
+            "content": "满199元减30元，可以跨商品凑单"
+          },
+          {
+            "option": "C",
+            "content": "全场包邮，但新疆、西藏等偏远地区除外"
+          },
+          {
+            "option": "D",
+            "content": "下单后48小时内发货"
+          },
+          {
+            "option": "E",
+            "content": "优惠到今晚直播结束前有效"
+          }
+        ],
+        "answer": "A,B,C,D,E",
+        "type": "multiple",
+        "videoReviewTime": 24,
+        "questionTriggerTime": 58,
+        "videoReviewTimeFormat": "00:00:24,154",
+        "questionTriggerFormat": "00:00:58,179"
+      },
+      {
+        "questionId": "fb70cf475e",
+        "summaryId": 6547,
+        "question": "关于宋锦纹保温杯的材质和价格，下列说法正确的一项是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "内胆304不锈钢，外壳316不锈钢，直播间129元"
+          },
+          {
+            "option": "B",
+            "content": "内胆316不锈钢，外壳304不锈钢，直播间129元"
+          },
+          {
+            "option": "C",
+            "content": "350毫升款直播间129元"
+          },
+          {
+            "option": "D",
+            "content": "内胆316不锈钢，外壳304不锈钢，日常价129元"
+          }
+        ],
+        "answer": "B",
+        "type": "single",
+        "videoReviewTime": 58,
+        "questionTriggerTime": 156,
+        "videoReviewTimeFormat": "00:00:58,400",
+        "questionTriggerFormat": "00:02:36,859"
+      },
+      {
+        "questionId": "61d107b4f9",
+        "summaryId": 6543,
+        "question": "关于羊毛混纺围巾，下列说法正确的有哪些？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "成分为70%羊毛、30%锦纶，不是纯羊绒"
+          },
+          {
+            "option": "B",
+            "content": "尺寸为180乘30厘米，含流苏，约160克"
+          },
+          {
+            "option": "C",
+            "content": "直播间价格为159元"
+          },
+          {
+            "option": "D",
+            "content": "可以机洗，也可以烘干"
+          },
+          {
+            "option": "E",
+            "content": "支持七天无理由退换，但前提是吊牌没有拆"
+          }
+        ],
+        "answer": "A,B,C,E",
+        "type": "multiple",
+        "videoReviewTime": 157,
+        "questionTriggerTime": 246,
+        "videoReviewTimeFormat": "00:02:37,220",
+        "questionTriggerFormat": "00:04:06,115"
+      },
+      {
+        "questionId": "73053dad83",
+        "summaryId": 6548,
+        "question": "关于桑蚕丝遮光眼罩，下列说法正确的一项是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "整只眼罩全部都是真丝材质"
+          },
+          {
+            "option": "B",
+            "content": "单支69元，两件装118元，两件装为同一颜色"
+          },
+          {
+            "option": "C",
+            "content": "具有治疗长期失眠的作用"
+          },
+          {
+            "option": "D",
+            "content": "绑带为固定长度，不能调节"
+          }
+        ],
+        "answer": "B",
+        "type": "single",
+        "videoReviewTime": 246,
+        "questionTriggerTime": 304,
+        "videoReviewTimeFormat": "00:04:06,120",
+        "questionTriggerFormat": "00:05:04,899"
+      },
+      {
+        "questionId": "9d85f90678",
+        "summaryId": 6544,
+        "question": "关于云南挂耳咖啡，下列说法正确的有哪些？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "豆子来自云南保山，是阿拉比卡种小粒咖啡，中度烘焙"
+          },
+          {
+            "option": "B",
+            "content": "冲泡时应用刚烧开的沸水直接冲"
+          },
+          {
+            "option": "C",
+            "content": "每包10克，一盒20包，直播间89元"
+          },
+          {
+            "option": "D",
+            "content": "保质期12个月，单包独立包装，开封后建议尽快喝完"
+          },
+          {
+            "option": "E",
+            "content": "咖啡含咖啡因，孕妇和对咖啡因敏感者请谨慎饮用"
+          }
+        ],
+        "answer": "A,C,D,E",
+        "type": "multiple",
+        "videoReviewTime": 304,
+        "questionTriggerTime": 359,
+        "videoReviewTimeFormat": "00:05:04,900",
+        "questionTriggerFormat": "00:05:59,965"
+      },
+      {
+        "questionId": "cf4e1536b5",
+        "summaryId": 6545,
+        "question": "关于统一售后说明，下列说法正确的有哪些？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "全场支持七天无理由退换"
+          },
+          {
+            "option": "B",
+            "content": "围巾退换需要吊牌未拆"
+          },
+          {
+            "option": "C",
+            "content": "咖啡属于食品，拆封后不支持无理由退"
+          },
+          {
+            "option": "D",
+            "content": "每一单都赠送运费险，退回来的运费不用顾客出"
+          },
+          {
+            "option": "E",
+            "content": "收到货有质量问题时，退回运费需要顾客承担"
+          }
+        ],
+        "answer": "A,B,C,D",
+        "type": "multiple",
+        "videoReviewTime": 360,
+        "questionTriggerTime": 392,
+        "videoReviewTimeFormat": "00:06:00,160",
+        "questionTriggerFormat": "00:06:32,493"
+      },
+      {
+        "questionId": "fedb2525d4",
+        "summaryId": 6542,
+        "question": "以下返场价格与商品对应正确的一项是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "保温杯500毫升129元，350毫升89元"
+          },
+          {
+            "option": "B",
+            "content": "围巾199元"
+          },
+          {
+            "option": "C",
+            "content": "眼罩两件装69元"
+          },
+          {
+            "option": "D",
+            "content": "挂耳咖啡109元20包"
+          }
+        ],
+        "answer": "A",
+        "type": "single",
+        "videoReviewTime": 392,
+        "questionTriggerTime": 427,
+        "videoReviewTimeFormat": "00:06:32,680",
+        "questionTriggerFormat": "00:07:07,680"
+      }
+    ]
+  }
+}

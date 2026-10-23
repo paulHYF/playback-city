@@ -1,0 +1,623 @@
+[
+  {
+    "questionnaireId": "hng8alhj46",
+    "questionnaireTitle": "秋冬好物专场 · 购买意向调查",
+    "questionnaireType": "survey",
+    "lastModified": 1792672633000,
+    "endTime": 1792672633000,
+    "questionStats": {
+      "questions": [
+        {
+          "questionId": "26e3cbd2fd",
+          "questionName": "你最感兴趣的是哪件商品？",
+          "score": null,
+          "totalScore": null,
+          "total": 13,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        },
+        {
+          "questionId": "4fb33436d7",
+          "questionName": "下单前你最在意什么？（可多选）",
+          "score": null,
+          "totalScore": null,
+          "total": 13,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        },
+        {
+          "questionId": "01e9b8eb5e",
+          "questionName": "还没下单的原因是？",
+          "score": null,
+          "totalScore": null,
+          "total": 13,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        },
+        {
+          "questionId": "d53d3500b3",
+          "questionName": "给主播阿月的讲解打个分",
+          "score": null,
+          "totalScore": null,
+          "total": 13,
+          "correctCount": 0,
+          "n": 0,
+          "o": 0,
+          "r": 0,
+          "l": 0,
+          "p": 0,
+          "m": 0,
+          "s": 0,
+          "t": 0,
+          "k": 0,
+          "a": 0,
+          "b": 0,
+          "c": 0,
+          "d": 0,
+          "e": 0,
+          "f": 0,
+          "g": 0,
+          "h": 0,
+          "i": 0,
+          "j": 0,
+          "q": 0
+        }
+      ],
+      "total": 13
+    },
+    "users": [
+      {
+        "viewerId": "bny_m04",
+        "nickname": "黑色控",
+        "submitTime": 1792672545000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "C",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "A",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m08",
+        "nickname": "两件装党",
+        "submitTime": 1792672547000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "C",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "B",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m09",
+        "nickname": "理性消费",
+        "submitTime": 1792672590000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "ABDE",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "C",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m10",
+        "nickname": "小雨",
+        "submitTime": 1792672537000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "A",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m11",
+        "nickname": "开车上班族",
+        "submitTime": 1792672601000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "E",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "A",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m13",
+        "nickname": "咖啡续命",
+        "submitTime": 1792672539000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "AB",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m14",
+        "nickname": "成分党",
+        "submitTime": 1792672606000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "D",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "CE",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m16",
+        "nickname": "出差狗",
+        "submitTime": 1792672554000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "D",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "ACE",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m17",
+        "nickname": "急性子",
+        "submitTime": 1792672559000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "ABC",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m18",
+        "nickname": "怕漏星人",
+        "submitTime": 1792672607000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "ABD",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m20",
+        "nickname": "窄杯架车主",
+        "submitTime": 1792672585000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "B",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "D",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "ABE",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m21",
+        "nickname": "售后关心者",
+        "submitTime": 1792672547000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "D",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "D",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "AB",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "D",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      },
+      {
+        "viewerId": "bny_m22",
+        "nickname": "宝妈小林",
+        "submitTime": 1792672528000,
+        "totalScore": 0,
+        "answers": [
+          {
+            "questionId": "01e9b8eb5e",
+            "questionName": "还没下单的原因是？",
+            "answer": "E",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "26e3cbd2fd",
+            "questionName": "你最感兴趣的是哪件商品？",
+            "answer": "A",
+            "score": 0,
+            "type": "R"
+          },
+          {
+            "questionId": "4fb33436d7",
+            "questionName": "下单前你最在意什么？（可多选）",
+            "answer": "CD",
+            "score": 0,
+            "type": "C"
+          },
+          {
+            "questionId": "d53d3500b3",
+            "questionName": "给主播阿月的讲解打个分",
+            "answer": "E",
+            "score": 0,
+            "type": "X"
+          }
+        ],
+        "param4": "",
+        "param5": ""
+      }
+    ],
+    "customQuestionnaireId": null
+  }
+]

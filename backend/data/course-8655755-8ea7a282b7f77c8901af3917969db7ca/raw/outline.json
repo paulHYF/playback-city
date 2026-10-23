@@ -1,0 +1,592 @@
+{
+  "status": "success",
+  "outline": {
+    "introduction": "本视频是《Python入门第3讲》，在回顾变量、数据类型和if条件判断的基础上，带你学习Python中常用的容器——列表和字典，以及for循环。课程从“用50个变量存成绩”的实际痛点出发，讲解列表的创建、len函数、索引与负索引、切片规则，以及append、extend、insert、remove、pop和复制陷阱；随后介绍字典的键值对、get方法、增删改查和键的不可变规则；最后学习for循环、range、enumerate和字典的三种遍历方式，并完成词频统计综合练习。课程采用边讲边敲的方式，目标是让你能写出一个词频统计小程序，并为课后将程序扩展为统计英文文章打下基础。下一讲将进入函数学习。",
+    "outlineContent": [
+      {
+        "title": "课程导入与学习目标",
+        "startTime": "00:00:00,000",
+        "endTime": "00:00:28,036",
+        "startIndex": 0,
+        "endIndex": 12,
+        "summary": [
+          "回顾前两讲的变量、数据类型和if条件判断。",
+          "本讲学习列表、字典和for循环，目标是写出词频统计小程序。",
+          "准备编辑器，采用边讲边敲的方式。"
+        ],
+        "keyword": [
+          "列表",
+          "字典",
+          "for循环",
+          "词频统计",
+          "Python入门"
+        ]
+      },
+      {
+        "title": "为什么需要容器：从50个成绩到列表和字典",
+        "startTime": "00:00:28,520",
+        "endTime": "00:01:13,712",
+        "startIndex": 13,
+        "endIndex": 31,
+        "summary": [
+          "用50个变量存成绩、逐个相加算平均分很麻烦，新增同学还要改代码。",
+          "问题在于每个成绩都是孤立变量，程序无法批量处理。",
+          "引入列表和字典作为容器，把同类数据装进去，再用循环依次处理。"
+        ],
+        "keyword": [
+          "容器",
+          "批量处理",
+          "列表",
+          "字典",
+          "平均分"
+        ]
+      },
+      {
+        "title": "列表基础与len函数",
+        "startTime": "00:01:13,740",
+        "endTime": "00:01:53,973",
+        "startIndex": 32,
+        "endIndex": 52,
+        "summary": [
+          "列表用一对方括号创建，元素之间用英文逗号隔开。",
+          "列表可装数字或字符串，空方括号表示空列表。",
+          "用len函数获取元素个数；注意列表用方括号，花括号用于字典。"
+        ],
+        "keyword": [
+          "列表",
+          "方括号",
+          "len",
+          "空列表",
+          "元素类型"
+        ]
+      },
+      {
+        "title": "索引、负索引与越界错误",
+        "startTime": "00:01:54,720",
+        "endTime": "00:03:33,808",
+        "startIndex": 53,
+        "endIndex": 88,
+        "summary": [
+          "列表元素的位置编号叫索引，索引从0开始，可理解为离开头有几步。",
+          "负索引从末尾往回数，-1表示最后一个元素，-0就是0。",
+          "索引越界会报IndexError: list index out of range；四元素列表合法正索引为0到3，负索引为-1到-4。"
+        ],
+        "keyword": [
+          "索引",
+          "负索引",
+          "IndexError",
+          "越界",
+          "从0开始"
+        ]
+      },
+      {
+        "title": "切片：包含起点，不包含终点",
+        "startTime": "00:03:34,500",
+        "endTime": "00:04:17,055",
+        "startIndex": 89,
+        "endIndex": 107,
+        "summary": [
+          "切片写法为方括号内放起点、冒号、终点。",
+          "规则是包含起点、不包含终点；起点或终点可以省略。",
+          "切片取出的是新列表，不会改动原列表；该规则后面range也会再用到。"
+        ],
+        "keyword": [
+          "切片",
+          "起点",
+          "终点",
+          "新列表",
+          "不包含终点"
+        ]
+      },
+      {
+        "title": "列表修改：append、extend、insert、remove、pop与复制陷阱",
+        "startTime": "00:04:17,060",
+        "endTime": "00:06:37,294",
+        "startIndex": 108,
+        "endIndex": 159,
+        "summary": [
+          "列表可变；append每次在末尾加一个元素，append一个列表会整体塞入。",
+          "extend会把参数拆开逐个加入；insert按指定位置插入。",
+          "remove按值删除第一个匹配元素；pop按位置删除并返回被删值。",
+          "C=B不是复制新列表，而是同一个列表的两个名字；需要复制时用copy或切片。"
+        ],
+        "keyword": [
+          "append",
+          "extend",
+          "insert",
+          "remove",
+          "pop",
+          "copy",
+          "引用"
+        ]
+      },
+      {
+        "title": "字典基础、get方法与键的规则",
+        "startTime": "00:06:37,300",
+        "endTime": "00:09:11,207",
+        "startIndex": 160,
+        "endIndex": 217,
+        "summary": [
+          "字典用花括号创建，每项写成键冒号值，按名字而不是按位置取数据。",
+          "用方括号取不存在的键会报KeyError；用get取不到时默认返回None，也可指定默认值。",
+          "字典的新增和修改都用d[key]=value；删除可用del或pop；in判断的是键。",
+          "字典的键必须不可变，字符串、数字、元组可当键，列表不能当键。"
+        ],
+        "keyword": [
+          "字典",
+          "键值对",
+          "KeyError",
+          "get",
+          "不可变",
+          "元组"
+        ]
+      },
+      {
+        "title": "for循环、range与enumerate",
+        "startTime": "00:09:11,214",
+        "endTime": "00:10:42,338",
+        "startIndex": 218,
+        "endIndex": 249,
+        "summary": [
+          "for循环写法为for变量in列表，冒号下缩进部分是循环体。",
+          "用for循环可批量处理成绩并解决平均分问题，增加同学也不用改代码。",
+          "range(3)生成0、1、2，不包含终点3；range(1,4)生成1、2、3。",
+          "enumerate每轮同时给下标和元素，顺序是下标在前、元素在后。"
+        ],
+        "keyword": [
+          "for循环",
+          "range",
+          "enumerate",
+          "平均分",
+          "下标"
+        ]
+      },
+      {
+        "title": "遍历字典的三种方式",
+        "startTime": "00:10:42,360",
+        "endTime": "00:11:09,603",
+        "startIndex": 250,
+        "endIndex": 258,
+        "summary": [
+          "直接for k in d遍历到的是键。",
+          "d.values()取所有值，d.items()最常用，每轮拿到键和对应的值。",
+          "直接遍历字典默认拿不到值，需要items或values。"
+        ],
+        "keyword": [
+          "遍历字典",
+          "keys",
+          "values",
+          "items",
+          "键值对"
+        ]
+      },
+      {
+        "title": "综合练习：词频统计",
+        "startTime": "00:11:10,300",
+        "endTime": "00:12:43,659",
+        "startIndex": 259,
+        "endIndex": 290,
+        "summary": [
+          "词频统计思路：用字典记数，遍历每个词，新词记1，已有词在原次数上加1。",
+          "用counts[w]=counts.get(w,0)+1可避免KeyError，并同时完成新增和累加。",
+          "用sorted(counts.items(), key=lambda kv: kv[1], reverse=True)按次数从大到小排序，第一个就是出现最多的词。"
+        ],
+        "keyword": [
+          "词频统计",
+          "get默认值",
+          "KeyError",
+          "sorted",
+          "lambda",
+          "items"
+        ]
+      },
+      {
+        "title": "课堂总结与课后作业",
+        "startTime": "00:12:43,840",
+        "endTime": "00:13:24,000",
+        "startIndex": 291,
+        "endIndex": 301,
+        "summary": [
+          "回顾列表索引从0开始、负索引从末尾数、切片包含起点不包含终点。",
+          "回顾append整体塞入、extend拆开加入、C=B不是复制。",
+          "回顾字典方括号取不到会报KeyError、get可给默认值、键必须不可变。",
+          "回顾for配合range、enumerate和items；作业是把词频统计改成统计一篇英文文章，下一讲学习函数。"
+        ],
+        "keyword": [
+          "总结",
+          "课后作业",
+          "函数",
+          "词频统计",
+          "复习"
+        ]
+      }
+    ]
+  },
+  "question": {
+    "questions": [
+      {
+        "questionId": "b6df4d5a41",
+        "summaryId": 6554,
+        "question": "本讲课程的学习目标包括哪些？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "学习列表"
+          },
+          {
+            "option": "B",
+            "content": "学习字典"
+          },
+          {
+            "option": "C",
+            "content": "学习for循环"
+          },
+          {
+            "option": "D",
+            "content": "编写词频统计小程序"
+          },
+          {
+            "option": "E",
+            "content": "学习函数定义与调用"
+          }
+        ],
+        "answer": "A,B,C,D",
+        "type": "multiple",
+        "videoReviewTime": 0,
+        "questionTriggerTime": 28,
+        "videoReviewTimeFormat": "00:00:00,000",
+        "questionTriggerFormat": "00:00:28,036"
+      },
+      {
+        "questionId": "8bb8b2f1c2",
+        "summaryId": 6558,
+        "question": "为什么需要列表和字典这样的容器？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "用50个变量存成绩、逐个相加很麻烦，新增同学还要改代码"
+          },
+          {
+            "option": "B",
+            "content": "每个成绩都是孤立变量，程序无法批量处理"
+          },
+          {
+            "option": "C",
+            "content": "变量不能存储数字"
+          },
+          {
+            "option": "D",
+            "content": "列表和字典可以把同类数据装进去，再用循环依次处理"
+          },
+          {
+            "option": "E",
+            "content": "字典只能用于存储成绩，不能用于其他数据"
+          }
+        ],
+        "answer": "A,B,D",
+        "type": "multiple",
+        "videoReviewTime": 28,
+        "questionTriggerTime": 73,
+        "videoReviewTimeFormat": "00:00:28,520",
+        "questionTriggerFormat": "00:01:13,712"
+      },
+      {
+        "questionId": "bf9c98c14e",
+        "summaryId": 6550,
+        "question": "关于列表创建和len函数，下列说法正确的是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "列表用一对方括号创建，元素之间用英文逗号隔开"
+          },
+          {
+            "option": "B",
+            "content": "空列表可以写成[]"
+          },
+          {
+            "option": "C",
+            "content": "len([1,2,3])的结果是3"
+          },
+          {
+            "option": "D",
+            "content": "列表只能装数字，不能装字符串"
+          },
+          {
+            "option": "E",
+            "content": "花括号{}用于创建列表"
+          }
+        ],
+        "answer": "A,B,C",
+        "type": "multiple",
+        "videoReviewTime": 73,
+        "questionTriggerTime": 113,
+        "videoReviewTimeFormat": "00:01:13,740",
+        "questionTriggerFormat": "00:01:53,973"
+      },
+      {
+        "questionId": "67b7bd6d62",
+        "summaryId": 6556,
+        "question": "对于列表lst = ['a','b','c','d']，下列哪个索引访问会引发IndexError？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "lst[0]"
+          },
+          {
+            "option": "B",
+            "content": "lst[3]"
+          },
+          {
+            "option": "C",
+            "content": "lst[4]"
+          },
+          {
+            "option": "D",
+            "content": "lst[-1]"
+          },
+          {
+            "option": "E",
+            "content": "lst[-4]"
+          }
+        ],
+        "answer": "C",
+        "type": "single",
+        "videoReviewTime": 114,
+        "questionTriggerTime": 213,
+        "videoReviewTimeFormat": "00:01:54,720",
+        "questionTriggerFormat": "00:03:33,808"
+      },
+      {
+        "questionId": "24475a25bf",
+        "summaryId": 6557,
+        "question": "对于列表nums = [0,1,2,3,4,5]，表达式nums[1:4]的结果是什么？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "[1,2,3]"
+          },
+          {
+            "option": "B",
+            "content": "[1,2,3,4]"
+          },
+          {
+            "option": "C",
+            "content": "[0,1,2,3]"
+          },
+          {
+            "option": "D",
+            "content": "[2,3,4]"
+          },
+          {
+            "option": "E",
+            "content": "[0,1,2,3,4]"
+          }
+        ],
+        "answer": "A",
+        "type": "single",
+        "videoReviewTime": 214,
+        "questionTriggerTime": 257,
+        "videoReviewTimeFormat": "00:03:34,500",
+        "questionTriggerFormat": "00:04:17,055"
+      },
+      {
+        "questionId": "acd83e5958",
+        "summaryId": 6555,
+        "question": "关于列表的修改操作与复制，下列说法正确的是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "append每次在末尾添加一个元素；append一个列表会整体塞入"
+          },
+          {
+            "option": "B",
+            "content": "extend会把参数拆开逐个加入"
+          },
+          {
+            "option": "C",
+            "content": "remove按值删除第一个匹配元素"
+          },
+          {
+            "option": "D",
+            "content": "pop按位置删除并返回被删值"
+          },
+          {
+            "option": "E",
+            "content": "C = B 会创建B的一个新列表副本"
+          }
+        ],
+        "answer": "A,B,C,D",
+        "type": "multiple",
+        "videoReviewTime": 257,
+        "questionTriggerTime": 397,
+        "videoReviewTimeFormat": "00:04:17,060",
+        "questionTriggerFormat": "00:06:37,294"
+      },
+      {
+        "questionId": "edc8468540",
+        "summaryId": 6549,
+        "question": "关于字典的使用，下列说法正确的是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "字典用花括号创建，每项写成键:值"
+          },
+          {
+            "option": "B",
+            "content": "用d[key]访问不存在的键会报KeyError"
+          },
+          {
+            "option": "C",
+            "content": "d.get(key)在键不存在时默认返回None，也可指定默认值"
+          },
+          {
+            "option": "D",
+            "content": "列表可以作为字典的键"
+          },
+          {
+            "option": "E",
+            "content": "in运算符用于判断字典中是否存在某个键"
+          }
+        ],
+        "answer": "A,B,C,E",
+        "type": "multiple",
+        "videoReviewTime": 397,
+        "questionTriggerTime": 551,
+        "videoReviewTimeFormat": "00:06:37,300",
+        "questionTriggerFormat": "00:09:11,207"
+      },
+      {
+        "questionId": "ada3708bab",
+        "summaryId": 6553,
+        "question": "range(1,5)生成的数字序列是什么？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "1,2,3,4,5"
+          },
+          {
+            "option": "B",
+            "content": "1,2,3,4"
+          },
+          {
+            "option": "C",
+            "content": "0,1,2,3,4"
+          },
+          {
+            "option": "D",
+            "content": "2,3,4,5"
+          },
+          {
+            "option": "E",
+            "content": "1,2,3,4,5,6"
+          }
+        ],
+        "answer": "B",
+        "type": "single",
+        "videoReviewTime": 551,
+        "questionTriggerTime": 642,
+        "videoReviewTimeFormat": "00:09:11,214",
+        "questionTriggerFormat": "00:10:42,338"
+      },
+      {
+        "questionId": "4f219d7902",
+        "summaryId": 6552,
+        "question": "遍历字典d时，下列方式及结果描述正确的是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "for k in d 遍历到的是键"
+          },
+          {
+            "option": "B",
+            "content": "d.values()返回所有值"
+          },
+          {
+            "option": "C",
+            "content": "d.items()每轮拿到键和对应的值"
+          },
+          {
+            "option": "D",
+            "content": "直接遍历字典默认拿到的是值"
+          },
+          {
+            "option": "E",
+            "content": "要同时拿到键和值，常用items()"
+          }
+        ],
+        "answer": "A,B,C,E",
+        "type": "multiple",
+        "videoReviewTime": 642,
+        "questionTriggerTime": 669,
+        "videoReviewTimeFormat": "00:10:42,360",
+        "questionTriggerFormat": "00:11:09,603"
+      },
+      {
+        "questionId": "c900210436",
+        "summaryId": 6559,
+        "question": "在词频统计中，counts[w] = counts.get(w, 0) + 1 的作用是什么？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "若w不在字典中则报KeyError"
+          },
+          {
+            "option": "B",
+            "content": "若w不在字典中则先取默认值0再加1，避免KeyError并完成计数"
+          },
+          {
+            "option": "C",
+            "content": "把w的值设为0"
+          },
+          {
+            "option": "D",
+            "content": "删除w"
+          },
+          {
+            "option": "E",
+            "content": "把w的值设为1"
+          }
+        ],
+        "answer": "B",
+        "type": "single",
+        "videoReviewTime": 670,
+        "questionTriggerTime": 763,
+        "videoReviewTimeFormat": "00:11:10,300",
+        "questionTriggerFormat": "00:12:43,659"
+      },
+      {
+        "questionId": "14b0502b71",
+        "summaryId": 6551,
+        "question": "下列关于本讲内容的总结，正确的是？",
+        "selectOptions": [
+          {
+            "option": "A",
+            "content": "列表索引从0开始，负索引从末尾往回数"
+          },
+          {
+            "option": "B",
+            "content": "切片包含起点但不包含终点"
+          },
+          {
+            "option": "C",
+            "content": "C = B 会创建B的一个新列表副本"
+          },
+          {
+            "option": "D",
+            "content": "字典的键可以是列表"
+          },
+          {
+            "option": "E",
+            "content": "下一讲将学习函数"
+          }
+        ],
+        "answer": "A,B,E",
+        "type": "multiple",
+        "videoReviewTime": 763,
+        "questionTriggerTime": 804,
+        "videoReviewTimeFormat": "00:12:43,840",
+        "questionTriggerFormat": "00:13:24,000"
+      }
+    ]
+  }
+}

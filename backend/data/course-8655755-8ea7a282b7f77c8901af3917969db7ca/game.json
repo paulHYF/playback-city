@@ -1,0 +1,657 @@
+{
+  "version": 1,
+  "scene": "course",
+  "replay": {
+    "channelId": "8655755",
+    "fileId": "8ea7a282b7f77c8901af3917969db7ca",
+    "title": "课程-Python入门第3讲-频道8655755.mp4",
+    "duration": 804,
+    "host": "林老师"
+  },
+  "rooms": [
+    {
+      "title": "课程导入与容器动机",
+      "start": 0,
+      "end": 72,
+      "summary": "回顾前两讲内容，从50个变量存成绩的痛点引入容器：把同类数据装进列表或字典，再用循环批量处理。",
+      "keywords": [
+        "容器",
+        "列表",
+        "字典",
+        "for循环",
+        "批量处理"
+      ],
+      "watched_ratio": 1.0,
+      "fail_rate": 0.06,
+      "items": [
+        {
+          "id": "q01",
+          "keyword": "容器",
+          "question": "用50个变量存成绩的主要问题是什么？",
+          "code": "",
+          "options": [
+            "每个成绩都是孤立的变量，程序没办法批量处理它们",
+            "变量不能存储数字",
+            "列表只能装字符串，不能装数字",
+            "字典只能用来存储成绩"
+          ],
+          "explain": "讲师把痛点归结为：每个成绩都是一个孤立的变量，程序没办法批量处理它们；所以要把同类数据装进容器，再用循环依次处理。",
+          "source_time": 58,
+          "source_quote": "程序没办法批量处理它们"
+        }
+      ]
+    },
+    {
+      "title": "列表基础、len、索引与负索引",
+      "start": 73,
+      "end": 213,
+      "summary": "列表用方括号创建，元素用英文逗号隔开，len取元素个数；索引从0开始，负索引从末尾数，越界报IndexError。",
+      "keywords": [
+        "列表",
+        "len",
+        "索引",
+        "负索引",
+        "IndexError"
+      ],
+      "watched_ratio": 1.0,
+      "fail_rate": 0.38,
+      "items": [
+        {
+          "id": "q02",
+          "keyword": "列表创建",
+          "question": "创建列表时，正确的写法是？",
+          "code": "scores = [98, 15, 77]",
+          "options": [
+            "用一对方括号，元素之间用英文逗号隔开",
+            "用一对花括号，元素之间用英文逗号隔开",
+            "用一对圆括号，元素之间用英文逗号隔开",
+            "用一对方括号，元素之间用中文逗号隔开"
+          ],
+          "explain": "列表用一对方括号创建，元素之间用英文逗号隔开；花括号是后面要讲的字典。",
+          "source_time": 77,
+          "source_quote": "一对方括号里面的元素用英文逗号隔开"
+        },
+        {
+          "id": "q03",
+          "keyword": "索引",
+          "question": "列表索引的起始值是？",
+          "code": "fruits = ['苹果', '香蕉', '橙子', '葡萄']",
+          "options": [
+            "0",
+            "1",
+            "-1",
+            "列表的长度"
+          ],
+          "explain": "索引是从零开始数的，可以把索引理解成离开头有几步：苹果在开头走零步，香蕉要走一步。",
+          "source_time": 120,
+          "source_quote": "索引是从零开始数的"
+        },
+        {
+          "id": "q04",
+          "keyword": "负索引",
+          "question": "一个四元素列表，合法的负索引范围是？",
+          "code": "",
+          "options": [
+            "-1到-4",
+            "0到3",
+            "-0到-4",
+            "-1到-3"
+          ],
+          "explain": "四个元素的列表合法正索引是0到3，负索引是-1到-4；-0就是0。",
+          "source_time": 204,
+          "source_quote": "负索引是-1到-4"
+        }
+      ]
+    },
+    {
+      "title": "切片：包含起点，不包含终点",
+      "start": 214,
+      "end": 256,
+      "summary": "切片写法是方括号里放起点、冒号、终点，包含起点不包含终点；取出的是新列表，不会改动原列表。",
+      "keywords": [
+        "切片",
+        "起点",
+        "终点",
+        "新列表"
+      ],
+      "watched_ratio": 1.0,
+      "fail_rate": 0.0,
+      "items": [
+        {
+          "id": "q05",
+          "keyword": "切片",
+          "question": "列表切片a[1:3]会取到哪些下标的元素？",
+          "code": "a = ['苹果', '香蕉', '橙子', '葡萄']\na[1:3]",
+          "options": [
+            "下标1和下标2",
+            "下标1、2、3",
+            "下标0、1、2",
+            "下标1、2、3、4"
+          ],
+          "explain": "切片规则是包含起点、不包含终点，所以a[1:3]拿到下标1和2两个元素，下标3的葡萄不包含在内。",
+          "source_time": 224,
+          "source_quote": "不包含终点"
+        }
+      ]
+    },
+    {
+      "title": "列表修改与复制陷阱",
+      "start": 257,
+      "end": 396,
+      "summary": "列表可变；append整体塞入、extend拆开逐个加入、insert按位置插入、remove按值删、pop按位置删并返回值；C=B不是复制而是同一个列表的两个名字。",
+      "keywords": [
+        "append",
+        "extend",
+        "insert",
+        "remove",
+        "pop",
+        "copy",
+        "引用"
+      ],
+      "watched_ratio": 1.0,
+      "fail_rate": 0.62,
+      "items": [
+        {
+          "id": "q06",
+          "keyword": "append",
+          "question": "num=[1,2]；执行num.append([3,4])后，num的长度是？",
+          "code": "num = [1, 2]\nnum.append([3, 4])",
+          "options": [
+            "3",
+            "4",
+            "2",
+            "直接报错"
+          ],
+          "explain": "append一个列表会把整个列表当成一个元素塞进去，所以长度从2变成3，不是4；想逐个加入要用extend。",
+          "source_time": 287,
+          "source_quote": "它会把整个三四当成一个元素塞进去"
+        },
+        {
+          "id": "q07",
+          "keyword": "pop",
+          "question": "要从列表里按位置删除并拿到被删的值，用哪个方法？",
+          "code": "",
+          "options": [
+            "pop",
+            "remove",
+            "insert",
+            "append"
+          ],
+          "explain": "remove给的是值，按值删除第一个匹配元素；pop给的是位置，默认删最后一个，并且会把删掉的值返回给你。",
+          "source_time": 331,
+          "source_quote": "Pop按位置删"
+        },
+        {
+          "id": "q08",
+          "keyword": "引用",
+          "question": "执行B=[1,2]；C=B；C.append(3)后，打印B的结果是？",
+          "code": "B = [1, 2]\nC = B\nC.append(3)\nprint(B)",
+          "options": [
+            "[1, 2, 3]",
+            "[1, 2]",
+            "[3]",
+            "报错"
+          ],
+          "explain": "C等于B并没有复制一份新列表，B和C只是同一个列表的两个名字，改C就是在改B；真要复制用B.copy或切片B[:]。",
+          "source_time": 369,
+          "source_quote": "因为C等于B并没有复制一份新列表"
+        }
+      ]
+    },
+    {
+      "title": "字典基础、get与键的规则",
+      "start": 397,
+      "end": 550,
+      "summary": "字典用花括号创建，每项写成键:值，按名字取数据；方括号取不到报KeyError，get取不到返回默认值；增改都是d[k]=v，in判断键；键必须不可变。",
+      "keywords": [
+        "字典",
+        "键值对",
+        "KeyError",
+        "get",
+        "in",
+        "不可变"
+      ],
+      "watched_ratio": 1.0,
+      "fail_rate": 0.71,
+      "items": [
+        {
+          "id": "q09",
+          "keyword": "字典创建",
+          "question": "字典的每一项应写成什么形式？",
+          "code": "d = {'name': '小明', 'age': 12}",
+          "options": [
+            "键:值",
+            "值:键",
+            "键=值",
+            "键,值"
+          ],
+          "explain": "字典用花括号创建，每一项写成键冒号值；取值时用方括号加上键。",
+          "source_time": 405,
+          "source_quote": "每一项写成建冒号值"
+        },
+        {
+          "id": "q10",
+          "keyword": "KeyError",
+          "question": "用d['score']访问字典中不存在的键，会发生什么？",
+          "code": "d = {'name': '小明', 'age': 12}\nd['score']",
+          "options": [
+            "直接报KeyError，程序停下来",
+            "返回None",
+            "返回0",
+            "自动创建这个键并赋值为None"
+          ],
+          "explain": "方括号取不存在的键会直接报KeyError，不会返回None，也不会返回0；想不报错要用get。",
+          "source_time": 435,
+          "source_quote": "错误类型叫key error"
+        },
+        {
+          "id": "q11",
+          "keyword": "键的不可变",
+          "question": "字典的键必须满足什么规则？",
+          "code": "",
+          "options": [
+            "键必须不可变，字符串、数字、元组可以当键",
+            "键必须是字符串",
+            "键必须是数字",
+            "键可以是列表"
+          ],
+          "explain": "规则是键必须是不可变的：字符串、数字、元组都可以当键；列表可变，拿列表当键会报unhashable type list。",
+          "source_time": 521,
+          "source_quote": "规则是剑必须是不可变的"
+        }
+      ]
+    },
+    {
+      "title": "for循环、range、enumerate与遍历字典",
+      "start": 551,
+      "end": 669,
+      "summary": "for循环批量处理；range不含终点；enumerate每轮给下标和元素，下标在前；遍历字典默认拿键，items拿键值对。",
+      "keywords": [
+        "for循环",
+        "range",
+        "enumerate",
+        "items",
+        "values"
+      ],
+      "watched_ratio": 1.0,
+      "fail_rate": 0.25,
+      "items": [
+        {
+          "id": "q12",
+          "keyword": "range",
+          "question": "range(3)生成的数字序列是？",
+          "code": "for i in range(3):\n    print(i)",
+          "options": [
+            "0、1、2",
+            "1、2、3",
+            "0、1、2、3",
+            "1、2"
+          ],
+          "explain": "range和切片一样不包含终点，range(3)生成0、1、2；想要1、2、3要写range(1,4)。",
+          "source_time": 588,
+          "source_quote": "用range括号三生成的是012"
+        },
+        {
+          "id": "q13",
+          "keyword": "enumerate",
+          "question": "for i, v in enumerate(fruits)每轮拿到的顺序是？",
+          "code": "fruits = ['苹果', '香蕉', '橙子', '葡萄']\nfor i, v in enumerate(fruits):\n    print(i, v)",
+          "options": [
+            "下标在前，元素在后",
+            "元素在前，下标在后",
+            "只拿到下标",
+            "只拿到元素"
+          ],
+          "explain": "enumerate每轮同时给下标和元素，顺序是下标在前、元素在后，写反了结果就全乱。",
+          "source_time": 635,
+          "source_quote": "注意顺序是下标在前"
+        },
+        {
+          "id": "q14",
+          "keyword": "遍历字典",
+          "question": "直接写for k in d，遍历到的是什么？",
+          "code": "d = {'name': '小明', 'age': 12}\nfor k in d:\n    print(k)",
+          "options": [
+            "键",
+            "值",
+            "键和值组成的元组",
+            "会报错"
+          ],
+          "explain": "字典默认遍历的是键；想要值就用items或者values，items每轮拿到键和对应的值。",
+          "source_time": 664,
+          "source_quote": "因为字典默认遍历的事件"
+        }
+      ]
+    },
+    {
+      "title": "综合练习：词频统计与总结",
+      "start": 670,
+      "end": 804,
+      "summary": "词频统计用counts[w]=counts.get(w,0)+1避免KeyError并完成新增与累加；sorted配合lambda按次数从大到小排序；课后作业是统计一篇英文文章，下一讲学函数。",
+      "keywords": [
+        "词频统计",
+        "get默认值",
+        "KeyError",
+        "sorted",
+        "lambda",
+        "items"
+      ],
+      "watched_ratio": 1.0,
+      "fail_rate": 0.39,
+      "items": [
+        {
+          "id": "q15",
+          "keyword": "词频统计",
+          "question": "counts[w] = counts.get(w, 0) + 1 的作用是什么？",
+          "code": "counts = {}\nfor w in words:\n    counts[w] = counts.get(w, 0) + 1",
+          "options": [
+            "新词先取默认值0再加1，已有词在原值上加1，避免KeyError",
+            "总是把w的值设为0",
+            "如果w不存在就报KeyError",
+            "把w这个键删掉"
+          ],
+          "explain": "第一次遇到某个词，get取到默认值0再加1变成1；再遇到就在原来的基础上加1，一行代码同时解决新增和累加。",
+          "source_time": 717,
+          "source_quote": "get括号W逗号零再加1"
+        },
+        {
+          "id": "q16",
+          "keyword": "sorted",
+          "question": "sorted(counts.items(), key=lambda kv: kv[1], reverse=True)中，kv[1]表示什么？",
+          "code": "sorted(counts.items(), key=lambda kv: kv[1], reverse=True)",
+          "options": [
+            "值，也就是次数",
+            "键，也就是词",
+            "元素下标",
+            "字典的长度"
+          ],
+          "explain": "key参数写kv[1]表示按值，也就是按次数排序；reverse=True表示从大到小，排完之后第一个就是出现最多的词。",
+          "source_time": 742,
+          "source_quote": "key参数写M的KV冒号KV方括号一表示按值"
+        },
+        {
+          "id": "q17",
+          "keyword": "KeyError",
+          "question": "词频统计里如果直接写counts[w] = counts[w] + 1，第一次遇到新词会发生什么？",
+          "code": "for w in words:\n    counts[w] = counts[w] + 1",
+          "options": [
+            "报KeyError，因为字典里还没有这个键",
+            "返回None并继续执行",
+            "该词计数变成0",
+            "自动新增这个键并计为1"
+          ],
+          "explain": "第一次遇到一个新词，字典里还没有这个键，方括号直接取就会报KeyError；解决办法是用get给默认值0。",
+          "source_time": 709,
+          "source_quote": "就会报t error"
+        }
+      ]
+    }
+  ],
+  "boss_room": 4,
+  "faq": [
+    {
+      "room": 1,
+      "count": 4,
+      "question": "列表索引为什么从0开始？",
+      "answer": "索引是从零开始数的；可以把索引理解成离开头有几步：苹果就在开头走零步，香蕉要走一步，这样记就不会错。",
+      "source_time": 120,
+      "samples": [
+        [
+          "阿*",
+          "a[1] 不是苹果吗",
+          "02:10"
+        ],
+        [
+          "晚*",
+          "索引为什么从 0 开始啊，有点不习惯",
+          "02:13"
+        ],
+        [
+          "夏*",
+          "我一直以为 a[1] 是第一个",
+          "02:13"
+        ],
+        [
+          "小*",
+          "从 0 开始？",
+          "02:00"
+        ]
+      ]
+    },
+    {
+      "room": 1,
+      "count": 3,
+      "question": "a[-0] 是什么？是最后一个还是第一个？",
+      "answer": "负零就是0，所以取到的是第一个元素（苹果）；并没有负零号座位，也不会报错。",
+      "source_time": 178,
+      "samples": [
+        [
+          "土*",
+          "a[-0] 是什么？",
+          "02:43"
+        ],
+        [
+          "L*",
+          "a[-0] 会报错吗",
+          "02:56"
+        ],
+        [
+          "M*",
+          "老师，a[-0] 为什么不是最后一个？负零和零有区别吗",
+          "02:57"
+        ]
+      ]
+    },
+    {
+      "room": 3,
+      "count": 6,
+      "question": "append 和 extend 到底有什么区别？",
+      "answer": "append是整个塞进去，append([3,4])会把[3,4]当成一个元素，长度是3；extend是拆开一个个放，想把3和4逐个加入就用extend，长度变成4。",
+      "source_time": 308,
+      "samples": [
+        [
+          "夏*",
+          "append 和 extend 有什么区别",
+          "04:42"
+        ],
+        [
+          "阿*",
+          "append 和 extend 老是搞混",
+          "05:04"
+        ],
+        [
+          "M*",
+          "append([3,4]) 长度是 3 还是 4",
+          "04:46"
+        ],
+        [
+          "西*",
+          "append 能一次加两个吗",
+          "04:36"
+        ]
+      ]
+    },
+    {
+      "room": 3,
+      "count": 5,
+      "question": "c = b 不是复制吗？为什么改 c 会改 b？",
+      "answer": "C等于B并没有复制一份新列表，B和C只是同一个列表的两个名字；你改C就是在改B。真的想复制一份，要用B.copy或者切片B[:]。",
+      "source_time": 369,
+      "samples": [
+        [
+          "小*",
+          "c = b 不是复制吗",
+          "05:59"
+        ],
+        [
+          "老*",
+          "为啥 b 也变了？？",
+          "05:55"
+        ],
+        [
+          "K*",
+          "我也以为 b 还是 [1, 2]",
+          "06:02"
+        ],
+        [
+          "K*",
+          "c = b 之后改 c 为什么 b 也变了？什么时候需要用 copy？",
+          "06:16"
+        ]
+      ]
+    },
+    {
+      "room": 4,
+      "count": 7,
+      "question": "取不存在的键为什么报 KeyError，get 和 [] 怎么选？",
+      "answer": "方括号是必须有没有就报错；get是有就给，没有就给默认值，默认返回None，也可以给第二个参数当默认值。你希望程序报错还是给个默认值，决定了用哪一个。",
+      "source_time": 481,
+      "samples": [
+        [
+          "L*",
+          "取不存在的键为什么不返回 None，而是直接报 KeyError？",
+          "07:29"
+        ],
+        [
+          "小*",
+          "get 和 [] 有啥区别",
+          "07:38"
+        ],
+        [
+          "大*",
+          "get 第二个参数是干嘛的",
+          "07:40"
+        ],
+        [
+          "晚*",
+          "什么时候该用 [] 什么时候用 get",
+          "08:01"
+        ]
+      ]
+    },
+    {
+      "room": 5,
+      "count": 4,
+      "question": "直接 for k in d 为什么拿不到值？怎么同时拿到键和值？",
+      "answer": "因为字典默认遍历的是键；想要值就用items或者values，d.items()每轮拿到键和对应的值，最常用。",
+      "source_time": 667,
+      "samples": [
+        [
+          "Z*",
+          "直接 for k in d 拿不到值吗",
+          "10:45"
+        ],
+        [
+          "晚*",
+          "遍历字典时怎么同时拿到键和值？",
+          "11:00"
+        ],
+        [
+          "M*",
+          "items 和 values 有什么区别",
+          "10:51"
+        ],
+        [
+          "晚*",
+          "for k in d 为什么只有键",
+          "10:57"
+        ]
+      ]
+    },
+    {
+      "room": 5,
+      "count": 4,
+      "question": "range(3)为什么是0 1 2，不包含3？",
+      "answer": "range和切片一样不包含终点，range(3)生成0、1、2，一共三个数；想从1开始就写range(1,4)生成1、2、3。",
+      "source_time": 588,
+      "samples": [
+        [
+          "阿*",
+          "range(3) 是 0 1 2 还是 1 2 3",
+          "09:47"
+        ],
+        [
+          "北*",
+          "range 包含 3 吗",
+          "09:51"
+        ],
+        [
+          "北*",
+          "range(3) 为什么不包含 3？",
+          "09:59"
+        ],
+        [
+          "奶*",
+          "为啥打印的是 0 1 2",
+          "10:01"
+        ]
+      ]
+    },
+    {
+      "room": 6,
+      "count": 4,
+      "question": "sorted 里的 lambda kv: kv[1] 是什么意思？",
+      "answer": "key参数写kv[1]表示按值，也就是按次数排序；reverse=True表示从大到小，排完之后第一个就是出现最多的词。lambda后面会专门讲，今天先会用就行。",
+      "source_time": 742,
+      "samples": [
+        [
+          "程*",
+          "lambda 是什么",
+          "12:16"
+        ],
+        [
+          "夏*",
+          "kv[1] 是次数对吧",
+          "12:23"
+        ],
+        [
+          "程*",
+          "sorted 里的 lambda kv: kv[1] 是什么意思？",
+          "12:33"
+        ],
+        [
+          "七*",
+          "lambda 下节课讲吗",
+          "12:39"
+        ]
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "a": "append",
+      "b": "extend",
+      "diff": "append是整个塞进去，append一个列表会整体作为一个元素塞入，长度只加1；extend是拆开一个个放，会把参数拆开逐个加入。",
+      "source_time": 308
+    },
+    {
+      "a": "remove",
+      "b": "pop",
+      "diff": "remove给的是值，按值删掉第一个匹配元素；pop给的是位置，默认删最后一个，并且会把删掉的那个值返回给你。",
+      "source_time": 343
+    },
+    {
+      "a": "d[key]",
+      "b": "d.get(key)",
+      "diff": "方括号是必须有没有就报错（KeyError）；get是有就给，没有就给默认值，默认None，也可指定默认值。",
+      "source_time": 481
+    },
+    {
+      "a": "列表",
+      "b": "元组",
+      "diff": "列表用方括号、可以修改，所以不能当字典的键；元组用圆括号、不能修改，所以元组可以当键。",
+      "source_time": 543
+    },
+    {
+      "a": "d.values()",
+      "b": "d.items()",
+      "diff": "values只拿值；items每轮拿到一个键和对应的值，最常用。",
+      "source_time": 651
+    }
+  ],
+  "handout": {
+    "title": "Python入门第3讲 直播讲义",
+    "markdown": "# Python入门第3讲 直播讲义\n\n## 1. 课程导入与容器动机（00:00–01:12）\n- 回顾前两讲：变量、数据类型、if条件判断。\n- 本讲学三样东西：列表、字典、for循环，目标是写出词频统计小程序。\n- 痛点：用50个变量存成绩、逐个相加算平均分很麻烦，转来新同学还得改代码；问题是每个成绩都是孤立变量，程序没办法批量处理。\n- 解法：把同类数据装进容器，再用循环依次处理。\n\n## 2. 列表基础、len、索引与负索引（01:13–03:33）\n- 列表用一对方括号创建，元素之间用英文逗号隔开；空方括号是空列表；可装数字也可装字符串。\n- len(列表)取元素个数；注意列表用方括号，花括号是后面要讲的字典。\n- 索引从0开始，可理解成“离开头有几步”；四元素列表合法正索引0到3。\n- 负索引从末尾往回数：-1是最后一个，-2是倒数第二个，等价于len-1；-0就是0，取到第一个元素。\n- 越界会报IndexError: list index out of range；四元素列表合法负索引-1到-4。\n\n## 3. 切片：包含起点，不包含终点（03:34–04:16）\n- 写法：[起点:终点]；规则：包含起点，不包含终点。\n- a[1:3]拿到下标1和2；起点省略表示从头开始，终点省略表示取到末尾。\n- 切片取出的是新列表，不会改动原列表；这条规则讲range时还会再用到。\n\n## 4. 列表修改与复制陷阱（04:17–06:36）\n- 列表可变。append每次在末尾加一个元素，append一个列表会整体塞入，长度只加1。\n- extend把参数拆开逐个加入；insert第一个参数是位置，第二个是值。\n- remove按值删除第一个匹配元素；pop按位置删除，默认删最后一个，并把删掉的值返回。\n- 大坑：C=B不是复制，B和C是同一个列表的两个名字，改C就是改B；要复制用B.copy或切片B[:]。\n\n## 5. 字典基础、get与键的规则（06:37–09:10）\n- 字典用花括号创建，每项写成键:值；列表按位置找数据，字典按名字找数据。\n- d[key]取不存在的键会直接报KeyError，不返回None也不返回0；线上常见于用户没填字段。\n- d.get(key)取不到默认返回None，第二个参数可指定默认值；键存在时默认值不起作用。\n- 一句话区分：方括号是必须有没有就报错，get是有就给、没有就给默认值。\n- 新增和修改都是d[key]=value；删除用del或pop；in判断的是键不是值。\n- 键必须不可变：字符串、数字、元组可当键；列表可变，当键会报unhashable type list。\n\n## 6. for循环、range、enumerate与遍历字典（09:11–11:09）\n- for变量in列表：冒号下缩进是循环体，每轮取出一个元素；算平均分四行就解决，加同学也不用改代码。\n- range(3)生成0、1、2，不含终点3；range(1,4)生成1、2、3。\n- enumerate每轮给下标和元素，顺序是下标在前、元素在后，写反结果就全乱。\n- 遍历字典三种方式：直接for k in d拿到的是键；d.values()只拿值；d.items()每轮拿键和对应的值，最常用。\n\n## 7. 综合练习：词频统计与总结（11:10–13:24）\n- 思路：用字典记数，遍历每个词，新词记1，已有词在原次数上加1。\n- 直接写counts[w]=counts[w]+1，第一次遇到新词会报KeyError。\n- 正解：counts[w] = counts.get(w, 0) + 1，一行同时完成新增和累加。\n- 排序：sorted(counts.items(), key=lambda kv: kv[1], reverse=True)，kv[1]表示按值（次数），reverse=True从大到小，第一个就是出现最多的词；lambda今天先会用就行。\n- 回顾：索引从0开始、负索引从末尾数、切片包含起点不包含终点；append整体塞入、extend拆开加入、C=B不是复制；方括号取不到报KeyError、get可给默认值、键必须不可变；for配合range、enumerate和items。\n- 课后作业：把词频统计改成统计一篇英文文章；下一讲学习函数。"
+  },
+  "skin": "dungeon"
+}

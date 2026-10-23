@@ -1,0 +1,260 @@
+{
+  "pageNumber": 1,
+  "pageSize": 1000,
+  "totalPages": 1,
+  "totalItems": 28,
+  "contents": [
+    {
+      "viewerId": "bny_c01",
+      "nick": "阿杰",
+      "viewCount": 2,
+      "totalDuration": "00:13:21",
+      "avgDuration": "00:06:40",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c02",
+      "nick": "Mia",
+      "viewCount": 1,
+      "totalDuration": "00:13:04",
+      "avgDuration": "00:13:04",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c03",
+      "nick": "土豆",
+      "viewCount": 1,
+      "totalDuration": "00:13:03",
+      "avgDuration": "00:13:03",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c04",
+      "nick": "小周",
+      "viewCount": 1,
+      "totalDuration": "00:12:46",
+      "avgDuration": "00:12:46",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c05",
+      "nick": "Kevin",
+      "viewCount": 1,
+      "totalDuration": "00:08:36",
+      "avgDuration": "00:08:36",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c06",
+      "nick": "奶茶三分糖",
+      "viewCount": 1,
+      "totalDuration": "00:13:11",
+      "avgDuration": "00:13:11",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c07",
+      "nick": "夏夏",
+      "viewCount": 1,
+      "totalDuration": "00:13:06",
+      "avgDuration": "00:13:06",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c08",
+      "nick": "老王学Python",
+      "viewCount": 1,
+      "totalDuration": "00:13:06",
+      "avgDuration": "00:13:06",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c09",
+      "nick": "程序媛小鹿",
+      "viewCount": 1,
+      "totalDuration": "00:05:16",
+      "avgDuration": "00:05:16",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c10",
+      "nick": "西瓜",
+      "viewCount": 1,
+      "totalDuration": "00:13:15",
+      "avgDuration": "00:13:15",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c11",
+      "nick": "林间",
+      "viewCount": 1,
+      "totalDuration": "00:12:58",
+      "avgDuration": "00:12:58",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c12",
+      "nick": "Zoe",
+      "viewCount": 1,
+      "totalDuration": "00:12:48",
+      "avgDuration": "00:12:48",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c13",
+      "nick": "大白",
+      "viewCount": 1,
+      "totalDuration": "00:05:37",
+      "avgDuration": "00:05:37",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c14",
+      "nick": "阿飞",
+      "viewCount": 1,
+      "totalDuration": "00:13:22",
+      "avgDuration": "00:13:22",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c15",
+      "nick": "七七",
+      "viewCount": 1,
+      "totalDuration": "00:13:24",
+      "avgDuration": "00:13:24",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c16",
+      "nick": "晚风",
+      "viewCount": 1,
+      "totalDuration": "00:12:52",
+      "avgDuration": "00:12:52",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c17",
+      "nick": "豆豆妈",
+      "viewCount": 1,
+      "totalDuration": "00:06:29",
+      "avgDuration": "00:06:29",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c18",
+      "nick": "北辰",
+      "viewCount": 1,
+      "totalDuration": "00:12:48",
+      "avgDuration": "00:12:48",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c19",
+      "nick": "小满",
+      "viewCount": 1,
+      "totalDuration": "00:12:50",
+      "avgDuration": "00:12:50",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c20",
+      "nick": "Leo",
+      "viewCount": 1,
+      "totalDuration": "00:12:49",
+      "avgDuration": "00:12:49",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c21",
+      "nick": "糖糖",
+      "viewCount": 1,
+      "totalDuration": "00:04:59",
+      "avgDuration": "00:04:59",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c22",
+      "nick": "一只鱼",
+      "viewCount": 1,
+      "totalDuration": "00:12:54",
+      "avgDuration": "00:12:54",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c23",
+      "nick": "秋秋",
+      "viewCount": 1,
+      "totalDuration": "00:13:09",
+      "avgDuration": "00:13:09",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_c24",
+      "nick": "小树",
+      "viewCount": 1,
+      "totalDuration": "00:13:04",
+      "avgDuration": "00:13:04",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r01",
+      "nick": "回放观众1",
+      "viewCount": 1,
+      "totalDuration": "00:13:24",
+      "avgDuration": "00:13:24",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r02",
+      "nick": "回放观众2",
+      "viewCount": 1,
+      "totalDuration": "00:13:24",
+      "avgDuration": "00:13:24",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r09",
+      "nick": "回放观众9",
+      "viewCount": 1,
+      "totalDuration": "00:05:21",
+      "avgDuration": "00:05:21",
+      "param4": "",
+      "param5": "bny_seed"
+    },
+    {
+      "viewerId": "bny_r10",
+      "nick": "回放观众10",
+      "viewCount": 1,
+      "totalDuration": "00:04:25",
+      "avgDuration": "00:04:25",
+      "param4": "",
+      "param5": "bny_seed"
+    }
+  ]
+}
