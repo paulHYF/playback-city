@@ -230,12 +230,20 @@ export interface ReplayQuality {
   faqTotal: number
 }
 
+/** AI 复盘点评：按频道场景只取主视角（课程 → 教学效果，带货 → 营销转化），写给讲师 / 主播本人 */
 export interface AiReview {
-  summary: string
-  training: string[]
-  marketing: string[]
-  actions: string[]
+  version: number
+  scene: Scene
   generatedAt: number
+  verdict: string
+  summary: string
+  strengths: { point: string; evidence: string }[]
+  diagnosis: { title: string; evidence: string; cause: string; impact: string; confidence: 'high' | 'low' }[]
+  moments: { no: number; time: string; what: string; advice: string }[] // 关键时刻：对着回放逐段复盘
+  plan: { stage: string; action: string; metric: string; priority: 'P0' | 'P1' | 'P2' }[]
+  checklist: string[] // 下一场开播前自检
+  questions: string[] // 留给讲师 / 主播的复盘问题
+  dataGaps: string[]
 }
 
 export interface QualityReport {
@@ -274,6 +282,7 @@ export interface QualityReport {
   dimensions: { training: ReportDimension; marketing: ReportDimension }
   replays: ReplayQuality[]
   ai: AiReview | null
+  aiStale: boolean // 存在旧版或场景不符的点评，需重新生成
 }
 
 export interface ReplayDashboard {
@@ -286,4 +295,16 @@ export interface ReplayDashboard {
   topWrong: { id: string; room: number; keyword: string; question: string; answer: string; wrong: number; total: number; sourceTime: number; choices: { text: string; count: number }[] }[]
   reviveHeat: { t: number; seconds: number }[]
   viewers: { nickname: string; result: string; points: number; roomsDone: number; wrong: number; revives: number; duration: number; startedAt: number }[]
+}
+
+/** 质量报告竹简版：大模型把报告数据写成的复盘文章 */
+export interface ReportArticle {
+  version: number
+  scene: Scene
+  generatedAt: number
+  channel: { name: string; city: string | null; publisher: string }
+  title: string
+  preface: string
+  sections: { heading: string; paragraphs: string[] }[]
+  closing: string
 }

@@ -504,14 +504,13 @@ export function mount(root, D, hooks = {}) {
       html += '<div class="btns"><button class="btn" id="musBtn" type="button">乐 · ' + (Music.on ? '开' : '关') + '</button><button class="btn" id="upBtn" type="button">弃局回广场</button></div>';
     } else {
       html += '<div class="row"><span>积分</span><b>' + G.points + '</b></div><div class="row"><span>账簿</span><span>' + (G.ledger.length ? G.ledger.length + ' 件待下单' : '空') + '</span></div>';
-      html += '<div class="btns"><button class="btn" id="sceneBtn" type="button">出城 ⇠</button><button class="btn" id="todBtn" type="button">时段 · ' + TOD[todKey].name + ' ⟳</button><button class="btn" id="musBtn" type="button">乐 · ' + (Music.on ? '开' : '关') + '</button></div>';
+      html += '<div class="btns"><button class="btn" id="todBtn" type="button">时段 · ' + TOD[todKey].name + ' ⟳</button><button class="btn" id="musBtn" type="button">乐 · ' + (Music.on ? '开' : '关') + '</button></div>';
     }
     html += '<div class="seal" style="right:12px; bottom:-12px;">' + (inP ? '夜巡' : sceneKey === 'course' ? '课程' : '带货') + '</div>';
     if (!inP && D.viewer) html += '<div class="tiny" style="margin-top:4px">' + esc(D.viewer.nickname) + ' · 已破 ' + Object.keys(G.cleared).length + ' / ' + HALLS.filter(h => h.state === 'open').length + ' ' + unit + '</div>';
     $('#dossier').innerHTML = html;
     const on = (id, f) => { const b = $('#' + id); if (b) b.onclick = f; };
     on('todBtn', () => { const ks = Object.keys(TOD); todKey = ks[(ks.indexOf(todKey) + 1) % ks.length]; todManual = true; applyTod(); renderDossier(); });
-    on('sceneBtn', () => { if (hooks.onExit) hooks.onExit(); });
     on('musBtn', () => { Music.init(); Music.toggle(); renderDossier(); });
     on('upBtn', () => exitPalace());
   }
@@ -763,6 +762,14 @@ export function mount(root, D, hooks = {}) {
   }
   function closePlayer() { if (video) video.pause(); reportWatch(); player.hidden = true; screenEl.focus({ preventScroll: true }); }
   $('#pClose').onclick = closePlayer;
+  // 城里任何时候都能直接出城回首页；夜巡中先确认，按弃局结算
+  $('#leave').onclick = () => {
+    if (mode === 'palace' && S && !S.ended) {
+      if (!confirm('夜巡还没结束，出城将按弃局结算，确定回首页吗？')) return;
+      S.ended = true; if (hooks.onFinish) hooks.onFinish('abandoned', runStats());
+    }
+    if (hooks.onExit) hooks.onExit();
+  };
 
   // ═════════════ 小地图 / 前方提示 ═════════════
   const mmEl = $('#mm'), mctx = mmEl.getContext('2d');

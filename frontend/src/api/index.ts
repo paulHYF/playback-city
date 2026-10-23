@@ -1,5 +1,5 @@
 import type { Game, Scene } from '@/types/game'
-import type { AiReview, ChannelDetail, ChannelSummary, City, CityData, Dashboard, Progress, QualityReport, RawOverview, Replay, ReplayDashboard, Viewer } from '@/types/city'
+import type { AiReview, ReportArticle, ChannelDetail, ChannelSummary, City, CityData, Dashboard, Progress, QualityReport, RawOverview, Replay, ReplayDashboard, Viewer } from '@/types/city'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...init })
@@ -38,6 +38,8 @@ export const api = {
   rawRefresh: (rid: string) => post<RawStatus>(`/api/replays/${rid}/raw/refresh`),
   report: (cid: string) => request<QualityReport>(`/api/channels/${cid}/report`),
   reportAi: (cid: string) => post<AiReview>(`/api/channels/${cid}/report/ai`),
+  reportArticle: (cid: string) => request<ReportArticle | null>(`/api/channels/${cid}/report/article`),
+  writeReportArticle: (cid: string) => post<ReportArticle>(`/api/channels/${cid}/report/article`),
   generateReplay: (rid: string) => post<{ accepted: boolean }>(`/api/replays/${rid}/generate`),
   // 观众端
   city: (cid: string) => request<CityData>(`/api/city/${cid}`),

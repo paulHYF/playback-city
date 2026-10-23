@@ -1,17 +1,22 @@
 """直播质量分析报告：直播原始数据（观看 / 聊天 / 答题卡 / 问卷）+ 回放城数据（殿室错误率 / 高频疑问 / 闯关）
 按培训、营销两个维度打分并给出诊断。
 
-指标与诊断全部由程序按真实数据算；大模型只在 ai_review 里写点评，不改任何数值。
+指标与诊断全部由程序按真实数据算；大模型只在 ai_review 里写复盘点评（按频道场景只取主视角，写给讲师 / 主播本人），不改任何数值。
 """
 import json
 import re
 from collections import Counter
 from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, Field, ValidationError
 
 from app import play, rawdata, repo, storage
 from app.config import get_settings
 from app.db import now_ms
 from app.llm.client import chat_json
+
+AI_VERSION = 2  # 点评结构版本：v1 是培训 + 营销两维度短评，已作废
 
 STAFF = {"teacher", "assistant", "manager", "guest"}
 QUESTION_RE = re.compile(r"[?？]|吗|怎么|为什么|能不能|可以.{0,6}吗|多少|哪")
@@ -456,33 +461,153 @@ def channel_report(cid: str) -> dict | None:
                     "topics": {s: dict(c) for s, c in agg["topics"].items()}, "play": kpi},
         "dimensions": {"training": training, "marketing": marketing},
         "replays": items,
-        "ai": storage.read_json(ai) if ai.is_file() else None,
+        "ai": review if (review := storage.read_json(ai) if ai.is_file() else None) and review.get("version") == AI_VERSION
+        and review.get("scene") == ch["scene"] else None,
+        "aiStale": ai.is_file(),  # 有旧版或场景已变的点评，前端提示重新生成
     }
 
 
-AI_PROMPT = """你是保利威的直播运营与教学质量顾问。根据给你的直播质量分析数据（全部是程序按真实数据算出的指标，不要改动或编造数字），
-从培训和营销两个维度写一份简短的点评。场景字段说明这场直播主要是课程培训还是直播带货，主维度写得更深入，另一维度给出可借鉴的观察。
+# ───────── AI 复盘点评：只按频道场景的主视角分析，读者是讲师 / 主播本人 ─────────
+
+AI_COMMON = """
+你面对的读者是这场直播的{role}本人，目的是帮{role}做复盘、下一{unit}讲得更好。用「你」称呼{role}，语气像一位直言不讳的资深教练：肯定做对的，直接点出问题，不客套、不空话。
+
+给你的数据全部由程序按真实数据算出，只能引用，不能改动或编造数字；数据里没有的，不要推测成事实。
+
+分析方法：
+1. 沿漏斗逐层看：{funnel}。找出流失最严重的那一层，它就是这次复盘的主线。
+2. 交叉印证再下结论：把直播流失点、答题错误率高的段落、「没听懂」类弹幕、高频疑问、回放被反复回看的段落按讲次和时间对齐。两个以上信号指向同一段落，才算确定的问题；只有单一信号的，要写明「信号较弱」。
+3. 区分症状和根因：「完课率低」是症状，根因要落到{cause_hint}。
+4. 每条判断都要带证据：写明第几{unit}、mm:ss–mm:ss 的时间段、对应的指标数值。
+5. 禁止空泛建议（如「加强互动」「提升内容质量」「优化节奏」），每条建议要具体到{role}下次开播时怎么说、怎么做、放在第几分钟。
+6. 数据缺失（如没有答题卡、问卷、回放观看）时，在 dataGaps 里写明缺什么、建议{role}下次怎么补采，不要硬分析。
 
 只输出一个 JSON 对象：
-{"summary": "≤120 字的总评", "training": ["培训维度要点，每条 ≤60 字，3–5 条"], "marketing": ["营销维度要点，每条 ≤60 字，3–5 条"],
- "actions": ["下一场最该做的改进，每条 ≤50 字，按优先级 3 条"]}
+{{
+  "verdict": "一句话结论，≤40 字",
+  "summary": "总评，≤200 字：这{unit}整体表现、漏斗主线问题、最该先改的一件事",
+  "strengths": [{{"point": "值得保持的做法 ≤40 字", "evidence": "数据证据 ≤80 字"}}],
+  "diagnosis": [{{"title": "问题 ≤20 字", "evidence": "交叉印证的数据证据 ≤150 字", "cause": "根因剖析 ≤150 字", "impact": "对学员 / 观众的影响 ≤80 字", "confidence": "high 或 low"}}],
+  "moments": [{{"no": 讲次数字, "time": "mm:ss–mm:ss", "what": "这段发生了什么 ≤80 字", "advice": "下次这段怎么讲 / 怎么做 ≤100 字"}}],
+  "plan": [{{"stage": "只能取：{stages}", "action": "具体做法 ≤100 字", "metric": "用哪个指标验证、目标值 ≤40 字", "priority": "P0 或 P1 或 P2"}}],
+  "checklist": ["下一{unit}开播前自检项 ≤40 字"],
+  "questions": ["留给{role}自己思考的复盘问题 ≤50 字"],
+  "dataGaps": ["缺失的数据与补采建议 ≤60 字"]
+}}
+数量：strengths 1–3，diagnosis 3–5（按严重程度排序），moments 3–6，plan 5–8（P0 不超过 3 条，覆盖至少 3 个阶段），checklist 3–5，questions 2–3，dataGaps 0–3。
 """
+
+AI_SCENE = {
+    "course": {
+        "role": "讲师", "unit": "讲",
+        "intro": "你是资深的在线课程教学设计专家和直播讲师教练。这是一个课程培训频道，只从教学效果的视角分析，不分析营销转化。",
+        "funnel": "到课 → 听完（完课率、流失点）→ 听懂（没听懂弹幕、高频疑问）→ 掌握（答题正确率、殿室错误率）→ 巩固（回放补课、回放城复习闯关）",
+        "cause_hint": "讲授设计：知识点密度与难度跳跃、讲解方式（有没有例子 / 演示 / 类比）、讲练比例、发题时机、开场是否交代学习目标、答疑是否及时",
+        "stages": "课前准备、开场、讲授节奏、互动与检测、收尾、课后与回放",
+    },
+    "commerce": {
+        "role": "主播", "unit": "场",
+        "intro": "你是资深的直播电商操盘手和主播教练。这是一个直播带货频道，只从营销转化的视角分析，不分析教学效果。",
+        "funnel": "进场 → 停留（留存、流失点）→ 种草（卖点认知正确率、讲品段落回看）→ 意向（下单 / 价格类弹幕占比）→ 顾虑消除（高频购买顾虑）→ 回放长尾",
+        "cause_hint": "讲品设计与话术：开场钩子、讲品顺序与时长、卖点是否可感知（演示 / 对比 / 试用）、价格与福利释放节奏、逼单与库存话术、顾虑是否当场回应；不写绝对化用语和功效承诺",
+        "stages": "预热引流、开场、讲品、互动与转化、收尾返场、回放与二次分发",
+    },
+}
+
+
+class _Strength(BaseModel):
+    point: str
+    evidence: str = ""
+
+
+class _Diagnosis(BaseModel):
+    title: str
+    evidence: str
+    cause: str
+    impact: str = ""
+    confidence: Literal["high", "low"] = "high"
+
+
+class _Moment(BaseModel):
+    no: int
+    time: str
+    what: str
+    advice: str
+
+
+class _Step(BaseModel):
+    stage: str
+    action: str
+    metric: str = ""
+    priority: Literal["P0", "P1", "P2"] = "P1"
+
+
+class AiReview(BaseModel):
+    verdict: str
+    summary: str
+    strengths: list[_Strength] = Field(default_factory=list)
+    diagnosis: list[_Diagnosis] = Field(min_length=1)
+    moments: list[_Moment] = Field(default_factory=list)
+    plan: list[_Step] = Field(min_length=1)
+    checklist: list[str] = Field(default_factory=list)
+    questions: list[str] = Field(default_factory=list)
+    dataGaps: list[str] = Field(default_factory=list)
+
+
+def _sample(xs: list[int], n: int = 12) -> list[int]:
+    """在线人数曲线按等间隔取 n 个点，够模型看出形状。"""
+    if len(xs) <= n:
+        return xs
+    return [xs[round(k * (len(xs) - 1) / (n - 1))] for k in range(n)]
+
+
+def _lesson_brief(i: dict, scene: str) -> dict:
+    """一讲给模型看的材料：时间统一成 mm:ss，方便它写进「关键时刻」。"""
+    live, vod, chat = i["live"], i["vod"], i["chat"]
+    span = lambda a, b: f"{_mmss(a)}–{_mmss(b)}"
+    return {
+        "讲次": i["no"], "标题": i["title"], "时长": _mmss(i["duration"]),
+        "直播": {"观众": live["viewers"], "完课率": live["completion"], "观看时长分布(<25%,25-50%,50-75%,≥75%)": live["buckets"],
+               "在线人数曲线(等间隔采样)": _sample(live["online"]), "在线峰值": live["peak"],
+               "流失最多": live["drop"] and {"时间": _mmss(live["drop"]["minute"] * 60), "离开人数": live["drop"]["lost"], "正在讲": live["drop"]["room"]}},
+        "内容段落": [{"段落": rm["title"], "时间": span(rm["start"], rm["end"]), "答题错误率": rm["failRate"], "关键词": rm["keywords"]} for rm in i["rooms"]],
+        "答题卡": [{"题目": c["title"], "发题时间": _mmss(c["offset"]) if c["offset"] is not None else None, "作答": c["total"], "正确率": c["correctRate"], "段落": c["room"]}
+                for c in i["quiz"]["cards"]],
+        "弹幕": {"条数": chat["messages"], "发言率": chat["speakRate"], "每分钟": chat["perMinute"], "峰值": chat["peak"] and {**chat["peak"], "minute": _mmss(chat["peak"]["minute"] * 60)},
+               "话题分布": chat["topics"][scene], **({"没听懂类": chat["confused"]} if scene == "course" else {"购买意向类": chat["intent"]})},
+        "提问区": i["asks"],
+        "高频疑问": [{"问题": f["question"], "人次": f["count"], "时间": _mmss(f["sourceTime"])} for f in i["faq"][:6]],
+        "回放": {"观众": vod["viewers"], "完课率": vod["completion"], "看了两遍以上": vod["repeat"], "只看回放的新观众": vod["vodOnly"],
+               "直播没看完一半的人": vod["liveShort"], "其中回来补看的": vod["makeup"], "首次观看距直播(当天,1-3天,4-7天,7天后)": vod["age"]},
+        "回放重点回顾段": [{"时间": span(sg["from"], sg["to"]), "段落": sg["room"], "回看人数": sg["viewers"], "原因": sg["reasons"]} for sg in i["review"]["segments"]],
+        "问卷": {"提交人数": i["questionnaire"]["submitters"], "反馈率": i["questionnaire"]["rate"], "满意度(5分制)": i["questionnaire"]["satisfaction"],
+               "题目": [{"题": q["name"], "类型": q["type"], "选项分布": {o["key"]: o["count"] for o in q["options"]}} for q in i["questionnaire"]["questions"]]},
+    }
 
 
 async def ai_review(cid: str) -> dict:
     rep = channel_report(cid)
+    scene = rep["channel"]["scene"]
+    cfg = AI_SCENE[scene]
+    dim = rep["dimensions"]["marketing" if scene == "commerce" else "training"]
+    summary = rep["summary"]
     brief = {
-        "频道": rep["channel"], "汇总": rep["summary"],
-        "维度": {k: {"score": d["score"], "指标": [(i["name"], i["display"]) for i in d["indicators"]], "发现": d["findings"]}
-                 for k, d in rep["dimensions"].items()},
-        "各讲": [{"讲次": i["no"], "标题": i["title"], "直播": {k: i["live"][k] for k in ("viewers", "completion", "drop")},
-                  "回放": {k: i["vod"][k] for k in ("viewers", "completion", "repeat", "vodOnly", "makeup", "age")},
-                  "重点回顾段": i["review"]["segments"],
-                  "弹幕": i["chat"]["messages"], "答题正确率": i["quiz"]["correctRate"], "难点": i["hardRooms"],
-                  "高频疑问": i["faq"][:3]} for i in rep["replays"]],
+        "频道": {"名称": rep["channel"]["name"], cfg["role"]: rep["channel"]["publisher"], "场景": "直播带货" if scene == "commerce" else "课程培训"},
+        "综合得分": dim["score"], "指标": [{"指标": x["name"], "数值": x["display"], "得分": x["score"], "口径": x["tip"]} for x in dim["indicators"]],
+        "程序诊断": dim["findings"],
+        "汇总": {k: summary.get(k) for k in ("replays", "viewers", "completion", "speakRate", "perMinute", "intentRate", "quizCount", "quizPart",
+                                            "quizCorrect", "qnRate", "satisfaction", "faqTotal", "vodViewers", "vodCompletion", "makeupRate", "vodOnly")},
+        "回放城闯关": summary.get("play"),
+        "各" + cfg["unit"]: [_lesson_brief(i, scene) for i in rep["replays"] if i["hasRaw"]],
     }
-    data = await chat_json(get_settings(), AI_PROMPT, json.dumps(brief, ensure_ascii=False))
-    out = {"summary": str(data.get("summary") or ""), "generatedAt": now_ms(),
-           **{k: [str(x) for x in data.get(k) or []] for k in ("training", "marketing", "actions")}}
+    system = cfg["intro"] + "\n" + AI_COMMON.format(**cfg)
+    text = json.dumps(brief, ensure_ascii=False, default=str)
+    data = await chat_json(get_settings(), system, text)
+    try:
+        review = AiReview.model_validate(data)
+    except ValidationError as e:  # 结构不对回喂一次
+        data = await chat_json(get_settings(), system, f"{text}\n\n[上次输出]\n{json.dumps(data, ensure_ascii=False)}\n\n[结构校验错误，请修正后重新输出完整 JSON]\n{e}")
+        review = AiReview.model_validate(data)
+    out = {"version": AI_VERSION, "scene": scene, "generatedAt": now_ms(), **review.model_dump()}
     storage.write_json(storage.channel_dir(cid) / "report_ai.json", out)
     return out

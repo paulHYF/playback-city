@@ -4,7 +4,7 @@ from typing import Literal
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, ValidationError
 
-from app import rawdata, repo, report
+from app import rawdata, repo, report, report_article
 from app.config import get_settings
 from app.pipeline import jobs
 from app.pipeline.assemble import city_payload
@@ -117,6 +117,17 @@ def quality_report(cid: str):
 async def quality_report_ai(cid: str):
     must_channel(cid)
     return await report.ai_review(cid)
+
+
+@router.get("/channels/{cid}/report/article")
+def quality_report_article(cid: str):
+    return report_article.cached_article(cid, must_channel(cid)["scene"])
+
+
+@router.post("/channels/{cid}/report/article")
+async def quality_report_article_write(cid: str):
+    must_channel(cid)
+    return await report_article.write_article(cid)
 
 
 @router.get("/city/{cid}")

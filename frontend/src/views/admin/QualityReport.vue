@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { ElAlert, ElButton, ElMessage, ElTable, ElTableColumn, ElTag } from 'element-plus'
 import { api } from '@/api'
-import type { Level, QualityReport, ReplayQuality, ReportDimension } from '@/types/city'
+import type { AiReview, Level, QualityReport, ReplayQuality, ReportDimension } from '@/types/city'
 import { fmt, SCENE_NAME } from '@/utils'
 
 const props = defineProps<{ cid: string }>()
@@ -24,7 +24,8 @@ async function genAi() {
   aiLoading.value = true
   try {
     rep.value!.ai = await api.reportAi(props.cid)
-    ElMessage.success('AI 点评已生成')
+    rep.value!.aiStale = false
+    ElMessage.success('AI 复盘点评已生成')
   } catch (e) {
     ElMessage.error((e as Error).message)
   } finally {
@@ -34,6 +35,26 @@ async function genAi() {
 
 const print = () => window.print()
 const unit = computed(() => (rep.value?.channel.scene === 'commerce' ? '场' : '讲'))
+const role = computed(() => (rep.value?.channel.scene === 'commerce' ? '主播' : '讲师'))
+// 优化方案按直播时间线排阶段，与 backend report.AI_SCENE 的 stages 一致
+const STAGES: Record<string, string[]> = {
+  course: ['课前准备', '开场', '讲授节奏', '互动与检测', '收尾', '课后与回放'],
+  commerce: ['预热引流', '开场', '讲品', '互动与转化', '收尾返场', '回放与二次分发']
+}
+/** 优化方案按阶段分组，组内 P0 在前；模型给出的阶段名不在列表里时排在最后 */
+const planGroups = computed(() => {
+  const ai = rep.value?.ai
+  if (!ai) return []
+  const order = STAGES[ai.scene] || []
+  const rank = (s: string) => (order.includes(s) ? order.indexOf(s) : order.length)
+  const groups: { stage: string; items: AiReview['plan'] }[] = []
+  for (const x of ai.plan) {
+    const g = groups.find(g => g.stage === x.stage) || groups[groups.push({ stage: x.stage, items: [] }) - 1]
+    g.items.push(x)
+  }
+  groups.forEach(g => g.items.sort((a, b) => a.priority.localeCompare(b.priority)))
+  return groups.sort((a, b) => rank(a.stage) - rank(b.stage))
+})
 const dims = computed(() => {
   if (!rep.value) return []
   const d = rep.value.dimensions
@@ -81,6 +102,7 @@ const QTYPE: Record<string, string> = { R: '单选', C: '多选', X: '打分', Q
         <ElButton @click="load">刷新数据</ElButton>
         <ElButton type="primary" :loading="aiLoading" @click="genAi">{{ rep.ai ? '重新生成 AI 点评' : '生成 AI 点评' }}</ElButton>
         <ElButton @click="print">打印 / 导出 PDF</ElButton>
+        <ElButton @click="$router.push(`/admin/channels/${cid}/report/scroll`)">竹简报告版</ElButton>
       </div>
     </header>
 
@@ -131,14 +153,60 @@ const QTYPE: Record<string, string> = { R: '单选', C: '多选', X: '打分', Q
     </section>
 
     <section v-if="rep.ai" class="panel ai">
-      <h3>AI 点评 <span class="muted small">生成于 {{ time(rep.ai.generatedAt) }} · 基于上方指标撰写，不改动数据</span></h3>
+      <h3>{{ role }}复盘 · AI 深度点评
+        <span class="muted small">{{ rep.ai.scene === 'commerce' ? '营销转化视角' : '教学效果视角' }} · 生成于 {{ time(rep.ai.generatedAt) }} · 基于上方真实数据撰写，不改动数值</span>
+      </h3>
+      <p class="verdict brush">{{ rep.ai.verdict }}</p>
       <p>{{ rep.ai.summary }}</p>
+
+      <div v-if="rep.ai.strengths.length" class="strengths">
+        <h4>值得保持</h4>
+        <ul><li v-for="x in rep.ai.strengths" :key="x.point"><b>{{ x.point }}</b><span class="muted"> — {{ x.evidence }}</span></li></ul>
+      </div>
+
+      <h4>问题诊断</h4>
+      <div class="diag">
+        <article v-for="(d, i) in rep.ai.diagnosis" :key="i" class="diag-card">
+          <div class="diag-head"><b>{{ i + 1 }}. {{ d.title }}</b><ElTag v-if="d.confidence === 'low'" size="small" type="info">信号较弱</ElTag></div>
+          <dl>
+            <dt>证据</dt><dd>{{ d.evidence }}</dd>
+            <dt>根因</dt><dd>{{ d.cause }}</dd>
+            <dt v-if="d.impact">影响</dt><dd v-if="d.impact">{{ d.impact }}</dd>
+          </dl>
+        </article>
+      </div>
+
+      <template v-if="rep.ai.moments.length">
+        <h4>关键时刻复盘 <span class="muted small">对着回放逐段看</span></h4>
+        <table class="moments">
+          <thead><tr><th>位置</th><th>当时发生了什么</th><th>下次这段怎么{{ rep.ai.scene === 'commerce' ? '播' : '讲' }}</th></tr></thead>
+          <tbody>
+            <tr v-for="(m, i) in rep.ai.moments" :key="i">
+              <td class="mono nowrap">第 {{ m.no }} {{ unit }}<br />{{ m.time }}</td><td>{{ m.what }}</td><td>{{ m.advice }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
+
+      <h4>下一{{ unit }}优化方案</h4>
+      <div class="plan">
+        <div v-for="g in planGroups" :key="g.stage" class="plan-group">
+          <div class="stage">{{ g.stage }}</div>
+          <div v-for="(x, i) in g.items" :key="i" class="plan-item">
+            <ElTag size="small" :type="x.priority === 'P0' ? 'danger' : x.priority === 'P1' ? 'warning' : 'info'" effect="plain">{{ x.priority }}</ElTag>
+            <div><div>{{ x.action }}</div><div v-if="x.metric" class="muted small">验证：{{ x.metric }}</div></div>
+          </div>
+        </div>
+      </div>
+
       <div class="ai-cols">
-        <div><h4>培训维度</h4><ul><li v-for="x in rep.ai.training" :key="x">{{ x }}</li></ul></div>
-        <div><h4>营销维度</h4><ul><li v-for="x in rep.ai.marketing" :key="x">{{ x }}</li></ul></div>
-        <div><h4>下一{{ unit }}优先改进</h4><ol><li v-for="x in rep.ai.actions" :key="x">{{ x }}</li></ol></div>
+        <div v-if="rep.ai.checklist.length"><h4>开播前自检</h4><ul class="check"><li v-for="x in rep.ai.checklist" :key="x">☐ {{ x }}</li></ul></div>
+        <div v-if="rep.ai.questions.length"><h4>留给你的复盘问题</h4><ol><li v-for="x in rep.ai.questions" :key="x">{{ x }}</li></ol></div>
+        <div v-if="rep.ai.dataGaps.length"><h4>数据缺口</h4><ul><li v-for="x in rep.ai.dataGaps" :key="x" class="muted">{{ x }}</li></ul></div>
       </div>
     </section>
+    <ElAlert v-else-if="rep.aiStale" class="alert no-print" type="info" :closable="false" show-icon
+             :title="`AI 点评已改为面向${role}的单视角深度复盘，旧版点评不再展示，点「生成 AI 点评」重新生成`" />
 
     <h3 class="section-title">逐{{ unit }}明细</h3>
     <section v-for="r in rep.replays" :key="r.id" class="panel replay">
@@ -326,6 +394,23 @@ h4 { margin: 14px 0 8px; font-size: 13px; color: var(--gold-2); font-weight: 500
 ul, ol { margin: 0; padding-left: 20px; line-height: 1.8; font-size: 13px; }
 .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 16px 18px; margin-top: 16px; }
 .ai p { line-height: 1.8; margin: 8px 0 0; }
+.ai h4 { margin: 18px 0 8px; }
+.verdict { font-size: 22px; margin-top: 10px !important; }
+.diag { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
+.diag-card { background: var(--panel-2); border: 1px solid var(--line); border-left: 3px solid var(--cinnabar); border-radius: 4px; padding: 10px 14px; }
+.diag-head { display: flex; gap: 8px; align-items: center; }
+.diag dl { margin: 8px 0 0; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 4px 8px; font-size: 13px; line-height: 1.7; }
+.diag dt { color: var(--muted); }
+.diag dd { margin: 0; }
+.moments { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.7; }
+.moments th, .moments td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+.moments th { color: var(--muted); font-weight: 400; }
+.nowrap { white-space: nowrap; }
+.plan { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 10px; }
+.plan-group { background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; padding: 10px 14px; }
+.stage { color: var(--gold-2); font-size: 13px; margin-bottom: 6px; }
+.plan-item { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.7; margin-bottom: 6px; }
+.check { list-style: none; padding-left: 0; }
 .ai-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .section-title { margin: 28px 0 0; font-size: 18px; }
 .replay-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }

@@ -55,6 +55,7 @@ onBeforeUnmount(() => {
     <div id="flash"></div>
     <div class="watch" id="watch"><div class="plate" id="plate">子时</div><div class="meta" id="watchMeta"></div></div>
     <div id="where">回放广场</div>
+    <button type="button" id="leave" class="btn dark" title="回到城防舆图首页">⇠ 出城 · 回首页</button>
     <div class="paper bound" id="dossier"></div>
     <canvas id="mm" width="92" height="76" aria-hidden="true"></canvas>
     <div id="ahead" hidden></div>
@@ -127,6 +128,8 @@ onBeforeUnmount(() => {
 .nc .btn.dark { color: #f0dfb6; border-color: var(--gold-dim); background: rgba(13,15,19,0.6); }
 .nc .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .nc #mm { position: fixed; right: 18px; bottom: 18px; width: 150px; image-rendering: pixelated; border: 1px solid rgba(184, 151, 90, 0.5); background: rgba(8, 10, 12, 0.65); }
+.nc #leave { position: fixed; left: 20px; bottom: 44px; z-index: 35; font-family: var(--brush); font-size: 18px; letter-spacing: 0.1em; padding: 6px 14px; }
+@media (pointer: coarse) { .nc #leave { bottom: auto; top: 140px; } }
 .nc #where { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); font-family: var(--brush); font-size: 26px; color: #e3d3a8; text-shadow: 0 2px 8px #000; pointer-events: none; letter-spacing: 0.15em; white-space: nowrap; }
 .nc #ahead { position: fixed; left: 50%; bottom: 64px; transform: translateX(-50%); font-size: 14px; color: #f0dfb6; background: rgba(13, 15, 19, 0.78); border: 1px solid rgba(184, 151, 90, 0.5); padding: 6px 14px; border-radius: 2px; pointer-events: none; white-space: nowrap; }
 .nc #toast { position: fixed; left: 50%; top: 64px; transform: translateX(-50%); font-size: 14px; color: #f0dfb6; background: rgba(13, 15, 19, 0.88); border: 1px solid var(--gold); padding: 6px 16px; border-radius: 2px; pointer-events: none; z-index: 40; }
