@@ -12,6 +12,8 @@ export interface ChannelSummary {
   scene: Scene
   city_status: 'none' | 'generating' | 'ready' | 'failed'
   imported_at: number
+  city_name: string | null // 生成整城后的城名 / 城志，没生成过为 null
+  city_intro: string | null
   replays: number
   ready: number | null
 }
@@ -31,15 +33,18 @@ export interface Replay {
   subtitle_ready: number
   game_status: GameStatus
   game_error: string
+  game_edited_at: number | null // 后台人工调整过 game.json 的时间，重新生成时清空
   updated_at: number
   running: boolean
 }
+
+export type BuildingKind = 'pavilion' | 'hall' | 'shop' | 'tower'
 
 export interface City {
   name: string
   intro: string
   streets: { name: string; replays: string[] }[]
-  buildings: { replay: string; name: string; plaque: string; kind: 'pavilion' | 'hall' | 'shop' | 'tower'; blurb: string }[]
+  buildings: { replay: string; name: string; plaque: string; kind: BuildingKind; blurb: string }[]
   npcs: { replay: string; name: string; line: string }[]
 }
 
@@ -47,6 +52,7 @@ export interface ChannelDetail extends Omit<ChannelSummary, 'replays' | 'ready'>
   watch_url: string
   city_json: City | null
   city_error: string
+  city_edited_at: number | null // 后台人工调整过城数据的时间，重新生成整城时清空
   replays: Replay[]
   cityRunning: boolean
 }

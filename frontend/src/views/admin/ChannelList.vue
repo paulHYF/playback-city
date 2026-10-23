@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElButton, ElForm, ElFormItem, ElInput, ElMessage, ElRadioButton, ElRadioGroup, ElTable, ElTableColumn, ElTag } from 'element-plus'
+import { ElButton, ElDropdown, ElDropdownItem, ElDropdownMenu, ElForm, ElFormItem, ElInput, ElMessage, ElRadioButton, ElRadioGroup, ElTable, ElTableColumn, ElTag } from 'element-plus'
 import { api } from '@/api'
-import type { ChannelSummary } from '@/types/city'
+import type { ChannelSummary, Replay } from '@/types/city'
 import type { Scene } from '@/types/game'
 import { SCENE_NAME } from '@/utils'
+import CityEditor from './CityEditor.vue'
 
 const router = useRouter()
 const channels = ref<ChannelSummary[]>([])
@@ -19,6 +20,24 @@ const countOf = (s: Scene) => channels.value.filter(c => c.scene === s).length
 watch(scene, s => (filter.value = s)) // 切换导入场景时列表跟着筛到同场景，方便看同类已导入的频道
 
 const load = async () => (channels.value = await api.channels())
+
+// 游戏配置入口：下拉展开时取该频道的回放列表，列出已生成的讲次；整城配置在当前页弹窗调整
+const replaysOf = ref<Record<string, Replay[]>>({})
+const cityCid = ref('')
+const cityOpen = ref(false)
+async function loadReplays(cid: string, visible: boolean) {
+  if (!visible || replaysOf.value[cid]) return
+  try {
+    replaysOf.value[cid] = (await api.channel(cid)).replays
+  } catch (e) {
+    ElMessage.error((e as Error).message)
+  }
+}
+function onConfig(cid: string, cmd: string) {
+  if (cmd !== 'city') return router.push(`/admin/replays/${cmd}`)
+  cityCid.value = cid
+  cityOpen.value = true
+}
 onMounted(load)
 
 async function doImport() {
@@ -82,12 +101,25 @@ async function doImport() {
         </ElTag>
       </template>
     </ElTableColumn>
-    <ElTableColumn label="操作" width="330">
+    <ElTableColumn label="操作" width="430">
       <template #default="{ row }">
         <div class="ops">
           <RouterLink :to="`/admin/channels/${row.channel_id}`">
             <ElButton size="small" :type="row.city_status === 'ready' ? 'default' : 'primary'">{{ row.city_status === 'ready' ? '管理' : '去生成' }}</ElButton>
           </RouterLink>
+          <ElDropdown v-if="row.ready" trigger="click" @visible-change="(v: boolean) => loadReplays(row.channel_id, v)" @command="(c: string) => onConfig(row.channel_id, c)">
+            <ElButton size="small">游戏配置 ▾</ElButton>
+            <template #dropdown>
+              <ElDropdownMenu>
+                <ElDropdownItem command="city">整城配置（城名 · 街道 · 楼阁）</ElDropdownItem>
+                <ElDropdownItem v-if="!replaysOf[row.channel_id]" disabled>加载讲次…</ElDropdownItem>
+                <ElDropdownItem v-for="(r, i) in (replaysOf[row.channel_id] || []).filter(r => r.game_status === 'ready')" :key="r.id" :command="r.id" :divided="i === 0">
+                  第 {{ r.sort_no }} {{ row.scene === 'commerce' ? '场' : '讲' }} · {{ r.title }}<span v-if="r.game_edited_at" class="edited">已调整</span>
+                </ElDropdownItem>
+              </ElDropdownMenu>
+            </template>
+          </ElDropdown>
+          <ElButton v-else size="small" disabled title="先生成至少一讲">游戏配置</ElButton>
           <RouterLink :to="`/admin/channels/${row.channel_id}/raw`"><ElButton size="small">原始数据</ElButton></RouterLink>
           <RouterLink :to="`/admin/channels/${row.channel_id}/report`"><ElButton size="small">质量报告</ElButton></RouterLink>
           <RouterLink v-if="row.city_status === 'ready'" :to="`/city/${row.channel_id}`" target="_blank"><ElButton size="small" type="success" plain>进城</ElButton></RouterLink>
@@ -96,6 +128,7 @@ async function doImport() {
       </template>
     </ElTableColumn>
   </ElTable>
+  <CityEditor v-if="cityCid" v-model="cityOpen" :cid="cityCid" :replays="replaysOf[cityCid] || []" @saved="load" />
 </template>
 
 <style scoped>
@@ -105,4 +138,5 @@ h3 { margin: 0; }
 .list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 28px 0 10px; flex-wrap: wrap; }
 .ops { display: flex; gap: 6px; }
 .ops :deep(.el-button + .el-button) { margin-left: 0; }
+.edited { margin-left: 8px; font-size: 12px; color: var(--el-color-warning); }
 </style>

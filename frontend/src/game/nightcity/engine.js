@@ -91,7 +91,7 @@ export function mount(root, D, hooks = {}) {
     beast: new THREE.MeshLambertMaterial({ color: 0x23201e, flatShading: true }), beastRed: new THREE.MeshLambertMaterial({ color: 0x7a2a20, flatShading: true }), bone: new THREE.MeshLambertMaterial({ color: 0xd8ccb0 }), eye: new THREE.MeshBasicMaterial({ color: 0xff5a36 })
   };
   const labels = [];
-  function labelTex(text, fg, bg, font) { const c = document.createElement('canvas'), g = c.getContext('2d'); const f = font || '500 40px "Noto Serif SC", "PingFang SC", serif'; g.font = f; const w = Math.ceil(g.measureText(text).width) + 36; c.width = w; c.height = 64; g.font = f; g.fillStyle = bg; g.fillRect(0, 0, w, 64); g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, 34); const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter; return { t, aspect: w / 64 }; }
+  function labelTex(text, fg, bg, font) { const c = document.createElement('canvas'), g = c.getContext('2d'); const f = font || '500 40px "Noto Serif SC", "PingFang SC", serif'; g.font = f; const w = Math.ceil(g.measureText(text).width) + 36; c.width = w * 2; c.height = 128; g.scale(2, 2); g.font = f; g.fillStyle = bg; g.fillRect(0, 0, w, 64); g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, 34); const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter; return { t, aspect: w / 64 }; }
   function makeLabel(text, fg, bg, h, font) { const { t, aspect } = labelTex(text, fg, bg, font); const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, depthWrite: false })); s.userData = { text, fg, bg, h, font }; s.scale.set(h * aspect, h, 1); labels.push(s); return s; }
   function setLabel(s, text, fg, bg) { Object.assign(s.userData, { text, fg: fg || s.userData.fg, bg: bg || s.userData.bg }); const { t, aspect } = labelTex(s.userData.text, s.userData.fg, s.userData.bg, s.userData.font); if (s.material.map) s.material.map.dispose(); s.material.map = t; s.material.needsUpdate = true; s.scale.set(s.userData.h * aspect, s.userData.h, 1); }
   const vBanners = [];
@@ -173,7 +173,8 @@ export function mount(root, D, hooks = {}) {
       y += bh + 0.06;
       const rw = bw + 0.8, rd = bd + 0.8, rh = t === tiers - 1 ? 0.62 : 0.44;
       const eave = new THREE.Mesh(new THREE.BoxGeometry(rw, 0.05, rd), M.wood); eave.position.y = y + 0.02; g.add(eave);
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(1, rh, 4, 1), M.tile); roof.rotation.y = Math.PI / 4; roof.scale.set(rw / 1.414, 1, rd / 1.414); roof.position.y = y + 0.05 + rh / 2; g.add(roof);
+      // 旋转要烘进几何体：mesh 的缩放先于旋转生效，直接 rotation.y 再非等比缩放会把屋顶拉成歪菱形、斜角戳到绢幕前
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(1, rh, 4, 1).rotateY(Math.PI / 4), M.tile); roof.scale.set(rw / 1.414, 1, rd / 1.414); roof.position.y = y + 0.05 + rh / 2; g.add(roof);
       [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([sx, sz]) => { const c = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.22, 5), M.gold); c.position.set(sx * rw / 2, y + 0.1, sz * rd / 2); c.rotation.z = -sx * 0.7; c.rotation.x = sz * 0.7; g.add(c); });
       y += 0.05 + rh * 0.5;
     }
@@ -200,13 +201,33 @@ export function mount(root, D, hooks = {}) {
     }
     return HALLS.filter(h => h.state === 'open').slice(0, 4).map(r => ({ name: '书坊', handout: r }));
   }
+  const NO_LEAD = /[：:，,、。；;！!？?）)》」』·]/; // 不能出现在行首的标点
+  const covers = [];
+  /** 按宽度折行，最多 maxLines 行，放不下时末行加省略号。 */
+  function wrapText(g, text, maxW, maxLines) {
+    const lines = []; let cur = '';
+    for (const ch of text) {
+      if (g.measureText(cur + ch).width > maxW && cur && !NO_LEAD.test(ch)) { lines.push(cur.trim()); cur = ch.trim(); if (lines.length === maxLines) break; } else cur += ch;
+    }
+    if (lines.length < maxLines) { if (cur) lines.push(cur); return lines; }
+    let last = lines[maxLines - 1]; while (last && g.measureText(last + '…').width > maxW) last = last.slice(0, -1);
+    lines[maxLines - 1] = last + '…'; return lines;
+  }
   function coverTex(r) {
-    const c = document.createElement('canvas'); c.width = 320; c.height = 180; const g = c.getContext('2d');
+    const S = 3, W = 320 * S, H = 180 * S; // 绢幕在近处占大半屏，按 3 倍画才不糊
+    const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.scale(S, S);
     g.fillStyle = '#1a1410'; g.fillRect(0, 0, 320, 180); g.strokeStyle = '#b8975a'; g.lineWidth = 4; g.strokeRect(6, 6, 308, 168);
-    g.fillStyle = '#e6cf98'; g.font = '30px "Ma Shan Zheng", "STKaiti", serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText(shortTitle(r.title), 160, 80); g.font = '16px "Noto Serif SC", serif'; g.fillStyle = '#a99d86'; g.fillText('第' + cn(r.no) + unit + ' · ' + fmt(r.duration), 160, 124);
-    const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearFilter;
-    if (r.cover) new THREE.TextureLoader().setCrossOrigin('anonymous').load(r.cover, img => { t.image = img.image; t.needsUpdate = true; }, undefined, () => {});
+    g.fillStyle = '#e6cf98'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const title = String(r.title || '').trim(); let size = 30, lines;
+    for (; ; size -= 2) { // 两行放得下就用这个字号，最小 20px，再长才省略
+      g.font = `${size}px "Ma Shan Zheng", "STKaiti", serif`; lines = wrapText(g, title, 280, 2);
+      if (size <= 20 || !lines.length || !lines[lines.length - 1].endsWith('…')) break;
+    }
+    const lh = size + 8, y0 = lines.length === 1 ? 80 : 80 - lh / 2;
+    lines.forEach((l, i) => g.fillText(l, 160, y0 + i * lh));
+    g.font = '16px "Noto Serif SC", serif'; g.fillStyle = '#a99d86'; g.fillText('第' + cn(r.no) + unit + ' · ' + fmt(r.duration), 160, 136);
+    const t = new THREE.CanvasTexture(c); t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    if (r.cover) new THREE.TextureLoader().setCrossOrigin('anonymous').load(r.cover, img => { t.image = img.image; t.userData.cover = true; t.needsUpdate = true; }, undefined, () => {});
     return t;
   }
   function hallPlaque(r) { const b = building(r); return '第' + cn(r.no) + unit + ' · ' + (b ? b.name : shortTitle(r.title)) + (G.cleared[r.id] ? ' · 已破' : r.state === 'locked' ? ' · 未开' : ''); }
@@ -238,7 +259,7 @@ export function mount(root, D, hooks = {}) {
       const flag = new THREE.Group(); const cloth = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.28), new THREE.MeshLambertMaterial({ color: 0xa3312a, side: THREE.DoubleSide })); cloth.position.set(x0 + 0.37, 1.24, 4.25); flag.add(cloth); const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.4, 6), M.wood); pole.position.set(x0 + 0.15, 0.7, 4.25); flag.add(pole); grp.add(flag); flag.visible = !!G.cleared[r.id];
       if (r.state === 'open') {
         const fr = new THREE.Mesh(new THREE.BoxGeometry(1.86, 1.08, 0.04), M.gold); fr.position.set(x0 + 1.5, 1.05, 4.28); grp.add(fr);
-        const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.76, 0.99), new THREE.MeshBasicMaterial({ map: coverTex(r) })); screen.position.set(x0 + 1.5, 1.05, 4.31); grp.add(screen);
+        const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.76, 0.99), new THREE.MeshBasicMaterial({ map: coverTex(r) })); screen.position.set(x0 + 1.5, 1.05, 4.31); grp.add(screen); covers.push({ mesh: screen, r });
         const tip = makeLabel('绢幕 · 看完整回放 / 入密室', '#f0dfb6', 'rgba(13,15,19,0.8)', 0.12); tip.position.set(x0 + 1.5, 0.42, 4.34); grp.add(tip);
         W.lights.push({ wx: x0 + 1.5, wz: 4.4, wy: 0.7, seed: i, flame: null });
       }
@@ -813,7 +834,7 @@ export function mount(root, D, hooks = {}) {
     renderer.render(scene, camera); drawMinimap(); updateAhead();
     if (running) requestAnimationFrame(frame);
   }
-  function resize() { const w = root.clientWidth || innerWidth, h = root.clientHeight || innerHeight, iw = Math.round(Math.min(w * (devicePixelRatio || 1), 960)); renderer.setSize(iw, Math.round(iw * h / w), false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  function resize() { const w = root.clientWidth || innerWidth, h = root.clientHeight || innerHeight, iw = Math.round(Math.min(w * (devicePixelRatio || 1), 1920)); renderer.setSize(iw, Math.round(iw * h / w), false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
 
   // ═════════════ 输入 ═════════════
   const KEYS = { ArrowUp: 'fwd', w: 'fwd', W: 'fwd', ArrowDown: 'back', s: 'back', S: 'back', ArrowLeft: 'left', a: 'left', A: 'left', ArrowRight: 'right', d: 'right', D: 'right', q: 'sl', Q: 'sl', e: 'sr', E: 'sr' };
@@ -833,7 +854,13 @@ export function mount(root, D, hooks = {}) {
 
   // ═════════════ 启动 ═════════════
   buildSurface(); setMode('surface'); resize(); addEventListener('resize', resize, sig);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { labels.forEach(s => setLabel(s, s.userData.text)); vBanners.forEach(v => { v.mesh.material.map.dispose(); v.mesh.material.map = vTex(v.text, v.bg, v.fg); v.mesh.material.needsUpdate = true; }); });
+  // 画布文字用的网页字体只有页面用到才会下载，这里主动加载，到位后重画所有文字贴图
+  if (document.fonts && document.fonts.load) Promise.all(['44px "Ma Shan Zheng"', '40px "Noto Serif SC"'].map(f => document.fonts.load(f).catch(() => {}))).then(() => document.fonts.ready).then(() => {
+    if (!running) return;
+    labels.forEach(s => setLabel(s, s.userData.text));
+    vBanners.forEach(v => { v.mesh.material.map.dispose(); v.mesh.material.map = vTex(v.text, v.bg, v.fg); v.mesh.material.needsUpdate = true; });
+    covers.forEach(c => { if (c.mesh.material.map.userData.cover) return; c.mesh.material.map.dispose(); c.mesh.material.map = coverTex(c.r); c.mesh.material.needsUpdate = true; });
+  });
   setTimeout(() => toast((D.city.intro ? D.city.intro.slice(0, 40) + ' · ' : '') + '北边是回放楼阁，往南是' + (sceneKey === 'course' ? '书坊' : '夜市铺子')), 600);
   screenEl.focus({ preventScroll: true });
   // 调试入口（演示跳关与自动化测试）

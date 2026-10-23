@@ -33,7 +33,7 @@ onMounted(async () => {
         tracker?.finish(result, stats)
         tracker = null
       },
-      onExit: () => router.push('/'),
+      onExit: () => router.push({ path: '/', query: { from: props.cid } }),
       openHandout: (rid: string) => window.open(router.resolve(`/handout/${rid}`).href, '_blank')
     })
   } catch (e) {

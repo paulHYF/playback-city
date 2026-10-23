@@ -41,8 +41,8 @@ app/
 │   ├── schema.py        game.json 结构与校验规则（需求文档第 8 节）
 │   └── prompts/         course.md · commerce.md · common.md
 └── routers/
-    ├── channels.py      /api/channels/import、/api/channels/{cid}、/raw、/raw/import/{name}、/report、/report/ai、/api/city/{cid}
-    ├── replays.py       /api/replays/{rid}、/generate、/game、/raw/{name}、/raw/refresh（只重拉原始数据）
+    ├── channels.py      /api/channels/import、/api/channels/{cid}、/raw、/raw/import/{name}、/report、/report/ai、/city（GET/PUT 整城配置调整）、/api/city/{cid}
+    ├── replays.py       /api/replays/{rid}、/generate、/game（GET / PUT 后台调整）、/raw/{name}、/raw/refresh（只重拉原始数据）
     ├── viewers.py       /api/viewers、/{vid}/watch（播放区间）、/api/runs、/events、/finish
     └── dashboard.py     /api/dashboard/{cid}、/replays/{rid}
 ```

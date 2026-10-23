@@ -1,5 +1,5 @@
 import type { Game, Scene } from '@/types/game'
-import type { AiReview, ChannelDetail, ChannelSummary, CityData, Dashboard, Progress, QualityReport, RawOverview, Replay, ReplayDashboard, Viewer } from '@/types/city'
+import type { AiReview, ChannelDetail, ChannelSummary, City, CityData, Dashboard, Progress, QualityReport, RawOverview, Replay, ReplayDashboard, Viewer } from '@/types/city'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...init })
@@ -10,6 +10,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 const post = <T>(path: string, body?: unknown) =>
   request<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) })
+const put = <T>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) })
 
 export interface RawStatus {
   files: string[]
@@ -24,9 +25,12 @@ export const api = {
   importChannel: (channelId: string, scene: Scene) =>
     post<{ channelId: string; replays: number; playbacks: number; recordFiles: number }>('/api/channels/import', { channelId, scene }),
   generateCity: (cid: string) => post<{ accepted: boolean }>(`/api/channels/${cid}/city/generate`),
+  cityConfig: (cid: string) => request<{ city: City; generated: boolean; editedAt: number | null }>(`/api/channels/${cid}/city`),
+  saveCity: (cid: string, city: City) => put<City>(`/api/channels/${cid}/city`, city),
   createOutline: (cid: string, rid: string) => post<unknown>(`/api/channels/${cid}/replays/${rid}/outline`),
   replay: (rid: string) => request<Replay>(`/api/replays/${rid}`),
   replayGame: (rid: string) => request<Game>(`/api/replays/${rid}/game`),
+  saveGame: (rid: string, game: Game) => put<Game>(`/api/replays/${rid}/game`, game),
   raw: (rid: string) => request<RawStatus>(`/api/replays/${rid}/raw`),
   rawOverview: (cid: string) => request<RawOverview>(`/api/channels/${cid}/raw`),
   rawImportFile: (cid: string, name: string) => request<unknown>(`/api/channels/${cid}/raw/import/${name}`),

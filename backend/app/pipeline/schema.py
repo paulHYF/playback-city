@@ -288,8 +288,21 @@ class Game(BaseModel):
                 raise ValueError(f"world.rooms[{wr.room}] 需要的道具 {wr.requires} 必须由更早的殿室给出")
 
 
+# Pydantic 内置校验的常见报错译成中文，其余（自定义规则）本身就是中文
+_MSG = {
+    "missing": "缺少这个字段", "string_too_long": "不能超过 {max_length} 个字", "string_too_short": "至少 {min_length} 个字",
+    "too_long": "最多 {max_length} 项", "too_short": "至少 {min_length} 项", "literal_error": "只能取 {expected}",
+    "greater_than": "必须大于 {gt}", "greater_than_equal": "不能小于 {ge}", "less_than_equal": "不能大于 {le}",
+    "string_pattern_mismatch": "格式不对", "int_parsing": "必须是整数", "float_parsing": "必须是数字", "string_type": "必须是文本",
+}
+
+
 def error_lines(e: ValidationError | ValueError) -> list[str]:
-    """校验错误 → 后台能看懂的逐条说明：「rooms.0.items.1.options：options 必须是 4 个互不相同的选项」。"""
+    """校验错误 → 后台能看懂的逐条说明：「rooms.0.items.1：q11: options 必须是 4 个互不相同的选项」。"""
     if not isinstance(e, ValidationError):
         return [str(e)]
-    return [f"{'.'.join(map(str, err['loc'])) or '整体'}：{err['msg'].removeprefix('Value error, ')}" for err in e.errors()]
+    out = []
+    for err in e.errors():
+        msg = _MSG[err["type"]].format(**err.get("ctx", {})).replace(" or ", ", ") if err["type"] in _MSG else err["msg"].removeprefix("Value error, ")
+        out.append(f"{'.'.join(map(str, err['loc'])) or '整体'}：{msg}")
+    return out

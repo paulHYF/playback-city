@@ -10,6 +10,7 @@ def list_channels() -> list[dict]:
     with db.connect() as conn:
         rows = conn.execute(
             "SELECT c.channel_id, c.name, c.publisher, c.cover_img, c.scene, c.city_status, c.imported_at, "
+            "json_extract(c.city_json, '$.name') AS city_name, json_extract(c.city_json, '$.intro') AS city_intro, "
             "COUNT(r.id) AS replays, SUM(r.game_status = 'ready') AS ready "
             "FROM channel c LEFT JOIN replay r ON r.channel_id = c.channel_id "
             "GROUP BY c.channel_id ORDER BY c.imported_at DESC").fetchall()
