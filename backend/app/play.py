@@ -32,8 +32,19 @@ def progress(vid: str, cid: str) -> dict:
     with db.connect() as conn:
         rows = conn.execute("SELECT replay_id, runs, cleared_at, best_points FROM viewer_replay WHERE viewer_id = ? AND channel_id = ?",
                             (vid, cid)).fetchall()
+        active = conn.execute("SELECT id, replay_id, state FROM play_run WHERE viewer_id = ? AND channel_id = ? AND ended_at IS NULL "
+                              "AND state IS NOT NULL AND state != '' ORDER BY started_at DESC LIMIT 1", (vid, cid)).fetchone()
     replays = {r["replay_id"]: dict(r) for r in rows}
-    return {"replays": replays, "points": sum(r["best_points"] for r in replays.values())}
+    snap = None
+    if active and active["state"]:
+        try:
+            snap = json.loads(active["state"])
+        except json.JSONDecodeError:
+            snap = None
+    return {
+        "replays": replays, "points": sum(r["best_points"] for r in replays.values()),
+        "active": {"runId": active["id"], "replayId": active["replay_id"], "state": snap} if snap else None,
+    }
 
 
 def start_run(vid: str, rid: str, cid: str) -> str:
@@ -88,6 +99,14 @@ def review_ranges(rid: str) -> list[dict]:
     return out
 
 
+def save_state(run: dict, state: dict) -> None:
+    """进行中的地宫快照：位置、已破的室、道具、怪的血量。刷新后按观众 id 接着打。"""
+    if run.get("ended_at"):
+        return
+    with db.connect() as conn:
+        conn.execute("UPDATE play_run SET state = ? WHERE id = ?", (dumps(state), run["id"]))
+
+
 def finish_run(run: dict, result: str, stats: dict) -> None:
     t = now_ms()
     with db.connect() as conn:
@@ -95,7 +114,7 @@ def finish_run(run: dict, result: str, stats: dict) -> None:
                            "SUM(type='revive_watch') rv FROM play_event WHERE run_id = ?", (run["id"],)).fetchone()
         points = int(stats.get("points") or 0)
         conn.execute("UPDATE play_run SET ended_at=?, result=?, rooms_done=?, lamps_left=?, points=?, correct_cnt=?, wrong_cnt=?, "
-                     "revive_cnt=?, duration_s=? WHERE id=?",
+                     "revive_cnt=?, duration_s=?, state=NULL WHERE id=?",
                      (t, result, int(stats.get("roomsDone") or 0), int(stats.get("lamps") or 0), points, agg["ok"] or 0,
                       agg["bad"] or 0, agg["rv"] or 0, (t - run["started_at"]) // 1000, run["id"]))
         conn.execute("UPDATE viewer_replay SET best_points = MAX(best_points, ?), "

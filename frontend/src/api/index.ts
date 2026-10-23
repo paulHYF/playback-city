@@ -47,6 +47,8 @@ export const api = {
   viewer: (vid: string) => request<Viewer>(`/api/viewers/${vid}`),
   progress: (vid: string, cid: string) => request<Progress>(`/api/viewers/${vid}/progress?channelId=${cid}`),
   startRun: (viewerId: string, replayId: string) => post<{ id: string }>('/api/runs', { viewerId, replayId }),
+  saveRunState: (runId: string, state: unknown) =>
+    request<{ ok: boolean }>(`/api/runs/${runId}/state`, { method: 'PUT', body: JSON.stringify(state) }),
   finishRun: (runId: string, body: { result: string; points: number; roomsDone: number; lamps: number }) =>
     post<{ ok: boolean }>(`/api/runs/${runId}/finish`, body),
   // 大盘

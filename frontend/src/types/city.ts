@@ -98,6 +98,8 @@ export interface Viewer {
 export interface Progress {
   replays: Record<string, { replay_id: string; runs: number; cleared_at: number | null; best_points: number }>
   points: number
+  /** 刷新前没打完的那一局，进城可接着打；没有则为 null */
+  active: { runId: string; replayId: string; state: Record<string, unknown> } | null
 }
 
 export interface DashboardBuilding {

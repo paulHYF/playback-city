@@ -8,7 +8,7 @@ Vue 3 · Vite · TypeScript · Element Plus（仅后台）· Three.js（仅游�
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # http://localhost:5173 ，同时监听 0.0.0.0，局域网用本机 IP:5173 也能进；/api 代理到本机后端
 npm run build      # 类型检查 + 构建
 ```
 

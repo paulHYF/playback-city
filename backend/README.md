@@ -43,13 +43,13 @@ app/
 └── routers/
     ├── channels.py      /api/channels/import、/api/channels/{cid}、/raw、/raw/import/{name}、/report、/report/ai、/city（GET/PUT 整城配置调整）、/api/city/{cid}
     ├── replays.py       /api/replays/{rid}、/generate、/game（GET / PUT 后台调整）、/raw/{name}、/raw/refresh（只重拉原始数据）
-    ├── viewers.py       /api/viewers、/{vid}/watch（播放区间）、/api/runs、/events、/finish
+    ├── viewers.py       /api/viewers、/{vid}/watch（播放区间）、/api/runs、/state（进行中快照）、/events、/finish
     └── dashboard.py     /api/dashboard/{cid}、/replays/{rid}
 ```
 
 ## 数据库（SQLite）
 
-`channel`（城）· `replay`（一讲 = 楼阁 + 地宫，含 game_json）· `viewer`（浏览器首次进入发的观众 id）· `play_run`（一局）· `play_event`（闯关明细）· `viewer_replay`（每讲最好成绩）· `replay_watch`（回放城播放器里真实播放过的区间，质量报告算重点回顾段）。表结构见 `app/db.py`。
+`channel`（城）· `replay`（一讲 = 楼阁 + 地宫，含 game_json）· `viewer`（浏览器首次进入发的观众 id）· `play_run`（一局，`state` 存进行中的地宫快照）· `play_event`（闯关明细）· `viewer_replay`（每讲最好成绩）· `replay_watch`（回放城播放器里真实播放过的区间，质量报告算重点回顾段）。表结构见 `app/db.py`。
 
 ## 数据来源
 

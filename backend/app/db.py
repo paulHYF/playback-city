@@ -69,7 +69,8 @@ CREATE TABLE IF NOT EXISTS play_run (
     correct_cnt INTEGER NOT NULL DEFAULT 0,
     wrong_cnt   INTEGER NOT NULL DEFAULT 0,
     revive_cnt  INTEGER NOT NULL DEFAULT 0,
-    duration_s  INTEGER NOT NULL DEFAULT 0
+    duration_s  INTEGER NOT NULL DEFAULT 0,
+    state       TEXT                                -- 进行中的地宫快照（JSON），结算后清空；刷新页面用观众 id 接着打
 );
 CREATE INDEX IF NOT EXISTS idx_run_replay ON play_run(replay_id);
 CREATE INDEX IF NOT EXISTS idx_run_channel ON play_run(channel_id);
@@ -138,7 +139,11 @@ def connect():
 
 
 # 建表之后新增的列：老库启动时补上（CREATE TABLE IF NOT EXISTS 不会改已有表）
-ADDED_COLUMNS = {"channel": {"city_edited_at": "INTEGER"}, "replay": {"game_edited_at": "INTEGER"}}
+ADDED_COLUMNS = {
+    "channel": {"city_edited_at": "INTEGER"},
+    "replay": {"game_edited_at": "INTEGER"},
+    "play_run": {"state": "TEXT"},
+}
 
 
 def init() -> None:

@@ -78,6 +78,14 @@ async def events(run_id: str, request: Request):
     return {"saved": play.add_events(must_run(run_id), body if isinstance(body, list) else [body])}
 
 
+@router.put("/runs/{run_id}/state")
+async def save_run_state(run_id: str, request: Request):
+    """进行中的地宫快照；关页时 sendBeacon 发的是 text/plain，一并按 JSON 解析。"""
+    body = json.loads(await request.body() or b"{}")
+    play.save_state(must_run(run_id), body if isinstance(body, dict) else {})
+    return {"ok": True}
+
+
 @router.post("/runs/{run_id}/finish")
 def finish(run_id: str, req: FinishRun):
     run = must_run(run_id)

@@ -26,7 +26,10 @@ onMounted(async () => {
     state.value = 'ready'
     document.title = `${data.city.name} · 回放不夜城`
     engine = mount(root.value!, { ...data, player: { ...data.player, viewerId: viewer.id, nickname: viewer.nickname }, progress, viewer }, {
-      onEnterPalace: (r: { id: string }) => { tracker = new RunTracker(viewer.id, r.id) },
+      onEnterPalace: (r: { id: string }, opt?: { resume?: { runId: string } | null }) => {
+        tracker = new RunTracker(viewer.id, r.id, opt?.resume?.runId)
+      },
+      onState: (snap: Record<string, unknown>) => tracker?.saveState(snap),
       track: (type: string, p: Record<string, unknown>) => tracker?.track({ type, ...p }),
       onWatched: (replayId: string, source: string, ranges: number[][]) => reportWatch(viewer.id, replayId, source, ranges),
       onFinish: (result: string, stats: { points: number; roomsDone: number; lamps: number }) => {

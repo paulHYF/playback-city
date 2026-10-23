@@ -53,13 +53,25 @@ export class RunTracker {
   private runId: string | null = null
   private timer: number | undefined
   private finished = false
+  private pendingState: unknown = null
 
-  constructor(viewerId: string, replayId: string) {
-    api.startRun(viewerId, replayId).then(r => {
-      this.runId = r.id
-      this.flush()
-    }).catch(() => {})
+  constructor(viewerId: string, replayId: string, resumeId?: string) {
+    if (resumeId) {
+      this.runId = resumeId
+    } else {
+      api.startRun(viewerId, replayId).then(r => {
+        this.runId = r.id
+        this.flush()
+      }).catch(() => {})
+    }
     addEventListener('pagehide', this.beacon)
+  }
+
+  saveState(state: unknown) {
+    if (this.finished || !this.runId) { this.pendingState = state; return }
+    this.pendingState = null
+    const body = JSON.stringify(state)
+    fetch(`/api/runs/${this.runId}/state`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body }).catch(() => {})
   }
 
   track(e: TrackEvent) {
@@ -72,6 +84,10 @@ export class RunTracker {
   flush() {
     clearTimeout(this.timer)
     this.timer = undefined
+    if (this.runId && this.pendingState) {
+      const s = this.pendingState; this.pendingState = null
+      fetch(`/api/runs/${this.runId}/state`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) }).catch(() => {})
+    }
     if (!this.runId || !this.queue.length) return Promise.resolve()
     const batch = this.queue.splice(0)
     return fetch(`/api/runs/${this.runId}/events`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(batch) })
@@ -91,5 +107,6 @@ export class RunTracker {
 
   private beacon = () => {
     if (this.runId && this.queue.length) navigator.sendBeacon(`/api/runs/${this.runId}/events`, JSON.stringify(this.queue.splice(0)))
+    if (this.runId && this.pendingState) navigator.sendBeacon(`/api/runs/${this.runId}/state`, JSON.stringify(this.pendingState))
   }
 }

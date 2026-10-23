@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { LiveVideo } from './liveplayer.js'
 import { themeOf } from './themes'
 import { propKit } from './props.js'
+import { beastModel as makeBeast, kindName } from './beasts.js'
 
 export function mount(root, D, hooks = {}) {
   const sceneKey = D.channel.scene, unit = sceneKey === 'course' ? '讲' : '场';
@@ -116,6 +117,7 @@ export function mount(root, D, hooks = {}) {
       panel: new THREE.MeshBasicMaterial({ map: tex(TH.panel), color: 0xc8c0b0, transparent: true, alphaTest: 0.1 }),
       column: TH.column === null ? null : new THREE.MeshLambertMaterial({ color: TH.column }),
       body: lam(TH.beast.body), accent: lam(TH.beast.accent), eye: new THREE.MeshBasicMaterial({ color: TH.beast.eye }),
+      aura: TH.beast.aura,
       lampBody: new THREE.MeshBasicMaterial({ color: TH.lamp.body ?? TH.lamp.color }), glow: w.palette && isHex(w.palette.accent) ? new THREE.Color(w.palette.accent).getHex() : 0xffc070
     };
   }
@@ -138,27 +140,8 @@ export function mount(root, D, hooks = {}) {
   }
   function figure(group, x, z, ry, color) { const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; group.add(g); const robe = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.2, 0.62, 10), new THREE.MeshLambertMaterial({ color })); robe.position.y = 0.31; g.add(robe); const head = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 10), M.skin); head.position.y = 0.72; g.add(head); const hat = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.14), M.black); hat.position.y = 0.82; g.add(hat); const wings = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.012, 0.025), M.black); wings.position.set(0, 0.8, -0.03); g.add(wings); return g; }
 
-  // 墨妖：四足兽，双角、獠牙、鬃刺、尾，赤色眼缝；正面朝 +z
-  function beastModel(scale, boss) {
-    const root = new THREE.Group(), g = new THREE.Group(); root.add(g); g.scale.setScalar(scale);
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 8), TM.body); body.scale.set(1, 0.78, 1.35); body.position.y = 0.36; g.add(body);
-    const belly = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 6), TM.accent); belly.scale.set(1, 0.5, 1.2); belly.position.set(0, 0.27, 0.02); g.add(belly);
-    const head = new THREE.Group(); head.position.set(0, 0.46, 0.3); g.add(head);
-    const skull = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.2, 0.22), TM.body); head.add(skull);
-    const snout = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.14), TM.body); snout.position.set(0, -0.04, 0.16); head.add(snout);
-    const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.04, 0.16), TM.accent); jaw.position.set(0, -0.12, 0.14); head.add(jaw);
-    [-1, 1].forEach(sx => {
-      const tusk = new THREE.Mesh(new THREE.ConeGeometry(0.018, 0.09, 6), M.bone); tusk.position.set(sx * 0.07, -0.1, 0.22); tusk.rotation.x = Math.PI; head.add(tusk);
-      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.24, 6), boss ? M.gold : M.bone); horn.position.set(sx * 0.1, 0.18, -0.02); horn.rotation.z = -sx * 0.5; horn.rotation.x = -0.4; head.add(horn);
-      const eye = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.016, 0.01), TM.eye); eye.position.set(sx * 0.07, 0.03, 0.115); eye.rotation.z = sx * 0.25; head.add(eye);
-      const brow = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.025, 0.03), TM.accent); brow.position.set(sx * 0.07, 0.07, 0.11); brow.rotation.z = sx * 0.35; head.add(brow);
-    });
-    for (let k = 0; k < 5; k++) { const sp = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.14, 5), TM.accent); sp.position.set(0, 0.55 - k * 0.015, 0.16 - k * 0.1); sp.rotation.x = -0.5; g.add(sp); }
-    const legs = [];
-    [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([sx, sz]) => { const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.26, 6), TM.body); leg.position.set(sx * 0.14, 0.13, sz * 0.17); g.add(leg); legs.push(leg); const claw = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.06, 5), M.bone); claw.position.set(sx * 0.14, 0.02, sz * 0.17 + 0.05); claw.rotation.x = Math.PI / 2; g.add(claw); });
-    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.36, 6), TM.body); tail.position.set(0, 0.45, -0.38); tail.rotation.x = -1.0; g.add(tail);
-    const aura = glowSprite(TH.beast.aura, boss ? 2.2 : 0.9); aura.position.y = 0.4 * scale; aura.material.opacity = 0.3; root.add(aura);
-    return { root, g, head, jaw, legs, tail, aura, body };
+  function beastModel(e, scale, boss) {
+    return makeBeast(cur().world && cur().world.theme || sceneKey, e, TM, glowTex, { scale, boss });
   }
 
   // 灯光
@@ -315,6 +298,7 @@ export function mount(root, D, hooks = {}) {
   // 配了 world.items（自定义道具链）就只用配置的道具 + 卷宗残页；否则用内置的灯油 / 铜鱼符链
   const toolKeys = () => (PW && PW.chain ? [...cur().world.items.map(t => t.id), 'page'] : BASE_TOOLS);
   const roomTitle = i => (PW && PW.rooms[i] && PW.rooms[i].name) || shortTitle(cur().rooms[i].title);
+  const foeName = e => kindName(e.shape) || BN();
   const doorLock = e => (e.requires === 'oil' ? '暗门 · 需灯油' : '锁门 · 需' + (TOOLS[e.requires] || { name: e.requires }).name);
   const TASKS = {
     collect: { name: '拾灯', goal: '找齐散落的三盏灯' },
@@ -376,6 +360,8 @@ export function mount(root, D, hooks = {}) {
         parts.forEach((p, pi) => { const [x, y] = place(r, true); W.entities.push({ id: 'frag' + i + pi, type: 'pick', kind: 'frag', room: i, x, y, text: p, real: true, pass: true }); });
         decoys.forEach((p, pi) => { const [x, y] = place(r, true); W.entities.push({ id: 'fake' + i + pi, type: 'pick', kind: 'frag', room: i, x, y, text: p, real: false, pass: true }); });
       }
+      // 巡夜怪：每间非 Boss、非破惑殿室一只，代表本室一道题（取最后一道，尽量不和卷宗匣 / 门题重复）；可选击退，不计入过关
+      if (t !== 'beasts' && t !== 'boss' && room.items.length) { const [x, y] = place(r); W.entities.push({ id: 'patrol' + i, type: 'beast', patrol: true, room: i, x, y, hp: 3, ...foeOf(room.items[room.items.length - 1], i) }); }
       if (t === 'beasts') for (let n = 0; n < 3; n++) { const [x, y] = place(r); W.entities.push({ id: 'beast' + i + n, type: 'beast', room: i, x, y, hp: BEAST_HP, ...foeOf(room.items[n % room.items.length], n) }); }
       if (t === 'boss') { const [x, y] = place(r); W.entities.push({ id: 'boss', type: 'boss', room: i, x, y, items: room.items.slice(0, 3), hp: Math.min(3, room.items.length), drop: 'page' }); }
       const cfg = wrOf(i);
@@ -539,7 +525,7 @@ export function mount(root, D, hooks = {}) {
       const band = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.05, 0.36), M.cinna); band.position.y = 0.2; g.add(band);
       lbl('匣 · ' + e.name, '#f0dfb6', 'rgba(60,24,14,0.92)', 0.11, 0.55);
     } else if (e.type === 'beast' || e.type === 'boss') {
-      const big = e.type === 'boss', b = beastModel(big ? 2.2 : 1.15, big); g.add(b.root); e.model = b; e.state = 'roam'; e.t = 0; e.maxHp = e.hp;
+      const big = e.type === 'boss', b = beastModel(e, big ? 2.2 : 1.15, big); g.add(b.root); e.model = b; e.shape = b.kind; e.state = 'roam'; e.t = 0; e.maxHp = e.hp;
       lbl(big ? bossLabel(e) : beastLabel(e), big ? '#ffd2c6' : '#f0dfb6', big ? 'rgba(60,18,14,0.92)' : 'rgba(20,16,12,0.88)', big ? 0.14 : 0.1, big ? 1.65 : 0.95);
       if (big) bossLight.position.set(e.x + 0.5, 0.9, e.y + 0.5);
     } else if (e.type === 'chest') {
@@ -577,7 +563,44 @@ export function mount(root, D, hooks = {}) {
   let mode = 'surface', CUR = SW, P, curRoom = -1, S = null;
   const G = { points: D.progress.points || 0, ledger: [], cleared: Object.fromEntries(Object.entries(D.progress.replays || {}).filter(([, v]) => v.cleared_at).map(([k]) => [k, true])) };
   let REAL_MINUTES = 8;
+  const pendingOf = (D.progress && D.progress.active) || null; // 刷新前没打完的那一局，按观众 id 从库里取
+  const pending = rid => pendingOf && pendingOf.replayId === rid && pendingOf.state;
   const freshS = () => ({ px: PW.start.x, py: PW.start.y, dir: 1, lamps: 5, tools: {}, done: {}, gone: [], visited: [], wrong: [], carry: null, frags: [], lampsFound: 0, startedAt: performance.now(), startPoints: G.points, ended: false, parryUntil: 0, shake: 0, combo: 0, met: {}, boss: null, broken: [] });
+  const itemById = id => { for (const rm of cur().rooms) { const it = (rm.items || []).find(x => x.id === id); if (it) return it; } return null; };
+  function snapshot() {
+    if (!S || S.ended) return null;
+    const ents = {};
+    PW.entities.forEach(e => { const row = {}; ['hp', 'passed', 'idx', 'got', 'tries', 'state', 'x', 'y'].forEach(k => { if (e[k] !== undefined && e[k] !== null) row[k] = e[k]; }); if (Object.keys(row).length) ents[e.id] = row; });
+    return {
+      replayId: curReplay.id, px: S.px, py: S.py, dir: S.dir, lamps: S.lamps, tools: S.tools,
+      done: S.done, gone: S.gone, visited: S.visited, met: S.met, lampsFound: S.lampsFound, combo: S.combo,
+      elapsed: performance.now() - S.startedAt, points: G.points - S.startPoints,
+      carry: S.carry && S.carry.id, frags: S.frags.map(f => f.id),
+      wrong: S.wrong.map(it => it.id).filter(Boolean), broken: S.broken.map(it => it && it.id).filter(Boolean),
+      seen: Array.from(PW.seen), entities: ents, darkOff: !!(PW.darkBox && !PW.darkBox.visible)
+    };
+  }
+  function applySnap(snap) {
+    Object.assign(S, { px: snap.px, py: snap.py, dir: snap.dir, lamps: snap.lamps, tools: snap.tools || {},
+      done: snap.done || {}, gone: snap.gone || [], visited: snap.visited || [], met: snap.met || {},
+      lampsFound: snap.lampsFound || 0, combo: snap.combo || 0,
+      startedAt: performance.now() - (snap.elapsed || 0) });
+    G.points = S.startPoints + (snap.points || 0);
+    S.wrong = (snap.wrong || []).map(itemById).filter(Boolean);
+    S.broken = (snap.broken || []).map(itemById).filter(Boolean);
+    S.carry = snap.carry ? PW.entities.find(e => e.id === snap.carry) || null : null;
+    S.frags = (snap.frags || []).map(id => PW.entities.find(e => e.id === id)).filter(Boolean);
+    if (snap.seen && snap.seen.length === PW.seen.length) PW.seen.set(snap.seen);
+    Object.entries(snap.entities || {}).forEach(([id, row]) => { const e = PW.entities.find(x => x.id === id); if (!e) return; Object.assign(e, row); });
+    PW.entities.filter(e => S.gone.includes(e.id) && e.obj).forEach(e => { e.obj.visible = false; });
+    if (snap.darkOff && PW.darkBox) PW.darkBox.visible = false;
+    PW.entities.filter(e => e.label && (e.type === 'beast' || e.type === 'boss')).forEach(e => setLabel(e.label, e.type === 'boss' ? bossLabel() : beastLabel(e)));
+  }
+  let saveTimer = 0;
+  function saveProgress() {
+    const snap = snapshot(); if (!snap || !hooks.onState) return;
+    clearTimeout(saveTimer); saveTimer = setTimeout(() => hooks.onState(snap), 400);
+  }
   const mv = { t: 1, fx: 0, fz: 0, tx: 0, tz: 0 }, tn = { t: 1, f: 0, to: 0 }, bump = { t: 1, dx: 0, dz: 0 };
   const anims = [];
   const pl = () => mode === 'palace' ? S : U;
@@ -608,9 +631,26 @@ export function mount(root, D, hooks = {}) {
     $('#hint').innerHTML = m === 'palace' ? '<kbd>↑</kbd><kbd>↓</kbd> 前后 · <kbd>←</kbd><kbd>→</kbd> 转身 · <kbd>Q</kbd><kbd>E</kbd> 侧移 · <kbd>空格</kbd> ' + TH.words.strike + '攻击（怪物红光蓄力时按空格格挡，反击 ×2）· 面对物件按前进交互' : '<kbd>↑</kbd><kbd>↓</kbd>/<kbd>W</kbd><kbd>S</kbd> 前后 · <kbd>←</kbd><kbd>→</kbd>/<kbd>A</kbd><kbd>D</kbd> 转身 · 面对楼阁、铺子按前进';
     applyTod(); syncPlayer(); renderDossier();
   }
-  function enterPalace() { TH = themeOf(cur().world && cur().world.theme, sceneKey); transition(TH.words.enter, () => { REAL_MINUTES = (cur().world && cur().world.clock && cur().world.clock.real_minutes) || 8; buildPalace(); S = freshS(); if (hooks.onEnterPalace) hooks.onEnterPalace(curReplay); track('enter_palace'); setMode('palace'); curRoom = -1; markSeen(S.px, S.py, 2); enterRoom(0); toast((cur().world && cur().world.intro) || '一夜十二时辰。每间密室有一件事要办，完成了下一扇门才开'); }); }
+  function enterPalace(opts = {}) {
+    const resume = !opts.fresh && pending(curReplay.id);
+    TH = themeOf(cur().world && cur().world.theme, sceneKey);
+    transition(resume ? '续 夜 巡' : TH.words.enter, () => {
+      REAL_MINUTES = (cur().world && cur().world.clock && cur().world.clock.real_minutes) || 8;
+      buildPalace(); S = freshS();
+      if (hooks.onEnterPalace) hooks.onEnterPalace(curReplay, { resume: resume && pendingOf });
+      if (resume) applySnap(pendingOf.state);
+      else track('enter_palace');
+      setMode('palace'); curRoom = -1; markSeen(S.px, S.py, 2);
+      const here = PW.roomOf[S.py] && PW.roomOf[S.py][S.px]; enterRoom(here >= 0 ? here : 0);
+      toast(resume ? '接着上次的夜巡。已破的室不用重做' : ((cur().world && cur().world.intro) || '一夜十二时辰。每间密室有一件事要办，完成了下一扇门才开'));
+    });
+  }
   function runStats() { return { points: Math.max(0, G.points - S.startPoints), roomsDone: Object.keys(S.done).length, lamps: S.lamps }; }
-  function exitPalace() { if (S && !S.ended) { S.ended = true; if (hooks.onFinish) hooks.onFinish('abandoned', runStats()); } transition('回 广 场', () => { const h = SW.entities.find(e => e.type === 'hall' && e.replay.id === curReplay.id); U.px = h ? h.x + 1 : CX; U.py = 5; U.dir = 2; setMode('surface'); refreshHalls(); }); }
+  function dropPending() { if (pendingOf && pendingOf.replayId === curReplay.id) { pendingOf.state = null; pendingOf.replayId = ''; } }
+  function exitPalace() {
+    if (S && !S.ended) { S.ended = true; dropPending(); if (hooks.onFinish) hooks.onFinish('abandoned', runStats()); }
+    transition('回 广 场', () => { const h = SW.entities.find(e => e.type === 'hall' && e.replay.id === curReplay.id); U.px = h ? h.x + 1 : CX; U.py = 5; U.dir = 2; setMode('surface'); refreshHalls(); });
+  }
 
   // ═════════════ 移动、拾取、交互 ═════════════
   function doAction(a) {
@@ -634,11 +674,11 @@ export function mount(root, D, hooks = {}) {
     if (e.kind === 'lamp') { gone(e); S.lampsFound++; G.points += 10; Music.sfx.good(); toast('拾得一盏灯（' + S.lampsFound + ' / 3）'); if (PW.entities.filter(x => x.kind === 'lamp' && x.room === e.room && alive(x)).length === 0) finishRoom(e.room, '三盏灯都点亮了'); }
     else if (e.kind === 'token') { if (S.carry) { toast('手里已经拿着「' + S.carry.text + '」，先送进木匣'); return; } S.carry = e; gone(e); toast('拿起竹签「' + e.text + '」，送到同类的木匣'); }
     else if (e.kind === 'frag') { gone(e); S.frags.push(e); toast('拾得残片：「' + e.text + '」'); }
-    renderDossier();
+    renderDossier(); saveProgress();
   }
-  function gone(e) { if (!S.gone.includes(e.id)) S.gone.push(e.id); e.obj.visible = false; }
+  function gone(e) { if (!S.gone.includes(e.id)) S.gone.push(e.id); e.obj.visible = false; saveProgress(); }
   function finishRoom(i, msg) {
-    if (S.done[i]) return; S.done[i] = true; G.points += 50; Music.sfx.good(); track('room_done', { room: i });
+    if (S.done[i]) return; S.done[i] = true; G.points += 50; Music.sfx.good(); track('room_done', { room: i }); saveProgress();
     toast(msg + ' · 第' + CN[i + 2] + '室的门可以推开了');
     const d = PW.entities.find(x => x.id === 'door' + (i + 1)); if (d) setLabel(d.label, d.quiz ? '门题 · 答对开门' : d.requires ? doorLock(d) : '可推门', '#2b2219', 'rgba(232,220,192,0.95)');
     renderDossier();
@@ -712,7 +752,8 @@ export function mount(root, D, hooks = {}) {
     const el = $('#quest'); if (!el) return;
     let html = '';
     if (mode === 'palace' && S && curRoom >= 0 && PW) {
-      const q = questInfo(), t = PW.task[curRoom];
+      const q = questInfo(), t = PW.task[curRoom], patrol = PW.entities.find(e => e.patrol && e.room === curRoom && alive(e));
+      if (patrol) q.steps.push(['（可选）击退巡夜' + foeName(patrol) + '，识破「' + patrol.item.keyword + '」', false]);
       html = '<div class="q-head" id="qToggle"><b>' + CN[curRoom + 1] + '室 · ' + (S.done[curRoom] ? '已完成' : TASKS[t].name) + '</b><span>' + (questOpen ? '收起 ▴' : '任务 ▾') + '</span></div>';
       if (questOpen) html += '<ol class="q-steps">' + q.steps.map(([text, done, on]) => '<li class="' + (done ? 'done' : on ? 'on' : '') + '">' + esc(text) + '</li>').join('') + '</ol>' +
         (q.target ? '<div class="q-where">目标在你<b>' + bearing(q.target) + '</b></div>' : '') + (q.tip ? '<div class="q-tip">' + esc(q.tip) + '</div>' : '');
@@ -992,7 +1033,7 @@ export function mount(root, D, hooks = {}) {
   const BOSS_TOTAL = BOSS_STEPS.reduce((n, x) => n + x.w, 0);
   const foeOf = (it, n) => ({ item: it, wrong: it.options[1 + (n % 3)] }); // 怪代表的惑：直播里有人选的一个错误选项
   const pips = (n, max) => '◆'.repeat(Math.max(0, n)) + '◇'.repeat(Math.max(0, max - n));
-  const beastLabel = e => BN() + ' · 惑「' + e.item.keyword + '」 ' + pips(e.hp, e.maxHp || BEAST_HP) + (e.drop ? ' · 携' + TOOLS[e.drop].name : '');
+  const beastLabel = e => (e.patrol ? '巡夜' : '') + foeName(e) + ' · 惑「' + e.item.keyword + '」 ' + pips(e.hp, e.maxHp || BEAST_HP) + (e.drop ? ' · 携' + TOOLS[e.drop].name : '');
   const bossLabel = () => 'Boss · ' + bossName() + (S && S.boss && BOSS_STEPS[S.boss.step] ? ' · ' + BOSS_STEPS[S.boss.step].name : '');
   const bossStaggering = () => !!(S && S.boss && BOSS_STEPS[S.boss.step] && BOSS_STEPS[S.boss.step].key === 'stagger');
   const bossLeft = () => { const B = S.boss; let done = 0; for (let k = 0; k < B.step; k++) done += BOSS_STEPS[k].w; if (B.step < BOSS_STEPS.length && BOSS_STEPS[B.step].key !== 'stagger') done += B.idx; return Math.max(0, 1 - done / BOSS_TOTAL); };
@@ -1006,9 +1047,10 @@ export function mount(root, D, hooks = {}) {
     if (!foes.length && !boss) return;
     S.met[r] = true;
     if (boss) { const tt = cur().world && cur().world.boss && cur().world.boss.taunt; toast(bossName() + '盘踞此室' + (tt ? '：「' + tt + '」' : '') + ' · 面对它按前进迎战'); return; }
-    openModal('<h4>遇 敌 · ' + spaced(BN()) + ' × ' + foes.length + '</h4><h2>' + esc(shortTitle(cur().rooms[r].title)) + '里的惑</h2>' +
+    if (foes.every(f => f.patrol)) { toast('这间有一只巡夜' + foeName(foes[0]) + '：惑「' + foes[0].item.keyword + '」· 空格击退、识破可加分，不挡过关'); return; } // 巡夜怪只提示，不弹遇敌卡打断
+    openModal('<h4>遇 敌 · ' + foes.map(f => foeName(f)).join('、') + ' × ' + foes.length + '</h4><h2>' + esc(shortTitle(cur().rooms[r].title)) + '里的惑</h2>' +
       '<div class="say">每一只' + BN() + '，都是直播里大家最容易弄错的一处。</div>' +
-      foes.map(f => '<div class="foe-card"><b>' + esc(f.item.keyword) + '</b> · 有人以为「' + esc(f.wrong) + '」<div class="tiny">' + esc(f.item.question) + '</div></div>').join('') +
+      foes.map(f => '<div class="foe-card"><b>' + esc(foeName(f)) + ' · ' + esc(f.item.keyword) + '</b> · 有人以为「' + esc(f.wrong) + '」<div class="tiny">' + esc(f.item.question) + '</div></div>').join('') +
       '<div class="tiny" style="margin-top:8px"><kbd>空格</kbd> ' + TH.words.strike + '攻击 · 它<b>红光蓄力</b>时按空格格挡，反击 ×2 · 打散后要<b>识破</b>它的惑：选对正解它才散去，选错会重新聚形。</div>' +
       '<div class="btns"><button class="btn red" type="button" id="ok">迎战</button></div>');
     $('#ok').onclick = closeModal;
@@ -1205,15 +1247,16 @@ export function mount(root, D, hooks = {}) {
   }
 
   function openResult(escaped) {
-    S.ended = true; const tl = Math.max(0, 1 - (performance.now() - S.startedAt) / (REAL_MINUTES * 60000)), bonus = escaped ? Math.round(tl * 150) + S.lamps * 20 : 0; G.points += bonus; if (escaped) { G.cleared[curReplay.id] = true; track('clear'); }
+    S.ended = true; const tl = Math.max(0, 1 - (performance.now() - S.startedAt) / (REAL_MINUTES * 60000)), bonus = escaped ? Math.round(tl * 150) + S.lamps * 20 : 0; G.points += bonus;     if (escaped) { G.cleared[curReplay.id] = true; track('clear'); }
+    dropPending();
     if (hooks.onFinish) hooks.onFinish(escaped ? 'cleared' : 'dawn', runStats());
     const wrong = [...new Map(S.wrong.map(it => [it.id, it])).values()], d = new Date(), day = n => { const x = new Date(d); x.setDate(x.getDate() + n); return (x.getMonth() + 1) + '/' + x.getDate(); };
     openModal('<h4>' + (escaped ? '出 ' + spaced(TH.words.portal) + ' · 破 局' : TOD[todKey].end + ' 了 · 夜 巡 结 束') + '</h4><h2>' + (escaped ? '本场 · 已破' : '天光已现') + '</h2>' +
       '<div class="row"><span>已破密室</span><b>' + Object.keys(S.done).length + ' / ' + PW.N + '</b></div><div class="row"><span>识破的惑</span><b>' + S.broken.length + '</b></div><div class="row"><span>余灯 · 余时奖励</span><b>+' + bonus + '</b></div><div class="row"><span>总积分</span><b style="color:var(--seal)">' + G.points + '</b></div>' +
       (wrong.length ? '<h4 style="margin-top:12px">错 题 卷 · 复 习 ' + day(1) + ' · ' + day(3) + ' · ' + day(7) + '</h4>' + wrong.map(it => '<div class="row"><span>' + esc(it.keyword) + ' · ' + esc(it.question.slice(0, 22)) + '</span><button class="btn" type="button" data-t="' + it.source_time + '">回看 ' + fmt(it.source_time) + '</button></div>').join('') + '<div class="tiny">倒下的位置会回写为回放进度条打点。</div>' : '') +
-      '<div class="btns"><button class="btn red" type="button" id="back">回广场</button><button class="btn" type="button" id="again">再巡一夜</button></div>', true);
+      '<div class="btns"><button class="btn red" type="button" id="back">回广场</button><button class="btn" type="button" id="again">重新闯关</button></div>', true);
     dialog.querySelectorAll('[data-t]').forEach(b => b.onclick = () => openPlayer({ src: curReplay.video, title: cur().title, from: Math.max(0, +b.dataset.t - 10), to: +b.dataset.t + 30, sub: '错题回看' }));
-    $('#back').onclick = () => { closeModal(); exitPalace(); }; $('#again').onclick = () => { closeModal(); enterPalace(); };
+    $('#back').onclick = () => { closeModal(); exitPalace(); }; $('#again').onclick = () => { closeModal(); dropPending(); enterPalace({ fresh: true }); };
   }
 
   function openHall(e) {
@@ -1221,8 +1264,11 @@ export function mount(root, D, hooks = {}) {
     if (r.state !== 'open') { toast('第' + cn(r.no) + unit + '还没生成密室'); return; }
     curReplay = r; const sc = r.game;
     const hot = sc.rooms.filter(rm => rm.fail_rate >= 0.4).map(rm => '<div>◆ ' + fmt(rm.start) + ' ' + esc(rm.title) + ' · ' + Math.round(rm.fail_rate * 100) + '% 答错</div>').join('');
-    openModal('<h4>第 ' + cn(r.no) + ' ' + unit + ' · ' + esc(sc.host) + '</h4><h2>' + esc(b ? b.name + ' · ' + b.plaque : sc.title) + '</h2><div class="say">' + (b ? esc(b.blurb) + '<br>' : '') + '<span class="tiny">' + esc(r.title) + '</span></div><div class="say">' + (r.views ? r.views.toLocaleString() + ' 人看过 · ' : '') + fmt(sc.duration) + ' · ' + sc.rooms.length + ' 间密室' + (G.cleared[r.id] ? ' · <b style="color:var(--seal)">你已破此' + unit + '</b>' : '') + '</div>' + (hot ? '<h4 style="margin-top:12px">全 场 卡 点</h4><div class="tiny" style="color:var(--text-ink)">' + hot + '</div>' : '') + '<div class="btns"><button class="btn" type="button" id="watchFull">看完整回放</button><button class="btn red" type="button" id="enter">' + (G.cleared[r.id] ? '再巡一夜' : '入密室') + '</button></div><div class="seal" style="right:16px;top:14px">回放</div>');
-    $('#watchFull').onclick = () => { openPlayer({ src: r.video, title: sc.title, sub: '完整回放' }); }; $('#enter').onclick = () => { closeModal(); enterPalace(); };
+    const mid = pending(r.id), cleared = G.cleared[r.id];
+    openModal('<h4>第 ' + cn(r.no) + ' ' + unit + ' · ' + esc(sc.host) + '</h4><h2>' + esc(b ? b.name + ' · ' + b.plaque : sc.title) + '</h2><div class="say">' + (b ? esc(b.blurb) + '<br>' : '') + '<span class="tiny">' + esc(r.title) + '</span></div><div class="say">' + (r.views ? r.views.toLocaleString() + ' 人看过 · ' : '') + fmt(sc.duration) + ' · ' + sc.rooms.length + ' 间密室' + (cleared ? ' · <b style="color:var(--seal)">你已破此' + unit + '</b>' : '') + (mid ? ' · 上次夜巡未完' : '') + '</div>' + (hot ? '<h4 style="margin-top:12px">全 场 卡 点</h4><div class="tiny" style="color:var(--text-ink)">' + hot + '</div>' : '') + '<div class="btns"><button class="btn" type="button" id="watchFull">看完整回放</button>' + (mid ? '<button class="btn red" type="button" id="enter">继续夜巡</button><button class="btn" type="button" id="fresh">重新闯关</button>' : '<button class="btn red" type="button" id="enter">' + (cleared ? '重新闯关' : '入密室') + '</button>') + '</div><div class="seal" style="right:16px;top:14px">回放</div>');
+    $('#watchFull').onclick = () => { openPlayer({ src: r.video, title: sc.title, sub: '完整回放' }); };
+    $('#enter').onclick = () => { closeModal(); enterPalace({ fresh: !mid }); };
+    const freshBtn = $('#fresh'); if (freshBtn) freshBtn.onclick = () => { closeModal(); dropPending(); enterPalace({ fresh: true }); };
   }
   function openCrier(e) {
     const n = e.npc, r = HALLS.find(h => h.id === n.replay);
@@ -1298,13 +1344,13 @@ export function mount(root, D, hooks = {}) {
     if (mv.t >= 1 && tn.t >= 1 && modal.hidden && player.hidden && !fading) {
       const p = pl(), [dx, dy] = DIRS[p.dir], e = blocker(p.px + dx, p.py + dy);
       if (e) text = {
-        hall: () => '前方：第' + cn(e.replay.no) + unit + '楼阁 · ' + (e.replay.state !== 'open' ? '未开' : G.cleared[e.replay.id] ? '已破 · 按前进再巡一夜' : '按前进 · 看回放 / 入密室'),
+        hall: () => '前方：第' + cn(e.replay.no) + unit + '楼阁 · ' + (e.replay.state !== 'open' ? '未开' : pending(e.replay.id) ? '夜巡未完 · 按前进继续' : G.cleared[e.replay.id] ? '已破 · 按前进可重新闯关' : '按前进 · 看回放 / 入密室'),
         crier: () => '前方：' + e.npc.name + ' · 按前进搭话',
         shop: () => '前方：' + e.name + ' · 按前进进' + (e.handout ? '书坊' : '店'),
         door: () => !S.done[e.room - 1] ? '前方：门闭 · 先完成本室「' + TASKS[PW.task[e.room - 1]].name + '」' : e.quiz && !e.passed ? '前方：门题 · 按前进作答' + (e.reward ? '（答对得「' + TOOLS[e.reward].name + '」）' : '') : e.requires && !S.tools[e.requires] ? '前方：' + doorLock(e) : '前方：门 · 按前进推开',
         desk: () => '前方：案卷台 · 按前进寻证', chest: () => '前方：卷宗匣 · 按前进打开', wstele: () => '前方：石碑 · 按前进读辨析', order: () => '前方：机关台 · 按前进排序', code: () => '前方：符文碑 · 按前进补全', calc: () => '前方：账台 · 按前进算账', stele: () => '前方：石碑 · 按前进读疑问', astele: () => '前方：残碑 · 按前进拼原话',
         gate: () => '前方：门「' + e.text.slice(0, 14) + '」· 按前进走进去', box: () => '前方：木匣「' + e.name + '」' + (S.carry ? ' · 按前进放入「' + S.carry.text + '」' : ''),
-        beast: () => e.state === 'windup' ? BN() + '蓄力！马上按空格格挡' : e.state === 'broken' ? '前方：' + BN() + '现了原形 · 按前进识破它' : '前方：' + BN() + ' · 按空格' + TH.words.strike + '攻击',
+        beast: () => e.state === 'windup' ? foeName(e) + '蓄力！马上按空格格挡' : e.state === 'broken' ? '前方：' + foeName(e) + '现了原形 · 按前进识破它' : '前方：' + foeName(e) + ' · 按空格' + TH.words.strike + '攻击',
         boss: () => bossStaggering() ? (e.state === 'windup' ? bossName() + '蓄力！马上按空格格挡' : '前方：' + bossName() + ' · 按空格攻击，破它的势') : '前方：' + bossName() + ' · 按前进迎战',
         npc: () => '前方：' + TH.words.npc + ' · 按前进请教', portal: () => S.tools.page ? '前方：' + TH.words.portal + ' · 按前进出去' : '前方：' + TH.words.portal + ' · 需卷宗残页', deco: () => ''
       }[e.type]();
@@ -1383,7 +1429,7 @@ export function mount(root, D, hooks = {}) {
   requestAnimationFrame(tt => { last = tt; frame(tt); });
   return {
     dispose() {
-      running = false; ac.abort(); Music.stop(); clearInterval(bossTimer); stopClip(); reportWatch(); if (video) video.destroy();
+      running = false; ac.abort(); Music.stop(); clearInterval(bossTimer); clearTimeout(saveTimer); if (S && !S.ended) { const snap = snapshot(); if (snap && hooks.onState) hooks.onState(snap); } stopClip(); reportWatch(); if (video) video.destroy();
       scene.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) [].concat(o.material).forEach(mm => { if (mm.map) mm.map.dispose(); mm.dispose(); }); });
       renderer.dispose(); delete window.__pc;
     }
