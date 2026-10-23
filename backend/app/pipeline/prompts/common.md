@@ -42,9 +42,25 @@
 
 在 game.json 里再输出一个 world 对象，决定这场回放长成什么样的关卡。枚举字段只能用下面给出的值，名字、台词、旁白可以自由写，但要贴合本场内容。
 
+theme 是地宫的主题模版，决定贴图、灯光、怪物和叫法。按本场内容和观众挑一个，不确定就用场景默认（课程 song_palace，带货 night_market）：
+
+| theme | 主题 | 适合 |
+|---|---|---|
+| song_palace | 宋风地宫 | 课程默认，人文、通识 |
+| night_market | 夜市 | 带货默认，日用、食品 |
+| tomb | 盗墓 · 古墓 | 历史、考古、悬疑感强的内容 |
+| dungeon | 地牢 | 难点多、要「越狱」突破的硬核课 |
+| escape | 密室逃脱 | 逻辑推理、排查问题、数据分析 |
+| haunted | 鬼屋 | 安全、风险、避坑类内容（不血腥） |
+| festival | 佳节闯关 | 节日营销、年货、轻松活泼的场次 |
+| library | 藏经阁 | 读书、语言、理论课 |
+| mohist | 墨家机关城 | 编程、工程、理工课 |
+| dragon | 东海龙宫 | 海鲜、水产、亲子、奇幻向内容 |
+| dunhuang | 敦煌石窟 | 艺术、文化、文旅、美妆配色 |
+
 ```json
 "world": {
-  "theme": "song_palace | night_market",          // 课程用 song_palace，带货用 night_market
+  "theme": "见下方主题表，按本场内容挑一个",
   "name": "关卡名，4–8 字",
   "intro": "开场旁白，1–2 句",
   "palette": { "wall": "#rrggbb", "accent": "#rrggbb", "fog": 0.05–0.3 },
@@ -53,7 +69,7 @@
     "name": "地名，如「索引长廊」",
     "layout": "hall | corridor | courtyard | stall_row",
     "mood": "lit | dim | misty",
-    "mechanic": "chest_quiz | twin_doors | order_steps | code_fill | calc",
+    "mechanic": "chest_quiz | twin_doors | order_steps | code_fill | calc | lamps | evidence | sort | assemble | beasts",
     "twin_doors":  { "prompt": "", "left": "", "right": "", "answer": "left|right", "explain": "", "source_time": 0 },
     "order_steps": { "prompt": "", "steps": ["按正确顺序 3–6 步"], "source_time": 0 },
     "code_fill":   { "prompt": "", "code": "含 ___ 空位的代码", "options": ["正确填法", "干扰", "干扰", "干扰"], "explain": "", "source_time": 0 },
@@ -70,7 +86,8 @@
 - 有先后顺序的步骤、流程 → order_steps
 - 代码片段里的关键写法 → code_fill
 - 价格、优惠、规则计算 → calc
-- 全场至少一半的房间用 chest_quiz；同一种非 chest_quiz 机制不超过 2 间。
+- 不需要额外配置的引擎玩法（让节奏有变化，穿插使用）：lamps 拾灯（找齐散落的灯）、evidence 寻证（在回放字幕里找到先生原话）、sort 找同类（关键词竹签送进对应段落的木匣）、assemble 拼原话（找残片拼回先生原话）、beasts 破惑（击退代表易错点的怪并识破）。
+- 同一种机制不超过 2 间，相邻殿室尽量不用同一种；Boss 所在殿室固定为 Boss 对决，这里的 mechanic 不生效。
 
 约束：
 - 每个机制配置的 source_time 必须落在所在房间的 [start, end] 内，内容必须出自字幕或商品详情，找不到依据就用 chest_quiz。

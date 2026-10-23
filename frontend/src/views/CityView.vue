@@ -57,8 +57,10 @@ onBeforeUnmount(() => {
     <div id="where">回放广场</div>
     <button type="button" id="leave" class="btn dark" title="回到城防舆图首页">⇠ 出城 · 回首页</button>
     <div class="paper bound" id="dossier"></div>
+    <div class="paper bound" id="quest" hidden></div>
     <canvas id="mm" width="92" height="76" aria-hidden="true"></canvas>
     <div id="ahead" hidden></div>
+    <div id="foe" hidden></div>
     <div id="toast" hidden></div>
     <div class="hint" id="hint"></div>
     <div id="fade"><span id="fadeText"></span></div>
@@ -169,6 +171,37 @@ onBeforeUnmount(() => {
 .nc .shop img { width: 100%; aspect-ratio: 1; object-fit: cover; border: 1px solid rgba(110,82,46,0.5); background: #2a1d14; }
 .nc .price { font-size: 30px; font-weight: 900; color: var(--seal); }
 .nc .say { font-size: 15px; line-height: 1.8; }
+.nc #quest { position: fixed; left: 20px; top: 128px; width: 264px; padding: 10px 14px 10px 30px; z-index: 11; }
+.nc #quest .q-head { display: flex; justify-content: space-between; align-items: baseline; cursor: pointer; user-select: none; font-size: 14px; }
+.nc #quest .q-head b { color: var(--seal); font-family: var(--brush); font-weight: 400; font-size: 18px; letter-spacing: 0.08em; }
+.nc #quest .q-head span { font-size: 12px; color: var(--ochre); }
+.nc #quest .q-steps { margin: 6px 0 4px; padding-left: 18px; font-size: 13px; line-height: 1.7; color: var(--text-ink); }
+.nc #quest .q-steps li.done { color: var(--text-mute); text-decoration: line-through; }
+.nc #quest .q-steps li.on { color: var(--seal); font-weight: 600; }
+.nc #quest .q-where { font-size: 13px; color: var(--text-ink); border-top: 1px dashed rgba(110,82,46,0.4); padding-top: 5px; }
+.nc #quest .q-where b { color: var(--seal); }
+.nc #quest .q-tip { font-size: 12px; color: var(--text-mute); line-height: 1.6; margin-top: 3px; }
+@media (max-width: 720px) { .nc #quest { top: auto; bottom: 230px; width: 220px; } }
+.nc #foe { position: fixed; left: 50%; top: 104px; transform: translateX(-50%); min-width: 260px; max-width: min(520px, 92vw); padding: 6px 14px 8px; background: rgba(13, 15, 19, 0.82); border: 1px solid rgba(163, 49, 42, 0.7); border-radius: 2px; color: #f0dfb6; font-size: 14px; text-align: center; pointer-events: none; z-index: 12; }
+.nc #foe b { color: #ffd2c6; font-family: var(--brush); font-weight: 400; font-size: 18px; letter-spacing: 0.1em; }
+.nc .foe-bar { height: 6px; margin: 5px 0 3px; background: rgba(232, 220, 192, 0.18); }
+.nc .foe-bar i { display: block; height: 100%; background: linear-gradient(90deg, #a3312a, #e3893a); transition: width 0.25s; }
+.nc .foe-bar.boss { height: 9px; }
+.nc .foe-tip { font-size: 12px; color: #c8b890; }
+.nc .foe-warn { font-size: 13px; color: #ffb070; font-weight: 600; animation: nc-blink 0.5s steps(2) infinite; }
+@keyframes nc-blink { 50% { opacity: 0.35; } }
+.nc .foe-card { border-left: 3px solid var(--seal); padding: 6px 10px; margin: 8px 0; background: rgba(163, 49, 42, 0.07); font-size: 14px; line-height: 1.6; }
+.nc .claim { font-size: 17px; font-family: var(--brush); color: #6b2a20; margin: 10px 0 4px; padding: 8px 12px; border: 1px dashed var(--seal); }
+.nc .boss-hp { height: 10px; background: rgba(43, 34, 25, 0.15); margin: 6px 0 4px; }
+.nc .boss-hp i { display: block; height: 100%; background: linear-gradient(90deg, #6b2a20, #a3312a); }
+.nc .boss-steps { display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px; margin-bottom: 4px; }
+.nc .boss-steps span { padding: 1px 8px; border: 1px solid rgba(110, 82, 46, 0.4); border-radius: 10px; color: var(--text-mute); }
+.nc .boss-steps span.on { border-color: var(--seal); color: var(--seal); font-weight: 600; }
+.nc .boss-steps span.done { text-decoration: line-through; opacity: 0.6; }
+.nc .boss-plan { margin: 10px 0; font-size: 14px; line-height: 1.9; }
+.nc .boss-plan b { color: var(--seal); font-family: var(--brush); font-weight: 400; margin-right: 6px; }
+.nc .chip.bad { border-color: var(--seal); background: rgba(163, 49, 42, 0.2); }
+.nc .chip:disabled { opacity: 0.35; }
 @media (max-width: 640px) { .nc .shop { grid-template-columns: 1fr; }
 .nc .slips { grid-template-columns: 1fr; }
 .nc #dossier { width: 210px; } }

@@ -60,7 +60,7 @@ async function doImport() {
 </script>
 
 <template>
-  <h2>按频道号导入</h2>
+  <h2>城防列表</h2>
   <p class="muted">调用直播开放接口拉取频道信息、回放列表与暂存列表，形成回放基础信息页；之后逐讲生成密室，再生成整城。</p>
   <ElForm inline class="form" @submit.prevent="doImport">
     <ElFormItem label="频道号">

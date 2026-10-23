@@ -33,12 +33,8 @@ export interface Faq {
 }
 
 // world：AI 生成的闯关配置（需求文档 8.3），与 schema.py 的 World 一致
-export type Mechanic = 'chest_quiz' | 'twin_doors' | 'order_steps' | 'code_fill' | 'calc'
-
-/** 引擎实现档位；当前档位未实现的机制在前端降级为 chest_quiz */
-export const MECHANIC_LEVEL: Record<Mechanic, 'P0' | 'P1' | 'P2'> = {
-  chest_quiz: 'P0', twin_doors: 'P1', order_steps: 'P1', code_fill: 'P2', calc: 'P2'
-}
+// 殿室机制：前 5 种配同名题面（chest_quiz 直接用本房 items），后 5 种是引擎内置玩法、不需要配置；全部已实现，所有主题通用
+export type Mechanic = 'chest_quiz' | 'twin_doors' | 'order_steps' | 'code_fill' | 'calc' | 'lamps' | 'evidence' | 'sort' | 'assemble' | 'beasts'
 
 export interface WorldRoom {
   room: number
@@ -55,8 +51,10 @@ export interface WorldRoom {
   calc?: { prompt: string; answer: string; explain: string; source_time: number }
 }
 
+export type ThemeKey = 'song_palace' | 'night_market' | 'tomb' | 'dungeon' | 'escape' | 'haunted' | 'festival' | 'library' | 'mohist' | 'dragon' | 'dunhuang'
+
 export interface World {
-  theme: 'song_palace' | 'night_market'
+  theme: ThemeKey // 地宫主题模版，见 game/nightcity/themes.ts
   name: string
   intro: string
   palette: { wall: string; accent: string; fog: number }

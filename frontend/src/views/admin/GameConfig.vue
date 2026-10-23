@@ -4,12 +4,12 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { ElAlert, ElButton, ElInput, ElMessage, ElMessageBox, ElTabPane, ElTabs, ElTag } from 'element-plus'
 import { api } from '@/api'
-import type { Game } from '@/types/game'
+import type { Game, ThemeKey } from '@/types/game'
 import type { Replay } from '@/types/city'
 import RoomsTab from './game/RoomsTab.vue'
 import TextTabs from './game/TextTabs.vue'
 import WorldTab from './game/WorldTab.vue'
-import { clone } from './game/config'
+import { clone, defaultWorld } from './game/config'
 
 const props = defineProps<{ id: string }>()
 const saved = ref<Game>()
@@ -45,6 +45,16 @@ function startEdit() {
   jsonText.value = JSON.stringify(draft.value, null, 2)
   errors.value = []
   editing.value = true
+}
+
+/** 闯关配置页在查看模式下选主题 / 生成默认配置：进入编辑，在草稿上生成或切换主题 */
+function beginWorld(theme?: ThemeKey) {
+  if (replay.value?.running) return ElMessage.warning('正在重新生成，完成后再调整')
+  startEdit()
+  const d = draft.value!
+  if (!d.world) d.world = { ...defaultWorld(d), ...(theme ? { theme } : {}) }
+  else if (theme) d.world.theme = theme
+  ElMessage.info('已进入编辑，确认后点右上角「保存」')
 }
 
 const confirmDiscard = () => ElMessageBox.confirm('改动还没保存，确定放弃？', '放弃改动', { type: 'warning' }).then(() => true, () => false)
@@ -126,7 +136,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnload))
 
     <ElTabs v-model="tab" :before-leave="beforeLeave">
       <ElTabPane label="殿室与题目" name="rooms"><RoomsTab :game="game" :editing="editing" /></ElTabPane>
-      <ElTabPane label="闯关配置" name="world"><WorldTab :game="game" :editing="editing" /></ElTabPane>
+      <ElTabPane label="闯关配置" name="world"><WorldTab :game="game" :editing="editing" @begin="beginWorld" /></ElTabPane>
       <ElTabPane :label="`高频问题（${game.faq.length}）`" name="faq"><TextTabs :game="game" :editing="editing" section="faq" /></ElTabPane>
       <ElTabPane :label="`易混概念（${game.pairs.length}）`" name="pairs"><TextTabs :game="game" :editing="editing" section="pairs" /></ElTabPane>
       <ElTabPane label="讲义" name="handout"><TextTabs :game="game" :editing="editing" section="handout" /></ElTabPane>

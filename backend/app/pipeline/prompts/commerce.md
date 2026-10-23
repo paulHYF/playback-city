@@ -10,4 +10,4 @@
 - 卖点只能来自主播原话和商品库详情。
 - 禁止功效承诺、绝对化用语（最、第一、100% 等）和医疗用语。
 - 原话里出现这类用语时，题目改为事实性描述。
-- world：theme 用 night_market，boss.archetype 用 haggler，npcs 用 shop_clerk。优惠规则与凑单优先 calc，「A 款和 B 款怎么选」优先 twin_doors，冲泡、洗涤等步骤优先 order_steps。
+- world：theme 按主题表挑（默认 night_market，节日场次可选 festival，海鲜水产可选 dragon），boss.archetype 用 haggler，npcs 用 shop_clerk。优惠规则与凑单优先 calc，「A 款和 B 款怎么选」优先 twin_doors，冲泡、洗涤等步骤优先 order_steps。

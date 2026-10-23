@@ -61,7 +61,7 @@ def test_world_is_valid():
 @pytest.mark.parametrize("mutate, error", [
     (lambda w: w["rooms"][1]["twin_doors"].update(source_time=99999), "source_time"),
     (lambda w: w["rooms"][2].pop("order_steps"), "缺少同名配置"),
-    (lambda w: w.update(theme="night_market"), "不匹配"),
+    (lambda w: w.update(theme="castle"), "theme"),
     (lambda w: w["rooms"].append({"room": 1, "name": "重复"}), "越界或重复"),
 ])
 def test_world_rules(mutate, error):
@@ -94,4 +94,18 @@ def test_tool_chain_rules(mutate, error):
     w = chain_world()
     mutate(w)
     with pytest.raises(ValidationError, match=error):
+        Game.model_validate(read_json(SAMPLE) | {"world": w})
+
+
+@pytest.mark.parametrize("mechanic", ["lamps", "evidence", "sort", "assemble", "beasts", "chest_quiz"])
+def test_engine_mechanics_need_no_payload(mechanic):
+    w = sample_world()
+    w["rooms"][0]["mechanic"] = mechanic
+    assert Game.model_validate(read_json(SAMPLE) | {"world": w}).world.rooms[0].mechanic == mechanic
+
+
+def test_engine_mechanic_rejects_stray_payload():
+    w = sample_world()
+    w["rooms"][1]["mechanic"] = "beasts"  # 还留着 twin_doors 配置
+    with pytest.raises(ValidationError, match="多出与机制无关的配置"):
         Game.model_validate(read_json(SAMPLE) | {"world": w})

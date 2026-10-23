@@ -4,13 +4,22 @@ import { computed } from 'vue'
 import {
   ElButton, ElColorPicker, ElEmpty, ElInput, ElInputNumber, ElOption, ElRadioButton, ElRadioGroup, ElSelect, ElSlider, ElTag
 } from 'element-plus'
-import type { Game, Mechanic, WorldRoom } from '@/types/game'
-import { MECHANIC_LEVEL } from '@/types/game'
+import type { Game, Mechanic, ThemeKey, WorldRoom } from '@/types/game'
 import { fmt } from '@/utils'
 import TimeInput from './TimeInput.vue'
-import { BOSS_ARCHETYPE, LAYOUT, MECHANIC, MOOD, NPC_ARCHETYPE, THEME, defaultWorld, defaultWorldRoom, setMechanic } from './config'
+import ThemePicker from './ThemePicker.vue'
+import { BOSS_ARCHETYPE, LAYOUT, MECHANIC, MECHANIC_DESC, MOOD, NPC_ARCHETYPE, THEME, defaultWorld, defaultWorldRoom, setMechanic } from './config'
 
 const props = defineProps<{ game: Game; editing: boolean }>()
+// 查看模式下点主题 / 生成默认配置：交给父页面进入编辑，再在草稿上落这一步
+const emit = defineEmits<{ begin: [theme?: ThemeKey] }>()
+
+const switchTheme = (t?: ThemeKey) => { if (t && t !== w.value?.theme) emit('begin', t) }
+/** 生成默认配置（可带主题）；查看模式下先让父页面进入编辑 */
+function begin(theme?: ThemeKey) {
+  if (!props.editing) return emit('begin', theme)
+  props.game.world = { ...defaultWorld(props.game), ...(theme ? { theme } : {}) }
+}
 const w = computed(() => props.game.world)
 
 const wrOf = (i: number) => w.value?.rooms.find(r => r.room === i)
@@ -24,7 +33,7 @@ function mechanicText(wr: WorldRoom) {
   if (wr.order_steps) return `${p(wr.order_steps.prompt)}${wr.order_steps.steps.join(' → ')}`
   if (wr.code_fill) return `${p(wr.code_fill.prompt)}填「${wr.code_fill.options[0]}」`
   if (wr.calc) return `${p(wr.calc.prompt)}答案 ${wr.calc.answer}`
-  return '开卷宗匣，答本殿题目'
+  return MECHANIC_DESC[wr.mechanic]
 }
 
 /** 道具链说明：哪一殿给、哪一殿要 */
@@ -52,9 +61,11 @@ const addNpc = () => w.value!.npcs.push({ archetype: props.game.skin === 'market
 <template>
   <!-- 还没有 world -->
   <template v-if="!w">
-    <ElEmpty description="AI 没有产出闯关配置（或校验未通过被去掉），游戏按默认关卡运行：每殿开卷宗匣答题，Boss 落在错误率最高的殿室">
-      <ElButton v-if="editing" type="primary" @click="game.world = defaultWorld(game)">按殿室生成一份默认配置，再调整</ElButton>
+    <ElEmpty :image-size="80" description="还没有闯关配置：AI 没有产出（或校验未通过被去掉），游戏按默认关卡运行，地宫用场景默认主题">
+      <ElButton type="primary" @click="begin()">按殿室生成默认配置</ElButton>
     </ElEmpty>
+    <h4>或者先选一个地宫主题 <span class="muted small">点选后自动生成默认配置并进入编辑，保存才生效</span></h4>
+    <ThemePicker @update:model-value="begin" />
   </template>
 
   <!-- 展示 -->
@@ -67,9 +78,11 @@ const addNpc = () => w.value!.npcs.push({ archetype: props.game.skin === 'market
       <div>
         <h3 class="brush">{{ w.name }}</h3>
         <p>{{ w.intro || '（无开场旁白）' }}</p>
-        <p class="muted small">{{ THEME[w.theme] }} · 墙 {{ w.palette.wall }} · 点缀 {{ w.palette.accent }} · 雾 {{ w.palette.fog }} · 一夜 {{ w.clock.real_minutes }} 分钟</p>
+        <p class="muted small">{{ THEME[w.theme] || w.theme }} · 墙色调 {{ w.palette.wall }} · 点缀 {{ w.palette.accent }} · 雾 {{ w.palette.fog }} · 一夜 {{ w.clock.real_minutes }} 分钟</p>
       </div>
     </section>
+    <h4>地宫主题 <span class="muted small">点别的主题可直接切换（进入编辑，保存才生效）</span></h4>
+    <ThemePicker :model-value="w.theme" @update:model-value="switchTheme" />
 
     <h4>殿室关卡</h4>
     <table class="tbl">
@@ -80,7 +93,7 @@ const addNpc = () => w.value!.npcs.push({ archetype: props.game.skin === 'market
           <template v-if="wrOf(i)">
             <td>{{ wrOf(i)!.name }}</td>
             <td>{{ LAYOUT[wrOf(i)!.layout] }} · {{ MOOD[wrOf(i)!.mood] }}</td>
-            <td>{{ MECHANIC[wrOf(i)!.mechanic] }} <ElTag size="small" :type="MECHANIC_LEVEL[wrOf(i)!.mechanic] === 'P0' ? 'success' : 'info'">{{ MECHANIC_LEVEL[wrOf(i)!.mechanic] }}</ElTag></td>
+            <td>{{ i === game.boss_room ? 'Boss 对决' : MECHANIC[wrOf(i)!.mechanic] }}</td>
             <td>{{ itemOf(i, wrOf(i)!.door?.item)?.question || '—' }}</td>
             <td class="small">
               <div v-if="wrOf(i)!.reward">得：{{ toolName(wrOf(i)!.reward) }}</div>
@@ -93,7 +106,7 @@ const addNpc = () => w.value!.npcs.push({ archetype: props.game.skin === 'market
         </tr>
       </tbody>
     </table>
-    <p class="muted small">P1 / P2 机制若引擎当前档位还没实现，会降级为卷宗匣答题。</p>
+    <p class="muted small">以上机制引擎都已实现，所有主题通用；Boss 殿固定为 Boss 对决；没配置的殿室按引擎默认轮换（拾灯 · 寻证 · 双门 · 找同类 · 拼原话 · 破惑）。</p>
 
     <div class="cols">
       <section class="card">
@@ -123,14 +136,18 @@ const addNpc = () => w.value!.npcs.push({ archetype: props.game.skin === 'market
   <!-- 调整 -->
   <div v-else class="edit">
     <section class="card grid">
-      <label>主题</label><span>{{ THEME[w.theme] }} <span class="muted small">（随场景固定）</span></span>
+      <label>地宫主题</label>
+      <div>
+        <ThemePicker v-model="w.theme" />
+        <p class="muted small">决定地宫的贴图、灯光、氛围粒子、怪物涂装和叫法；Boss 名字以下方「Boss · 名字」为准。</p>
+      </div>
       <label>地宫名</label><ElInput v-model="w.name" />
       <label>开场旁白</label><ElInput v-model="w.intro" type="textarea" :autosize="{ minRows: 2 }" />
       <label>配色</label>
       <div class="row">
-        <span class="muted small">墙</span><ElColorPicker v-model="w.palette.wall" />
-        <span class="muted small">点缀</span><ElColorPicker v-model="w.palette.accent" />
-        <span class="muted small">雾</span><ElSlider v-model="w.palette.fog" :min="0.05" :max="0.3" :step="0.01" style="width: 200px" />
+        <span class="muted small">墙色调</span><ElColorPicker v-model="w.palette.wall" />
+        <span class="muted small">点缀（拾取物光晕）</span><ElColorPicker v-model="w.palette.accent" />
+        <span class="muted small">雾浓淡（0.16 为主题原样）</span><ElSlider v-model="w.palette.fog" :min="0.05" :max="0.3" :step="0.01" style="width: 200px" />
       </div>
       <label>一夜时长</label>
       <div class="row"><ElInputNumber v-model="w.clock.real_minutes" :min="5" :max="8" size="small" /><span class="muted small">分钟（十二时辰折合，5–8）</span></div>
@@ -170,8 +187,10 @@ const addNpc = () => w.value!.npcs.push({ archetype: props.game.skin === 'market
         </div>
         <label>机制</label>
         <ElSelect :model-value="wrOf(i)!.mechanic" style="width: 220px" @update:model-value="(m: Mechanic) => changeMechanic(wrOf(i)!, m)">
-          <ElOption v-for="(v, k) in MECHANIC" :key="k" :value="k" :label="`${v}（${MECHANIC_LEVEL[k]}）`" />
+          <ElOption v-for="(v, k) in MECHANIC" :key="k" :value="k" :label="v" />
         </ElSelect>
+        <label />
+        <span class="muted small">{{ i === game.boss_room ? 'Boss 殿固定为 Boss 对决，这里选的机制不生效' : MECHANIC_DESC[wrOf(i)!.mechanic] }}</span>
 
         <template v-if="wrOf(i)!.twin_doors">
           <label>双门题面</label><ElInput v-model="wrOf(i)!.twin_doors!.prompt" />

@@ -73,14 +73,14 @@ class Handout(BaseModel):
 # ───────── world：AI 生成的闯关配置（需求文档 8.3）─────────
 # 只能从引擎支持的枚举里选；名字、台词、旁白可自由发挥。画面由引擎积木组合，不生成代码和图片。
 
-Theme = Literal["song_palace", "night_market"]
+# 地宫主题模版，与 frontend/src/game/nightcity/themes.ts 一一对应；任何场景都可选，按内容挑
+Theme = Literal["song_palace", "night_market", "tomb", "dungeon", "escape", "haunted", "festival", "library", "mohist", "dragon", "dunhuang"]
 Layout = Literal["hall", "corridor", "courtyard", "stall_row"]
 Mood = Literal["lit", "dim", "misty"]
-Mechanic = Literal["chest_quiz", "twin_doors", "order_steps", "code_fill", "calc"]
+# 殿室机制：前 5 种要配同名题面（chest_quiz 直接用本房 items），后 5 种是引擎内置玩法、不需要配置；全部已在引擎实现，所有主题通用
+Mechanic = Literal["chest_quiz", "twin_doors", "order_steps", "code_fill", "calc", "lamps", "evidence", "sort", "assemble", "beasts"]
+PAYLOAD_MECHANICS = ("twin_doors", "order_steps", "code_fill", "calc")
 
-# 引擎实现档位：配置里出现当前档位还没实现的机制时，前端降级为 chest_quiz
-MECHANIC_LEVEL: dict[str, str] = {"chest_quiz": "P0", "twin_doors": "P1", "order_steps": "P1", "code_fill": "P2", "calc": "P2"}
-THEME_SKIN = {"song_palace": "dungeon", "night_market": "market"}
 
 
 class TwinDoors(BaseModel):
@@ -173,7 +173,7 @@ class WorldRoom(BaseModel):
     @model_validator(mode="after")
     def check_payload(self):
         payloads = {"twin_doors": self.twin_doors, "order_steps": self.order_steps, "code_fill": self.code_fill, "calc": self.calc}
-        if self.mechanic != "chest_quiz" and payloads[self.mechanic] is None:
+        if self.mechanic in PAYLOAD_MECHANICS and payloads[self.mechanic] is None:
             raise ValueError(f"world.rooms[{self.room}] 机制 {self.mechanic} 缺少同名配置")
         extra = [k for k, v in payloads.items() if v is not None and k != self.mechanic]
         if extra:
@@ -181,7 +181,7 @@ class WorldRoom(BaseModel):
         return self
 
     def source_times(self) -> list[int]:
-        payload = getattr(self, self.mechanic, None) if self.mechanic != "chest_quiz" else None
+        payload = getattr(self, self.mechanic, None) if self.mechanic in PAYLOAD_MECHANICS else None
         return [payload.source_time] if payload else []
 
 
@@ -249,8 +249,6 @@ class Game(BaseModel):
         return self
 
     def check_world(self, w: World):
-        if THEME_SKIN[w.theme] != self.skin:
-            raise ValueError(f"world.theme {w.theme} 与 skin {self.skin} 不匹配")
         seen = set()
         for wr in w.rooms:
             if not 0 <= wr.room < len(self.rooms) or wr.room in seen:

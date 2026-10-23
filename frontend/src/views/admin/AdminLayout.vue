@@ -17,7 +17,7 @@ onMounted(async () => {
     <aside>
       <RouterLink to="/" class="brand brush">回放不夜城</RouterLink>
       <ElMenu router :default-active="'/admin/channels'">
-        <ElMenuItem index="/admin/channels">频道导入</ElMenuItem>
+        <ElMenuItem index="/admin/channels">城防列表</ElMenuItem>
       </ElMenu>
       <div class="status">
         <template v-if="health">
