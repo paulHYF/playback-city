@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { api } from '@/api'
 // @ts-expect-error 3D 模块是 JS，没有类型声明
 import { createSkyline, heatColor } from '@/game/skyline/skyline.js'
@@ -7,6 +8,9 @@ import type { Dashboard, ReplayDashboard } from '@/types/city'
 import { fmt } from '@/utils'
 
 const props = defineProps<{ cid: string }>()
+const router = useRouter()
+const viewersHref = `/admin/channels/${props.cid}/viewers`
+const openViewer = (id: string) => router.push(`${viewersHref}?vid=${id}`)
 const dash = ref<Dashboard>()
 const details = ref<Record<string, ReplayDashboard>>({})
 const active = ref('')
@@ -104,12 +108,17 @@ onBeforeUnmount(() => {
         <h1 class="brush">{{ dash?.channel.city?.name || dash?.channel.name || '讲师助教大盘' }}</h1>
         <p class="muted">讲师助教大盘 · 频道 {{ cid }}</p>
       </div>
-      <RouterLink :to="`/city/${cid}`" class="btn">进城看看</RouterLink>
+      <div class="acts">
+        <RouterLink :to="viewersHref" class="btn">观众闯关数据</RouterLink>
+        <RouterLink :to="`/city/${cid}`" class="btn">进城看看</RouterLink>
+      </div>
     </header>
     <p v-if="error" class="error">{{ error }}</p>
 
     <section v-if="dash" class="kpis" aria-label="核心指标">
-      <div class="kpi"><b>{{ dash.kpi.viewers }}</b><span>闯关观众</span></div>
+      <button type="button" class="kpi linkish" @click="router.push(viewersHref)">
+        <b>{{ dash.kpi.viewers }}</b><span>闯关观众 · 点看明细</span>
+      </button>
       <div class="kpi"><b>{{ dash.kpi.runs }}</b><span>闯关局数</span></div>
       <div class="kpi"><b>{{ pct(dash.kpi.clearRate) }}</b><span>通关率</span></div>
       <div class="kpi"><b>{{ fmt(dash.kpi.avgDuration) }}</b><span>平均每局用时</span></div>
@@ -190,17 +199,18 @@ onBeforeUnmount(() => {
           </li>
         </ol>
 
-        <h4>观众</h4>
+        <h4>观众 <RouterLink :to="viewersHref" class="link">全部明细</RouterLink></h4>
         <table>
           <thead><tr><th>昵称</th><th>结果</th><th>积分</th><th>答错</th><th>回看</th><th>用时</th></tr></thead>
           <tbody>
-            <tr v-for="v in cur.viewers" :key="v.nickname + v.startedAt">
+            <tr v-for="v in cur.viewers" :key="v.runId" class="click" @click="openViewer(v.id)">
               <td>{{ v.nickname }}</td>
               <td>{{ { cleared: '通关', dawn: '天亮', abandoned: '弃局', playing: '进行中' }[v.result] || v.result }}</td>
               <td class="mono">{{ v.points }}</td><td class="mono">{{ v.wrong }}</td><td class="mono">{{ v.revives }}</td><td class="mono">{{ fmt(v.duration) }}</td>
             </tr>
           </tbody>
         </table>
+        <p v-if="cur.viewers.length" class="muted small">点一行看这位观众在本城的全部闯关明细。</p>
       </aside>
       <aside v-else class="panel muted">这座城还没有生成好的讲次，或还没有观众来闯关。</aside>
     </section>
@@ -211,12 +221,14 @@ onBeforeUnmount(() => {
 <style scoped>
 .dash { max-width: 1440px; margin: 0 auto; padding: 20px 16px 48px; }
 header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.acts { display: flex; gap: 8px; flex-wrap: wrap; }
 h1 { font-size: 40px; margin: 4px 0 0; }
 header p { margin: 4px 0 0; font-size: 13px; }
 .back { font-size: 13px; text-decoration: none; }
 .btn { padding: 7px 14px; border: 1px solid var(--gold); border-radius: 3px; text-decoration: none; color: var(--gold-2); background: transparent; font: inherit; font-size: 14px; cursor: pointer; }
 .kpis { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 20px 0 16px; }
 .kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 14px 16px; display: grid; gap: 4px; }
+.kpi.linkish { font: inherit; color: inherit; text-align: left; cursor: pointer; }
 .kpi b { font-size: 28px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
 .kpi span { font-size: 12px; color: var(--muted); }
 .grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(340px, 1fr); gap: 16px; align-items: start; }
@@ -259,6 +271,8 @@ canvas { width: 100%; height: 560px; display: block; cursor: grab; }
 .chip { display: inline-block; border: 1px solid var(--line); border-radius: 10px; padding: 0 8px; margin: 2px 4px 0 0; color: var(--text); }
 table { width: 100%; border-collapse: collapse; font-size: 12px; }
 th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+tr.click { cursor: pointer; }
+tr.click:hover td { color: var(--gold-2); }
 th { color: var(--muted); font-weight: 500; }
 .tooltip { position: fixed; z-index: 100; pointer-events: none; background: var(--panel-2); border: 1px solid var(--gold); color: var(--text); font-size: 12px; padding: 6px 10px; border-radius: 3px; max-width: 320px; }
 .error { color: var(--cinnabar); }

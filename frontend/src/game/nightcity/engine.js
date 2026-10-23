@@ -31,40 +31,112 @@ export function mount(root, D, hooks = {}) {
 
   // ═════════════ 背景音乐：Web Audio 实时合成（古琴五声 + 低音铺底 + 更鼓） ═════════════
   const Music = (() => {
-    let ctx, master, delay, mood = 'plaza', drumKind = 'temple', on = true, nextNote = 0, nextDrum = 0, timer, drone = [];
-    const SCALES = { plaza: [261.6, 293.7, 329.6, 392, 440, 523.3, 587.3], day: [293.7, 329.6, 392, 440, 523.3, 587.3, 659.3], palace: [220, 261.6, 293.7, 329.6, 392, 440], boss: [196, 220, 261.6, 293.7, 311.1, 392] };
-    const TEMPO = { plaza: 0.95, day: 0.6, palace: 1.5, boss: 0.32 };
+    // 广场用古琴五声；地宫按主题换主奏乐器、低音铺底和环境声（themes.ts 的 music），Boss 战沿用本主题乐器、低八度加快
+    let ctx, master, delay, wet, noise, mood = 'plaza', drumKind = 'temple', voiceKind = 'guqin', ambKind = 'none', drones = [65.4, 98];
+    let on = true, nextNote = 0, nextDrum = 0, nextAmb = 0, timer, drone = [], bed = null;
+    const SCALES = { plaza: [261.6, 293.7, 329.6, 392, 440, 523.3, 587.3], day: [293.7, 329.6, 392, 440, 523.3, 587.3, 659.3], palace: [220, 261.6, 293.7, 329.6, 392, 440] };
+    const TEMPO = { plaza: 0.95, day: 0.6, palace: 1.5 };
+    const inP = () => mood === 'palace' || mood === 'boss';
     function init() {
       if (ctx) return; ctx = new (window.AudioContext || window.webkitAudioContext)();
       master = ctx.createGain(); master.gain.value = on ? 0.2 : 0; master.connect(ctx.destination);
-      delay = ctx.createDelay(); delay.delayTime.value = 0.34; const fb = ctx.createGain(); fb.gain.value = 0.33; const wet = ctx.createGain(); wet.gain.value = 0.35;
+      delay = ctx.createDelay(); delay.delayTime.value = 0.34; const fb = ctx.createGain(); fb.gain.value = 0.33; wet = ctx.createGain(); wet.gain.value = 0.35;
       delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(master);
-      [65.4, 98].forEach((f, i) => { const o = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter(); o.type = i ? 'triangle' : 'sine'; o.frequency.value = f; lp.type = 'lowpass'; lp.frequency.value = 380; g.gain.value = 0; o.connect(lp); lp.connect(g); g.connect(master); o.start(); drone.push({ o, g }); });
-      nextNote = nextDrum = ctx.currentTime + 0.2; timer = setInterval(tick, 90); setMood(mood);
+      noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      [0, 1].forEach(i => { const o = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter(); o.type = i ? 'triangle' : 'sine'; o.frequency.value = drones[i]; lp.type = 'lowpass'; lp.frequency.value = 380; g.gain.value = 0; o.connect(lp); lp.connect(g); g.connect(master); o.start(); drone.push({ o, g }); });
+      nextNote = nextDrum = nextAmb = ctx.currentTime + 0.2; timer = setInterval(tick, 90); setMood(mood);
     }
-    function pluck(f, t, v) {
-      [1, 2].forEach((m, k) => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = k ? 'sine' : 'triangle'; o.frequency.setValueAtTime(f * m * 1.012, t); o.frequency.exponentialRampToValueAtTime(f * m, t + 0.12); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v * (k ? 0.25 : 1), t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8); o.connect(g); g.connect(master); g.connect(delay); o.start(t); o.stop(t + 1.9); });
-    }
+
+    // ───── 乐器：一次一个音，t 为起始时间，v 为音量 ─────
+    const osc = (type, f, t) => { const o = ctx.createOscillator(); o.type = type; o.frequency.setValueAtTime(f, t); return o; };
+    const env = (t, v, a, d) => { const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(v, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d); return g; };
+    const out = (node, send = true) => { node.connect(master); if (send) node.connect(delay); };
+    const play = (o, g, t, len) => { o.connect(g); o.start(t); o.stop(t + len + 0.05); };
+    const vibrato = (o, t, rate, depth, after = 0.25) => { const l = osc('sine', rate, t), lg = ctx.createGain(); lg.gain.setValueAtTime(0, t); lg.gain.linearRampToValueAtTime(depth, t + after); l.connect(lg); lg.connect(o.frequency); l.start(t); l.stop(t + 3); };
+    const VOICES = {
+      guqin: (f, t, v) => [1, 2].forEach((m, k) => { const o = osc(k ? 'sine' : 'triangle', f * m * 1.012, t); o.frequency.exponentialRampToValueAtTime(f * m, t + 0.12); const g = env(t, v * (k ? 0.25 : 1), 0.006, 1.8); out(g); play(o, g, t, 1.9); }),
+      pipa: (f, t, v) => { const o = osc('sawtooth', f, t), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(f * 8, t); lp.frequency.exponentialRampToValueAtTime(f * 1.5, t + 0.35); const g = env(t, v * 0.7, 0.004, 0.9); o.connect(lp); lp.connect(g); out(g); o.start(t); o.stop(t + 1); },
+      bell: (f, t, v) => [[1, 1, 3.2], [2.76, 0.45, 1.8], [5.4, 0.22, 1.1], [8.9, 0.1, 0.6]].forEach(([m, a, d]) => { const o = osc('sine', f * m * 0.5, t), g = env(t, v * a, 0.004, d); out(g); play(o, g, t, d); }),
+      organ: (f, t, v) => { const o = osc('square', f * 0.5, t), lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 700; const g = env(t, v * 0.45, 0.18, 1.6); o.connect(lp); lp.connect(g); out(g); o.start(t); o.stop(t + 1.9); },
+      musicbox: (f, t, v) => [[2, 1], [4, 0.3], [6.02, 0.08]].forEach(([m, a]) => { const o = osc('sine', f * m, t), g = env(t, v * a * 0.8, 0.002, 0.7); out(g); play(o, g, t, 0.75); }),
+      xiao: (f, t, v) => { // 洞箫：慢起、颤音、略走音，再加一丝气声
+        const o = osc('sine', f * 0.993, t), g = env(t, v * 0.9, 0.35, 1.6); vibrato(o, t, 4.5, f * 0.012, 0.4); out(g); play(o, g, t, 2);
+        const n = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), ng = env(t, v * 0.12, 0.3, 1.2); n.buffer = noise; bp.type = 'bandpass'; bp.frequency.value = f * 2; bp.Q.value = 6; n.connect(bp); bp.connect(ng); out(ng, false); n.start(t); n.stop(t + 1.6);
+      },
+      suona: (f, t, v) => { const o = osc('sawtooth', f, t), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f * 3; bp.Q.value = 1.2; vibrato(o, t, 6, f * 0.015, 0.1); const g = env(t, v * 0.8, 0.03, 0.55); o.connect(bp); bp.connect(g); out(g); o.start(t); o.stop(t + 0.7); },
+      marimba: (f, t, v) => [[1, 1, 0.5], [4, 0.3, 0.15]].forEach(([m, a, d]) => { const o = osc('sine', f * m, t), g = env(t, v * a, 0.003, d); out(g); play(o, g, t, d); }),
+      harp: (f, t, v) => [[1, 1], [2, 0.28]].forEach(([m, a]) => { const o = osc(m === 1 ? 'triangle' : 'sine', f * m, t), g = env(t, v * a, 0.004, 2.6); out(g); play(o, g, t, 2.7); }),
+      dizi: (f, t, v) => { const o = osc('triangle', f * 2, t), g = env(t, v * 0.6, 0.08, 0.9); vibrato(o, t, 5.5, f * 0.03, 0.2); out(g); play(o, g, t, 1.1);
+        const n = ctx.createBufferSource(), bp = ctx.createBiquadFilter(), ng = env(t, v * 0.1, 0.05, 0.5); n.buffer = noise; bp.type = 'bandpass'; bp.frequency.value = f * 4; bp.Q.value = 4; n.connect(bp); bp.connect(ng); out(ng, false); n.start(t); n.stop(t + 0.6); }
+    };
     function drum(t, v, f = 110) { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 0.38, t + 0.28); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45); o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.5); }
+    // 一小段噪声：滴水、爆竹、齿轮、翻书都由它塑形
+    function burst(t, v, len, type, f, q = 1, sendWet = false) { const n = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = env(t, v, 0.002, len); n.buffer = noise; fl.type = type; fl.frequency.value = f; fl.Q.value = q; n.connect(fl); fl.connect(g); g.connect(master); if (sendWet) g.connect(delay); n.start(t, Math.random() * 1.5); n.stop(t + len + 0.05); }
+    function chirp(t, v, f0, f1, len) { const o = osc('sine', f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + len); const g = env(t, v, 0.003, len); g.connect(master); g.connect(delay); play(o, g, t, len); }
+
+    // ───── 环境声：持续底噪（风、人声、风沙）+ 零星事件（滴水、爆竹……） ─────
+    function startBed() {
+      stopBed(); if (!ctx || !inP()) return;
+      const spec = { crowd: ['bandpass', 600, 0.9, 0.022], wind: ['bandpass', 420, 1.5, 0.045], sand: ['bandpass', 1600, 0.8, 0.012], dungeon: ['lowpass', 260, 0.7, 0.03] }[ambKind]; // 底噪只做氛围，压在乐器下面
+      if (!spec) return;
+      const n = ctx.createBufferSource(), fl = ctx.createBiquadFilter(), g = ctx.createGain(), lfo = osc('sine', 0.13 + Math.random() * 0.1, ctx.currentTime), lg = ctx.createGain();
+      n.buffer = noise; n.loop = true; fl.type = spec[0]; fl.frequency.value = spec[1]; fl.Q.value = spec[2]; g.gain.value = spec[3];
+      lg.gain.value = spec[1] * 0.4; lfo.connect(lg); lg.connect(fl.frequency); // 风声起伏
+      n.connect(fl); fl.connect(g); g.connect(master); n.start(); lfo.start(); bed = { n, lfo, g };
+    }
+    function stopBed() { if (!bed) return; const b = bed; bed = null; b.g.gain.setTargetAtTime(0, ctx.currentTime, 0.4); setTimeout(() => { try { b.n.stop(); b.lfo.stop(); } catch { /* 已停 */ } }, 1500); }
+    function ambEvent(t) {
+      const r = Math.random();
+      switch (ambKind) {
+        case 'drip': chirp(t, 0.05, 1400 + r * 600, 500, 0.12); return 1.6 + Math.random() * 3;
+        case 'dungeon': if (r < 0.5) chirp(t, 0.04, 1200, 450, 0.1); else for (let k = 0; k < 4; k++) burst(t + k * 0.05 * Math.random(), 0.04, 0.03, 'highpass', 1800); return 0.8 + Math.random() * 2;
+        case 'tick': burst(t, 0.035, 0.02, 'highpass', 4000); return 0.5;
+        case 'firecracker': if (r < 0.5) for (let k = 0; k < 6 + r * 8; k++) burst(t + k * (0.06 + Math.random() * 0.05), 0.07, 0.04, 'highpass', 1200, 0.7, true); return 3 + Math.random() * 5;
+        case 'pages': burst(t, 0.04, 0.25, 'bandpass', 3200, 0.8); return 4 + Math.random() * 6;
+        case 'gears': [0, 0.12, 0.24].forEach(d => burst(t + d, 0.04, 0.02, 'bandpass', 2400, 3)); return 1.2 + Math.random();
+        case 'bubbles': for (let k = 0; k < 2 + r * 4; k++) chirp(t + k * 0.09, 0.035, 280 + Math.random() * 200, 700 + Math.random() * 500, 0.07); return 1 + Math.random() * 2.5;
+        case 'wind': if (r < 0.25) VOICES.bell(880 + r * 200, t, 0.03); return 5 + Math.random() * 5; // 阴风里偶尔一声远铃
+        default: return 3;
+      }
+    }
+
     let walk = 2;
     function tick() {
-      const s = SCALES[mood], tempo = TEMPO[mood];
+      const boss = mood === 'boss', s = boss ? SCALES.palace : SCALES[mood], tempo = boss ? 0.32 : TEMPO[mood], voice = inP() ? VOICES[voiceKind] : VOICES.guqin;
       while (nextNote < ctx.currentTime + 0.3) {
-        if (Math.random() > (mood === 'palace' ? 0.45 : 0.2)) { walk = Math.max(0, Math.min(s.length - 1, walk + Math.floor(Math.random() * 5) - 2)); pluck(s[walk] * (mood === 'boss' ? 0.5 : 1), nextNote, mood === 'boss' ? 0.16 : 0.12); }
-        nextNote += tempo * (mood === 'boss' ? 1 : 0.6 + Math.random() * 0.8);
+        if (Math.random() > (mood === 'palace' ? 0.45 : 0.2)) { walk = Math.max(0, Math.min(s.length - 1, walk + Math.floor(Math.random() * 5) - 2)); voice(s[walk] * (boss ? 0.5 : 1), nextNote, boss ? 0.16 : 0.12); }
+        nextNote += tempo * (boss ? 1 : 0.6 + Math.random() * 0.8);
       }
       while (nextDrum < ctx.currentTime + 0.3) {
-        if (mood === 'boss') { drum(nextDrum, 0.5); nextDrum += 0.64; }
+        if (boss) { drum(nextDrum, 0.5, drumKind === 'heavy' ? 80 : 110); if (drumKind === 'festive') drum(nextDrum + 0.32, 0.3); nextDrum += 0.64; }
         else if (mood === 'palace') { // 地宫鼓点随主题：寺鼓 / 重鼓 / 钟表滴答 / 喜庆锣鼓 / 无
           if (drumKind === 'heavy') { drum(nextDrum, 0.3, 70); nextDrum += 2.2; } else if (drumKind === 'tick') { drum(nextDrum, 0.06, 1400); nextDrum += 0.5; } else if (drumKind === 'festive') { drum(nextDrum, 0.22); drum(nextDrum + 0.18, 0.16); drum(nextDrum + 0.36, 0.2); nextDrum += 1.2; } else if (drumKind === 'none') nextDrum += 2; else { drum(nextDrum, 0.18); drum(nextDrum + 0.22, 0.12); nextDrum += 1.7; }
         }
         else { [0, 0.9, 1.8].forEach(d => drum(nextDrum + d, 0.22)); nextDrum += 14; }
       }
+      while (inP() && nextAmb < ctx.currentTime + 0.3) nextAmb += ambEvent(nextAmb);
+      if (!inP()) nextAmb = ctx.currentTime + 0.5;
     }
-    function setMood(m) { mood = m; if (!ctx) return; const lvl = { plaza: 0.035, day: 0.02, palace: 0.07, boss: 0.09 }[m]; drone.forEach(d => d.g.gain.setTargetAtTime(lvl, ctx.currentTime, 0.8)); nextNote = Math.max(nextNote, ctx.currentTime); }
+    function setMood(m) {
+      const was = inP(); mood = m; if (!ctx) return;
+      const lvl = { plaza: 0.035, day: 0.02, palace: 0.07, boss: 0.09 }[m];
+      drone.forEach((d, i) => { d.g.gain.setTargetAtTime(lvl, ctx.currentTime, 0.8); d.o.frequency.setTargetAtTime(inP() ? drones[i] : [65.4, 98][i], ctx.currentTime, 0.6); });
+      wet.gain.setTargetAtTime(inP() && ['harp', 'bell', 'xiao'].includes(voiceKind) ? 0.5 : 0.35, ctx.currentTime, 0.5);
+      if (inP() !== was || (inP() && !bed)) (inP() ? startBed() : stopBed());
+      nextNote = Math.max(nextNote, ctx.currentTime);
+    }
+    function theme(m) {
+      SCALES.palace = m.scale; TEMPO.palace = m.tempo; drumKind = m.drum; voiceKind = m.voice || 'guqin'; drones = m.drone || [65.4, 98];
+      const changed = ambKind !== (m.amb || 'none'); ambKind = m.amb || 'none';
+      if (ctx && inP() && changed) startBed();
+    }
     function toggle() { on = !on; if (master) master.gain.setTargetAtTime(on ? 0.2 : 0, ctx.currentTime, 0.2); return on; }
-    function stop() { clearInterval(timer); if (ctx) ctx.close(); ctx = null; }
-    return { init, setMood, toggle, stop, theme: m => { SCALES.palace = m.scale; TEMPO.palace = m.tempo; drumKind = m.drum; }, get on() { return on; }, sfx: { hit: () => ctx && drum(ctx.currentTime, 0.7), good: () => ctx && [523.3, 659.3, 784].forEach((f, i) => pluck(f, ctx.currentTime + i * 0.09, 0.14)) } };
+    function stop() { clearInterval(timer); if (ctx) ctx.close(); ctx = null; bed = null; }
+    // 调试：输出音量（RMS）与录音流，供自动化测试确认各主题确实出声、试听
+    let an = null;
+    const level = () => { if (!ctx) return 0; if (!an) { an = ctx.createAnalyser(); an.fftSize = 2048; master.connect(an); } const b = new Float32Array(an.fftSize); an.getFloatTimeDomainData(b); return Math.sqrt(b.reduce((x, y) => x + y * y, 0) / b.length); };
+    const capture = () => { if (!ctx) return null; const d = ctx.createMediaStreamDestination(); master.connect(d); return d.stream; };
+    return { init, setMood, toggle, stop, theme, level, capture, get on() { return on; }, sfx: { hit: () => ctx && drum(ctx.currentTime, 0.7), good: () => ctx && [523.3, 659.3, 784].forEach((f, i) => (inP() ? VOICES[voiceKind] : VOICES.guqin)(f, ctx.currentTime + i * 0.09, 0.14)) } };
   })();
 
   // ═════════════ Three.js 基础 ═════════════
@@ -1425,7 +1497,7 @@ export function mount(root, D, hooks = {}) {
   screenEl.focus({ preventScroll: true });
   // 调试入口（演示跳关与自动化测试）
   function standBefore(id) { const e = CUR.entities.find(x => x.id === id); if (!e) return false; const p = pl(); for (const [tx, ty] of e.tiles || [[e.x, e.y]]) for (let d = 0; d < 4; d++) { const [dx, dy] = DIRS[d], x = tx - dx, y = ty - dy; if (CUR.grid[y] && CUR.grid[y][x] === 1 && !blocker(x, y)) { p.px = x; p.py = y; p.dir = d; syncPlayer(); if (mode === 'palace') { markSeen(x, y, 2); const r = PW.roomOf[y][x]; if (r >= 0) enterRoom(r); } return true; } } return false; }
-  window.__pc = { standBefore, enterPalace, give: k => { S.tools[k] = true; renderDossier(); }, done: i => { S.done[i] = true; }, task: () => PW && PW.task, entities: () => PW && PW.entities.map(e => e.id + ':' + e.type + (e.kind ? '/' + e.kind : '')), interactAhead: () => { const p = pl(), [dx, dy] = DIRS[p.dir], e = blocker(p.px + dx, p.py + dy); if (e) interact(e); return e && e.id; }, strike: playerStrike, walkOnto: id => { const e = PW.entities.find(x => x.id === id); S.px = e.x; S.py = e.y; syncPlayer(); pickup(e.x, e.y); }, setTod: k => { todKey = k; todManual = true; applyTod(); renderDossier(); }, state: () => S, theme: () => TH.name, layout: () => PW && { grid: PW.grid, start: PW.start, entities: PW.entities.map(e => ({ id: e.id, type: e.type, x: e.x, y: e.y, pass: !!e.pass })) }, unmask: id => openUnmask(PW.entities.find(x => x.id === id)) };
+  window.__pc = { standBefore, enterPalace, give: k => { S.tools[k] = true; renderDossier(); }, done: i => { S.done[i] = true; }, task: () => PW && PW.task, entities: () => PW && PW.entities.map(e => e.id + ':' + e.type + (e.kind ? '/' + e.kind : '')), interactAhead: () => { const p = pl(), [dx, dy] = DIRS[p.dir], e = blocker(p.px + dx, p.py + dy); if (e) interact(e); return e && e.id; }, strike: playerStrike, walkOnto: id => { const e = PW.entities.find(x => x.id === id); S.px = e.x; S.py = e.y; syncPlayer(); pickup(e.x, e.y); }, setTod: k => { todKey = k; todManual = true; applyTod(); renderDossier(); }, state: () => S, theme: () => TH.name, music: Music, layout: () => PW && { grid: PW.grid, start: PW.start, entities: PW.entities.map(e => ({ id: e.id, type: e.type, x: e.x, y: e.y, pass: !!e.pass })) }, unmask: id => openUnmask(PW.entities.find(x => x.id === id)) };
   requestAnimationFrame(tt => { last = tt; frame(tt); });
   return {
     dispose() {

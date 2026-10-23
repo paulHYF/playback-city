@@ -11,6 +11,7 @@ cp .env.example .env      # 填 POLYV_APP_ID / POLYV_APP_SECRET / LLM_*
 uv sync
 uv run uvicorn app.main:app --reload --port 8000
 uv run pytest
+uv run python seed/seed_worlds.py   # 可选：给三座测试城写入完整闯关配置（主题、机制、门题与道具链、NPC），会覆盖后台对这几讲的调整
 ```
 
 接口文档：http://localhost:8000/docs
@@ -27,7 +28,8 @@ app/
 ├── seed_runs.py         用答题卡真实作答人模拟闯关局（大盘演示数据）
 ├── storage.py           data/<gid>/raw 原始数据文件；data/channels/<cid>/ 频道级文件
 ├── rawdata.py           直播原始数据定位与读取（导入数据 + 每讲 raw，文件名白名单）
-├── report.py            直播质量分析报告：直播 / 回放分开统计、重点回顾段、培训 / 营销双维度打分、诊断建议、AI 点评
+├── report.py            直播质量分析报告：直播 / 回放分开统计、重点回顾段、培训 / 营销双维度打分、诊断建议、AI 复盘点评（按场景单视角）
+├── report_article.py    质量报告竹简版：大模型写复盘长文，缓存 data/channels/<cid>/report_article.json
 ├── cli.py               命令行：import / generate / city / migrate / seed-runs
 ├── polyv/               签名（含时钟偏差自动校准）、客户端、接口清单、SRT 解析
 ├── llm/client.py        OpenAI 兼容 chat/completions（JSON 输出）
@@ -38,18 +40,18 @@ app/
 │   ├── city.py          城级 city.json：城名、街道、楼名匾额、更夫台词（校验 + 兜底）
 │   ├── jobs.py          后台生成任务（状态写库，前端轮询）
 │   ├── assemble.py      观众端进城数据（城 + 楼阁 + 地宫 + 前人痕迹 + 字幕）
-│   ├── schema.py        game.json 结构与校验规则（需求文档第 8 节）
+│   ├── schema.py        game.json 结构与校验规则（需求文档第 8 节）；world 的主题（11 套）与机制（10 种）枚举
 │   └── prompts/         course.md · commerce.md · common.md
 └── routers/
-    ├── channels.py      /api/channels/import、/api/channels/{cid}、/raw、/raw/import/{name}、/report、/report/ai、/city（GET/PUT 整城配置调整）、/api/city/{cid}
+    ├── channels.py      /api/channels/import、/api/channels/{cid}、/raw、/raw/import/{name}、/report、/report/ai、/report/article（竹简版）、/city（GET/PUT 整城配置调整）、/api/city/{cid}
     ├── replays.py       /api/replays/{rid}、/generate、/game（GET / PUT 后台调整）、/raw/{name}、/raw/refresh（只重拉原始数据）
     ├── viewers.py       /api/viewers、/{vid}/watch（播放区间）、/api/runs、/state（进行中快照）、/events、/finish
-    └── dashboard.py     /api/dashboard/{cid}、/replays/{rid}
+    └── dashboard.py     /api/dashboard/{cid}、/replays/{rid}、/viewers、/viewers/{vid}
 ```
 
 ## 数据库（SQLite）
 
-`channel`（城）· `replay`（一讲 = 楼阁 + 地宫，含 game_json）· `viewer`（浏览器首次进入发的观众 id）· `play_run`（一局，`state` 存进行中的地宫快照）· `play_event`（闯关明细）· `viewer_replay`（每讲最好成绩）· `replay_watch`（回放城播放器里真实播放过的区间，质量报告算重点回顾段）。表结构见 `app/db.py`。
+`channel`（城）· `replay`（一讲 = 楼阁 + 地宫，含 game_json）· `viewer`（浏览器首次进入发的观众 id）· `play_run`（一局，`state` 存进行中的地宫快照）· `play_event`（闯关明细）· `viewer_replay`（每讲最好成绩）· `replay_watch`（回放城播放器里真实播放过的区间，质量报告算重点回顾段）。表结构见 `app/db.py`。当前库文件和 `data/` 下各城原始数据进仓库，clone 后不用重新导入也能跑；`.env` 仍不进仓库。
 
 ## 数据来源
 

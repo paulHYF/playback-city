@@ -22,7 +22,13 @@ export interface Theme {
   props: { floor: string[]; wall: string[]; colors: { wood: number; metal: number; stone: number; cloth: number; accent: number; paper: number } }
   beast: { body: number; accent: number; eye: number; aura: number }
   words: { beast: string; boss: Record<Scene, string>; npc: string; portal: string; enter: string; strike: string }
-  music: { scale: number[]; tempo: number; drum: 'temple' | 'heavy' | 'tick' | 'festive' | 'none' }
+  // 地宫音乐（engine.js 的 Music 实时合成）：音阶 / 速度 / 鼓点 + 主奏乐器 + 低音铺底 + 环境声；Boss 战沿用本主题乐器，低八度加快
+  music: {
+    scale: number[]; tempo: number; drum: 'temple' | 'heavy' | 'tick' | 'festive' | 'none'
+    voice: 'guqin' | 'pipa' | 'bell' | 'organ' | 'musicbox' | 'xiao' | 'suona' | 'marimba' | 'harp' | 'dizi'
+    drone: [number, number] // 低音铺底两个频率
+    amb: 'none' | 'crowd' | 'drip' | 'dungeon' | 'tick' | 'wind' | 'firecracker' | 'pages' | 'gears' | 'bubbles' | 'sand'
+  }
 }
 
 // ───────── 绘制小工具 ─────────
@@ -74,7 +80,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['ding', 'jar', 'table', 'screen', 'bonsai'], wall: ['scroll_hang', 'banner'], colors: { wood: 0x3a2618, metal: 0x5a5236, stone: 0x6a6458, cloth: 0x7a5a3a, accent: 0x8d7445, paper: 0xc8bca0 } },
     beast: { body: 0x23201e, accent: 0x7a2a20, eye: 0xff5a36, aura: 0xa3312a },
     words: { beast: '墨妖', boss: { course: '众惑', commerce: '刁客' }, npc: '书生灯影', portal: '月洞门', enter: '入 密 室', strike: '举灯' },
-    music: { scale: [220, 261.6, 293.7, 329.6, 392, 440], tempo: 1.5, drum: 'temple' }
+    music: { scale: [220, 261.6, 293.7, 329.6, 392, 440], tempo: 1.5, drum: 'temple', voice: 'guqin', drone: [65.4, 98], amb: 'none' }
   },
   night_market: {
     name: '夜市', desc: '木铺板墙、招幌红灯，热闹的市井夜色（带货默认）',
@@ -88,7 +94,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['basket', 'wine', 'crate', 'barrel', 'table'], wall: ['banner', 'shelf_wall'], colors: { wood: 0x5a3a22, metal: 0x4a4038, stone: 0x6a5040, cloth: 0x7a2a20, accent: 0xa8823a, paper: 0xc8b890 } },
     beast: { body: 0x2a2030, accent: 0xb8862a, eye: 0xffd040, aura: 0xd88a2a },
     words: { beast: '砍价鬼', boss: { course: '刁客', commerce: '刁客' }, npc: '店小二', portal: '夜市牌坊', enter: '逛 夜 市', strike: '举灯' },
-    music: { scale: [261.6, 293.7, 329.6, 392, 440, 523.3], tempo: 0.9, drum: 'festive' }
+    music: { scale: [261.6, 293.7, 329.6, 392, 440, 523.3], tempo: 0.9, drum: 'festive', voice: 'pipa', drone: [73.4, 110], amb: 'crowd' }
   },
   tomb: {
     name: '盗墓 · 古墓', desc: '青苔墓砖、长明绿火、符纸残壁，阴森压抑',
@@ -102,7 +108,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['figure', 'jar', 'ding', 'coffin', 'candles'], wall: ['chains', 'scroll_hang'], colors: { wood: 0x2e2a20, metal: 0x3a4a38, stone: 0x5a5a4e, cloth: 0x4a3a2a, accent: 0x6a6a3a, paper: 0xa89a70 } },
     beast: { body: 0x2b3a2e, accent: 0x5a6a2a, eye: 0x7dffb0, aura: 0x2aff8a },
     words: { beast: '墓魇', boss: { course: '镇墓兽', commerce: '墓主' }, npc: '守陵人', portal: '墓道出口', enter: '下 古 墓', strike: '举灯' },
-    music: { scale: [196, 207.7, 261.6, 277.2, 311.1, 392], tempo: 1.9, drum: 'heavy' }
+    music: { scale: [196, 207.7, 261.6, 277.2, 311.1, 392], tempo: 1.9, drum: 'heavy', voice: 'bell', drone: [49, 73.4], amb: 'drip' }
   },
   dungeon: {
     name: '地牢', desc: '粗石牢墙、铁栅火把、潮湿石地，压迫的囚笼感',
@@ -116,7 +122,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['barrel', 'crate', 'hay', 'cage', 'brazier'], wall: ['chains', 'shelf_wall'], colors: { wood: 0x3a2a1a, metal: 0x3a3a3e, stone: 0x5a5650, cloth: 0x4a3a2a, accent: 0x6a4a2a, paper: 0x9a8a6a } },
     beast: { body: 0x2a2a2e, accent: 0x8a3a1a, eye: 0xffb030, aura: 0xc85a1a },
     words: { beast: '狱卒', boss: { course: '典狱长', commerce: '典狱长' }, npc: '老囚', portal: '牢门', enter: '入 地 牢', strike: '挥火把' },
-    music: { scale: [146.8, 174.6, 196, 220, 261.6], tempo: 1.7, drum: 'heavy' }
+    music: { scale: [146.8, 174.6, 196, 220, 261.6], tempo: 1.7, drum: 'heavy', voice: 'organ', drone: [41.2, 61.7], amb: 'dungeon' }
   },
   escape: {
     name: '密室逃脱', desc: '暗纹壁纸、护墙板、台灯线索板，悬疑解谜感',
@@ -130,7 +136,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['safe', 'clock', 'globe', 'trunk', 'table'], wall: ['frame', 'wallclock'], colors: { wood: 0x4a2e1c, metal: 0x3a4048, stone: 0x6a6a6a, cloth: 0x2a4a50, accent: 0x9a7a3a, paper: 0xd8d0b8 } },
     beast: { body: 0x1e2228, accent: 0x2f6f8f, eye: 0x4ad8ff, aura: 0x2a9fd8 },
     words: { beast: '黑衣看守', boss: { course: '幕后主谋', commerce: '幕后主谋' }, npc: '侦探助手', portal: '逃生门', enter: '进 密 室', strike: '手电照' },
-    music: { scale: [220, 233.1, 261.6, 293.7, 329.6, 349.2], tempo: 1.2, drum: 'tick' }
+    music: { scale: [220, 233.1, 261.6, 293.7, 329.6, 349.2], tempo: 1.2, drum: 'tick', voice: 'musicbox', drone: [55, 82.4], amb: 'tick' }
   },
   haunted: {
     name: '鬼屋', desc: '斑驳红墙、破窗纸、昏红灯笼，诡谲惊悚（不血腥）',
@@ -144,7 +150,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['chair', 'candles', 'umbrella', 'trunk', 'jar'], wall: ['mirror', 'banner'], colors: { wood: 0x2e221e, metal: 0x3a3434, stone: 0x5a5250, cloth: 0x6a1e1e, accent: 0x5a2a2a, paper: 0xc8c0b0 } },
     beast: { body: 0xd8d0c0, accent: 0x9a1a1a, eye: 0xff2020, aura: 0x8a1010 },
     words: { beast: '纸人', boss: { course: '红衣厉鬼', commerce: '红衣厉鬼' }, npc: '老更夫', portal: '后门', enter: '入 鬼 屋', strike: '举灯' },
-    music: { scale: [196, 207.7, 233.1, 277.2, 293.7], tempo: 2.1, drum: 'none' }
+    music: { scale: [196, 207.7, 233.1, 277.2, 293.7], tempo: 2.1, drum: 'none', voice: 'xiao', drone: [46.2, 69.3], amb: 'wind' }
   },
   festival: {
     name: '佳节闯关', desc: '红墙金边、满堂彩灯、飘落红纸，喜庆元宵灯会',
@@ -158,7 +164,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['lantern_floor', 'giftbox', 'drum', 'basket', 'wine'], wall: ['firecrackers', 'banner'], colors: { wood: 0x5a2a18, metal: 0x8a6a3a, stone: 0x7a6a5a, cloth: 0xa8281e, accent: 0xc8a040, paper: 0xe8d8b0 } },
     beast: { body: 0x8a1a1a, accent: 0xd8a030, eye: 0xffe070, aura: 0xffb040 },
     words: { beast: '年兽', boss: { course: '年兽王', commerce: '年兽王' }, npc: '灯谜先生', portal: '花灯门', enter: '闹 元 宵', strike: '放爆竹' },
-    music: { scale: [293.7, 329.6, 392, 440, 493.9, 587.3], tempo: 0.55, drum: 'festive' }
+    music: { scale: [293.7, 329.6, 392, 440, 493.9, 587.3], tempo: 0.55, drum: 'festive', voice: 'suona', drone: [73.4, 110], amb: 'firecracker' }
   },
   library: {
     name: '藏经阁', desc: '满墙书架、悬挂卷轴、暖黄烛光，静谧的书院',
@@ -172,7 +178,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['books', 'shelf', 'scrolls', 'table', 'incense'], wall: ['scroll_hang', 'shelf_wall'], colors: { wood: 0x4a2e1a, metal: 0x6a5a3a, stone: 0x6a6052, cloth: 0x4a3a2a, accent: 0x8d7445, paper: 0xd8ccb0 } },
     beast: { body: 0x5a5a60, accent: 0x8a7a5a, eye: 0xffd060, aura: 0xc8a050 },
     words: { beast: '蠹鱼精', boss: { course: '万卷书魔', commerce: '账本精' }, npc: '守阁先生', portal: '阁门', enter: '登 藏 经 阁', strike: '举烛' },
-    music: { scale: [261.6, 293.7, 329.6, 392, 440], tempo: 1.6, drum: 'temple' }
+    music: { scale: [261.6, 293.7, 329.6, 392, 440], tempo: 1.6, drum: 'temple', voice: 'guqin', drone: [65.4, 98], amb: 'pages' }
   },
   mohist: {
     name: '墨家机关城', desc: '铜板铆钉、齿轮管道、蒸汽机括，适合理工与编程课',
@@ -186,7 +192,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['gears', 'pipes', 'puppet', 'crate', 'barrel'], wall: ['gear_wall', 'shelf_wall'], colors: { wood: 0x4a3420, metal: 0x7a5a32, stone: 0x5a5448, cloth: 0x3a3a34, accent: 0x9a7a3a, paper: 0xb8a888 } },
     beast: { body: 0x6a4a2a, accent: 0x3a3a3a, eye: 0x40d0ff, aura: 0x40a0ff },
     words: { beast: '机关偶', boss: { course: '机关巨兽', commerce: '机关巨兽' }, npc: '墨者', portal: '机关闸门', enter: '入 机 关 城', strike: '敲机括' },
-    music: { scale: [220, 246.9, 277.2, 329.6, 370], tempo: 1.0, drum: 'tick' }
+    music: { scale: [220, 246.9, 277.2, 329.6, 370], tempo: 1.0, drum: 'tick', voice: 'marimba', drone: [55, 82.4], amb: 'gears' }
   },
   dragon: {
     name: '东海龙宫', desc: '珊瑚贝壁、水纹光影、夜明珠与气泡，奇幻水下',
@@ -200,7 +206,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['coral', 'seaweed', 'shell', 'chest', 'jar'], wall: ['starfish', 'net'], colors: { wood: 0x4a3a2a, metal: 0x5a7a7a, stone: 0x6a7a7a, cloth: 0x4a6a6a, accent: 0xa8904a, paper: 0xd8d0c8 } },
     beast: { body: 0xb84a2a, accent: 0xe8a060, eye: 0xffff80, aura: 0x3ad8ff },
     words: { beast: '虾兵', boss: { course: '镇海蛟龙', commerce: '蟹将军' }, npc: '龟丞相', portal: '水晶门', enter: '下 龙 宫', strike: '举珠' },
-    music: { scale: [261.6, 311.1, 349.2, 392, 466.2, 523.3], tempo: 1.3, drum: 'none' }
+    music: { scale: [261.6, 311.1, 349.2, 392, 466.2, 523.3], tempo: 1.3, drum: 'none', voice: 'harp', drone: [65.4, 98], amb: 'bubbles' }
   },
   dunhuang: {
     name: '敦煌石窟', desc: '赭石壁画、青绿飞天、藻井风沙，温暖古意',
@@ -214,7 +220,7 @@ export const THEMES: Record<string, Theme> = {
     props: { floor: ['lotus', 'scrolls', 'jar', 'sand', 'figure'], wall: ['scroll_hang', 'banner'], colors: { wood: 0x5a3a22, metal: 0x6a5a3a, stone: 0x9a7a52, cloth: 0x3a6a6a, accent: 0xa8823a, paper: 0xd8c0a0 } },
     beast: { body: 0x8a6a40, accent: 0x3a6a8a, eye: 0xffe0a0, aura: 0xd8a050 },
     words: { beast: '风沙魔', boss: { course: '千面魔', commerce: '沙海商魔' }, npc: '画工', portal: '窟门', enter: '入 石 窟', strike: '举灯' },
-    music: { scale: [220, 246.9, 293.7, 329.6, 370, 440], tempo: 1.4, drum: 'temple' }
+    music: { scale: [220, 246.9, 293.7, 329.6, 370, 440], tempo: 1.4, drum: 'temple', voice: 'dizi', drone: [55, 82.4], amb: 'sand' }
   }
 }
 

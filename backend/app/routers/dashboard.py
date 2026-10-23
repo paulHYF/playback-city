@@ -22,3 +22,20 @@ def replay_dashboard(cid: str, rid: str):
     if not r or r["channel_id"] != cid:
         raise HTTPException(404, "回放不存在")
     return play.replay_dashboard(r)
+
+
+@router.get("/{cid}/viewers")
+def channel_viewers(cid: str):
+    if not repo.get_channel(cid):
+        raise HTTPException(404, f"频道 {cid} 还没有导入")
+    return {"viewers": play.channel_viewers(cid)}
+
+
+@router.get("/{cid}/viewers/{vid}")
+def viewer_play(cid: str, vid: str):
+    if not repo.get_channel(cid):
+        raise HTTPException(404, f"频道 {cid} 还没有导入")
+    data = play.viewer_play(cid, vid)
+    if not data:
+        raise HTTPException(404, "观众不存在")
+    return data

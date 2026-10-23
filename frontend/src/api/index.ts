@@ -1,5 +1,5 @@
 import type { Game, Scene } from '@/types/game'
-import type { AiReview, ReportArticle, ChannelDetail, ChannelSummary, City, CityData, Dashboard, Progress, QualityReport, RawOverview, Replay, ReplayDashboard, Viewer } from '@/types/city'
+import type { AiReview, ReportArticle, ChannelDetail, ChannelSummary, City, CityData, Dashboard, PlayViewerDetail, PlayViewerRow, Progress, QualityReport, RawOverview, Replay, ReplayDashboard, Viewer } from '@/types/city'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...init })
@@ -53,5 +53,7 @@ export const api = {
     post<{ ok: boolean }>(`/api/runs/${runId}/finish`, body),
   // 大盘
   dashboard: (cid: string) => request<Dashboard>(`/api/dashboard/${cid}`),
-  replayDashboard: (cid: string, rid: string) => request<ReplayDashboard>(`/api/dashboard/${cid}/replays/${rid}`)
+  replayDashboard: (cid: string, rid: string) => request<ReplayDashboard>(`/api/dashboard/${cid}/replays/${rid}`),
+  playViewers: (cid: string) => request<{ viewers: PlayViewerRow[] }>(`/api/dashboard/${cid}/viewers`),
+  playViewer: (cid: string, vid: string) => request<PlayViewerDetail>(`/api/dashboard/${cid}/viewers/${vid}`)
 }

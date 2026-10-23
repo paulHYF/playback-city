@@ -416,6 +416,7 @@
     <ul class="ac">
       <li>课程：石砖地牢；带货：夜市集市</li>
       <li>至少切换配色、文案、奖励名称；纹理可后补</li>
+      <li>10.23 已扩展为 11 套主题模版，任何场景都可选，见 F-18</li>
     </ul>
   </div></div>
 
@@ -455,11 +456,11 @@
       <li><b>多人联机</b>：基于聊天室 SDK 同步位置，直播间一键开卧底局</li>
       <li><b>每日副本</b>：按 FSRS 遗忘曲线推送复习</li>
       <li><b>主播练兵</b>：语音复述卖点，AI 评分</li>
-      <li><b>其他</b>：数字人 NPC 讲解视频、嵌入观看页 SDK、glTF 模型素材与音效</li>
+      <li><b>其他</b>：数字人 NPC 讲解视频（<b>等全部功能完成后再开发</b>）、嵌入观看页 SDK、glTF 模型素材与音效</li>
     </ul>
   </div></div>
 
-  <div class="note"><b>6.1 需求变更（2026-10-23）</b>：后台联调时提出 4 条，F-12 修两个交互问题，F-13、F-14 为新增页面；随后又提出观看记录拆分直播与回放（F-15）、巡夜怪按主题换样与闯关进度可接着打（F-16）。均已实现。</div>
+  <div class="note"><b>6.1 需求变更（2026-10-23）</b>：后台联调时提出 4 条，F-12 修两个交互问题，F-13、F-14 为新增页面；随后又提出观看记录拆分直播与回放（F-15）、巡夜怪按主题换样与闯关进度可接着打（F-16），以及游戏配置后台调整（F-17）、地宫主题与摆件（F-18）、破惑对决（F-19）、闯关配置接入引擎（F-20）、本室任务指引（F-21）、城防舆图首页（F-22）、AI 复盘点评 v2 与竹简版（F-23）、后台命名与局域网访问（F-24）、后台查看观众闯关数据（F-25）。均已实现。</div>
 
   <div class="req"><div class="hd"><span class="id">F-12</span><span class="name">后台「已导入的城」列表：场景筛选与操作入口</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
     <p><b>问题 1</b>：导入区的「场景」单选只决定新导入频道属于哪个场景，下方列表不随之过滤，看起来像筛选失效。<b>问题 2</b>：列表整行可点，跳的是后台管理页（生成密室、生成整城都在那里），整城「未生成」的频道也能点进去，容易误以为没生成也能进城。</p>
@@ -490,7 +491,7 @@
       <li>两个维度各给 0–100 分：每个指标在「低线—高线」间线性折算，按权重加权；无数据的指标显示「无数据」、不计分。频道场景对应的维度标为主维度、排在前面</li>
       <li>每个维度给出诊断发现与改进建议，定位到具体讲次、段落与时间区间；措辞按频道场景区分（如带货频道的培训维度写「商品信息理解不到位」，课程频道的营销维度写「可转化为咨询话术」）</li>
       <li>逐讲明细：观看时长分布（&lt;25% / 25–50% / 50–75% / ≥75%）、每分钟弹幕热度（对齐殿室段落，峰值标红）、各段答题错误率、弹幕关注点、高频疑问、答题卡明细（发题时间、所在段、作答人数、正确率）、问卷选项分布</li>
-      <li>「生成 AI 点评」：把报告指标交给大模型写总评、培训要点、营销要点、下一讲优先改进 3 条，存为 <code>data/channels/&lt;cid&gt;/report_ai.json</code>；支持「打印 / 导出 PDF」</li>
+      <li>「生成 AI 点评」：把报告指标交给大模型写复盘点评，存为 <code>data/channels/&lt;cid&gt;/report_ai.json</code>；10.23 改为按场景单视角、写给讲师 / 主播本人的 v2，见 F-23；支持「打印 / 导出 PDF」</li>
       <li>没有任何一讲拉过原始数据时，提示先生成至少一讲</li>
     </ul>
     <div class="tbl"><table>
@@ -531,6 +532,97 @@
       <li>每个主题至少两种外形，按房间轮换。龙宫是虾兵 / 蟹将，鬼屋是黑无常 / 白无常 / 纸人，藏经阁是蠹鱼，墨家是机关偶，佳节是年兽。名字写在头顶标签和遇敌卡上</li>
       <li>观众首次进城领一个 id 存 <code>localStorage</code>；进行中的一局把位置、已破的室、道具、怪血量写入 <code>play_run.state</code>。刷新后 <code>GET /progress</code> 带回 <code>active</code>，进楼可「继续夜巡」</li>
       <li>通关、天光、弃局都清掉进行中快照。结算页和已破楼阁提供「重新闯关」，新开一局，不影响朱旗和最好成绩</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-17</span><span class="name">游戏配置展示与后台调整（单讲 game.json + 整城 city.json）</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>AI 生成的两份配置都能在后台完整查看并人工调整，保存时过与 AI 生成<b>同一套校验</b>，观众端重新进城即生效。</p>
+    <ul class="ac">
+      <li>单讲配置页 <code>/admin/replays/:id</code>：殿室与题目 · 闯关配置 · 高频问题 · 易混概念 · 讲义 · JSON 六个页签；「调整配置」进入草稿编辑，保存或取消，未保存离开有提醒</li>
+      <li>殿室按大纲分段，不增删；题目可增删改（4 个选项、首项为正解），可换 Boss 殿；错误率、观看覆盖由真实数据算出，只读</li>
+      <li>闯关配置页在查看模式就能直接选主题或「按殿室生成默认配置」，点选后进入编辑；表单没覆盖的字段在 JSON 页签改</li>
+      <li>整城配置（城名、旁白、街道、楼名匾额、更夫台词）在回放基础信息页与城防列表的「游戏配置」下拉里弹窗调整；新生成的讲次自动补楼、已不存在的讲次自动去掉</li>
+      <li>校验不过逐条给出「字段路径：中文原因」，不保存；回放身份、场景、皮肤以服务端为准不可改</li>
+      <li>调整过的讲次 / 整城标「已调整」，重新生成会覆盖调整，点之前先确认</li>
+      <li>接口：<code>PUT /api/replays/{rid}/game</code> · <code>GET / PUT /api/channels/{cid}/city</code>；库里 <code>game_edited_at</code> / <code>city_edited_at</code> 记录调整时间</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-18</span><span class="name">地宫主题模版（11 套）与氛围摆件</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>地宫不能只有一套宋风皮。主题只决定外观，不改玩法：同一份闯关配置换主题照样能玩。由 <code>world.theme</code> 选择，没配按场景默认（课程宋风地宫、带货夜市）；AI 生成时按内容推荐，后台可选并预览贴图。</p>
+    <ul class="ac">
+      <li>11 套：宋风地宫 · 夜市 · 盗墓古墓 · 地牢 · 密室逃脱 · 鬼屋（不血腥）· 佳节闯关 · 藏经阁 · 墨家机关城 · 东海龙宫 · 敦煌石窟</li>
+      <li>每套包含：程序绘制的墙 / 地 / 顶 / 墙饰贴图，雾色与光照，灯具（灯笼 / 火把 / 灯泡 / 夜明珠 / 烛台），氛围粒子（柔光点，不做方块像素），怪物外形与配色（见 F-16），叫法（怪、Boss、NPC、出口、进场词、攻击动作），背景音乐（主奏乐器、音阶、鼓点、低音铺底与环境声各不相同，Boss 战跟随主题，均为浏览器实时合成）</li>
+      <li><code>world.palette</code> 在主题上微调：墙色调叠两成、点缀色用于拾取物光晕、雾浓淡以 0.16 为主题原样按比例调</li>
+      <li>氛围摆件：每套 5 种地面摆件 + 2 种墙挂，<b>只做氛围、不参与玩法</b>——只放殿室靠墙边缘格（墙角优先），避开所有玩法物件及其四周一格、门口、中线通道、出生点；不带文字、不上小地图、不发强光；墙挂只挂左右墙面</li>
+      <li>验收：11 套逐一进地宫截图；程序校验每套都没有摆件贴近玩法物件，所有玩法物件从出生点都可达</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-19</span><span class="name">破惑对决与巡夜怪</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>原来的打怪是「贴脸按空格敲三下」，Boss 是三道限时题，太短、也不知道在打什么。改为：<b>每只怪都是这一讲里一个真实的易错点</b>（题目 + 直播里有人选过的错误选项）。</p>
+    <ul class="ac">
+      <li>进「破惑」殿室先弹遇敌卡，列出每只怪代表的惑和打法；屏幕上方对手条显示名字、惑、血量、蓄力提醒</li>
+      <li>怪 4 血：空格攻击，红光蓄力时空格格挡、反击 ×2；打散后「识破」——选对正解它才散，并展示正解、讲解、先生原话与回看入口；选错重新聚形（2 血）扑上来，给关键词和回放时间提示</li>
+      <li>Boss 五步：对峙（台词、弱点、直播答错人数）→ 辨惑（判断它说的三句答案对错）→ 破势（在房内追打，3 击破势）→ 问答（限时 2 题）→ 破势 → 破阵（按顺序拼回先生原话，混一片干扰，错两次被扑）；答错都要看完对应回放才能再战；名字、台词、弱点、胜利积分与掉落读 <code>world.boss</code></li>
+      <li>巡夜怪：每间非 Boss、非破惑殿室各 1 只（3 血），代表本室一道题，在房里游荡会扑人；打散识破加分，<b>不计入过关</b>，进房只给一条提示，不弹遇敌卡</li>
+      <li>结算列出这一夜破了哪些惑，可逐条回看；埋点 <code>answer.extra.kind</code> 为 <code>beast</code>，Boss 带 <code>phase</code></li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-20</span><span class="name">闯关配置全部接入引擎</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>此前引擎只读了 <code>world.clock</code>，殿室机制、门题、道具链、布局、氛围、地名、NPC 台词都没生效，后台「P1 / P2 降级」的提示不实。现在 8.3 节的配置全部按设计生效，与主题无关。</p>
+    <ul class="ac">
+      <li>机制 10 种：配题面的 <code>chest_quiz</code> 卷宗匣 · <code>twin_doors</code> 双门辨析 · <code>order_steps</code> 机关排序（错两次反噬）· <code>code_fill</code> 补全咒文 · <code>calc</code> 算账（数字按值比、可错一次）；不用配置的引擎玩法 <code>lamps</code> 拾灯 · <code>evidence</code> 寻证 · <code>sort</code> 找同类 · <code>assemble</code> 拼原话 · <code>beasts</code> 破惑。Boss 殿固定 Boss 对决；未配置殿室按默认轮换</li>
+      <li>门题与道具链：本殿出口门挂 <code>door</code> 门题，答对才开、得 <code>reward</code> 道具；进门需要 <code>requires</code> 道具；配了 <code>items</code> 即用自定义道具链，内置灯油 / 铜鱼符链停用；Boss 可掉落道具</li>
+      <li>布局：长廊窄长、庭院不封顶、摊铺街摆件更多；氛围：昏暗不挂灯、墨雾低处起雾；殿室地名、地宫名、开场旁白、NPC 指定殿室与台词都生效</li>
+      <li>答错一律灭一盏灯并看完对应回放；埋点 <code>kind</code> 为机制名，门题为 <code>door</code></li>
+      <li>验收：隔离环境配一份覆盖全部机制、门题 + 道具链、4 种布局、3 种氛围的配置，逐间打通；三座测试城已写入完整配置（<code>backend/seed/seed_worlds.py</code> 可重放）</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-21</span><span class="name">本室任务指引</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>进了密室不知道要干什么。左上角加「本室任务」面板，点标题可收起 / 展开（记住选择）。</p>
+    <ul class="ac">
+      <li>分步说明本室要做什么、做到第几步，完成的步骤划掉；实时进度（如「拾灯 1 / 3」「已破 0 / 3」、Boss 五步走到哪）</li>
+      <li>按观众当前朝向给出下一个目标的方位与步数（如「目标在你左边 4 步」）；拿着竹签时指向对应木匣，残片集齐后指向残碑</li>
+      <li>本室完成后指向下一扇门；门有门题或要道具时说明要做什么、道具去哪拿；巡夜怪列为可选步骤</li>
+      <li>卷宗里不再重复写任务</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-22</span><span class="name">城防舆图首页与随时出城</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>首页从频道列表改为观众端的「城防舆图」：一个频道一座城，按建城先后由驿道串起；讲师大盘与后台入口从首页拿掉。</p>
+    <ul class="ac">
+      <li>正立面城郭 + 驿道烽燧 + 山水；按当前观众的闯关进度标「未至 / 在攻 / 已克」，点城看城志、入城</li>
+      <li>城内常驻「出城 · 回首页」按钮；夜巡中出城先确认，按弃局结算；回到舆图选中来源城</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-23</span><span class="name">AI 复盘点评 v2 与竹简报告版</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>质量报告的 AI 点评面向讲师 / 主播本人做复盘，不再培训、营销两个维度都写。</p>
+    <ul class="ac">
+      <li>按频道场景只取主视角：课程看「到课 → 听完 → 听懂 → 掌握 → 巩固」，带货看「进场 → 停留 → 种草 → 意向 → 顾虑消除 → 回放长尾」，找流失最严重的一层作主线</li>
+      <li>输出：一句话结论、总评、值得保持、问题诊断（证据 → 根因 → 影响，多信号交叉印证才下定论，单信号标「信号较弱」）、关键时刻复盘（第几讲 + 时间段 + 下次怎么讲）、按直播阶段的优化方案（优先级 + 验证指标）、开播前自检、留给讲师的复盘问题、数据缺口</li>
+      <li>旧版点评不再展示，提示重新生成；程序算的两个维度打分不变</li>
+      <li>竹简报告版 <code>/admin/channels/:cid/report/scroll</code>：同一份报告数据由大模型写成完整复盘长文（不出图表），竖排竹简自右向左读、可切横排；<code>GET / POST /api/channels/{cid}/report/article</code>，缓存 <code>report_article.json</code></li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-24</span><span class="name">后台命名与局域网访问</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <ul class="ac">
+      <li>后台左侧菜单与页面标题「频道导入」改为「城防列表」</li>
+      <li>前端开发服务监听所有网卡（<code>server.host: true</code>），局域网用本机 IP:5173 访问；<code>/api</code> 由前端代理到本机后端，后端不用对外开放</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-25</span><span class="name">观众自动昵称，后台查看闯关数据，大盘可进详情</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>观众进游戏不登录、不填资料，系统自动给「夜巡人·xxxx」昵称。运营要能在后台按频道查看每位观众打了几局、通没通关、每一局里做了什么；讲师助教大盘上也能点进同一份明细。</p>
+    <ul class="ac">
+      <li>首次进城 <code>POST /api/viewers</code> 发 id 和自动昵称，存 <code>localStorage</code>；首页城防舆图和城里 HUD 展示该昵称</li>
+      <li>后台 <code>/admin/channels/:cid/viewers</code>：本城观众列表（昵称、局数、通关、积分、最近一局），点开看该观众全部局与事件时间线（进室、作答对错、倒下、复活回看、通关）</li>
+      <li>讲师助教大盘「观众闯关数据」、点「闯关观众」KPI、点观众表一行，都进入上述详情（带 <code>?vid=</code> 定位到该人）</li>
+      <li>只读，不改成绩、不删局。模拟局昵称带「（模拟）」后缀</li>
     </ul>
   </div></div>
 </section>
@@ -645,7 +737,7 @@
   <div class="tbl"><table>
     <thead><tr><th>层</th><th>AI 生成（配置）</th><th>引擎内置（积木）</th></tr></thead>
     <tbody>
-      <tr><td>世界观</td><td>关卡名、开场旁白、配色（墙色 / 点缀色 / 雾浓度）</td><td>主题皮肤：<code>song_palace</code> 宋式地宫、<code>night_market</code> 夜市</td></tr>
+      <tr><td>世界观</td><td>关卡名、开场旁白、配色（墙色 / 点缀色 / 雾浓度）</td><td>主题模版 11 套（见 F-18）：<code>song_palace</code> 宋风地宫 · <code>night_market</code> 夜市 · <code>tomb</code> 古墓 · <code>dungeon</code> 地牢 · <code>escape</code> 密室逃脱 · <code>haunted</code> 鬼屋 · <code>festival</code> 佳节 · <code>library</code> 藏经阁 · <code>mohist</code> 墨家机关城 · <code>dragon</code> 东海龙宫 · <code>dunhuang</code> 敦煌石窟</td></tr>
       <tr><td>殿室</td><td>地名、房型、氛围</td><td>房型 <code>hall</code> / <code>corridor</code> / <code>courtyard</code> / <code>stall_row</code>；氛围 <code>lit</code> / <code>dim</code> / <code>misty</code></td></tr>
       <tr><td>玩法</td><td>每间殿室选哪种机制，并给出机制数据</td><td>机制库（见下表）</td></tr>
       <tr><td>角色</td><td>Boss 名字、弱点、挑衅台词；NPC 开场台词</td><td>原型：<code>tomb_beast</code> 镇墓兽、<code>haggler</code> 压价掌柜、<code>scholar_ghost</code> 书生灯影、<code>shop_clerk</code> 跑堂伙计</td></tr>
@@ -653,15 +745,16 @@
   </table></div>
   <p><b>按内容类型选玩法</b>，这是「不仅仅是题目」的关键：</p>
   <div class="tbl"><table>
-    <thead><tr><th>内容特征</th><th>机制</th><th>档位</th><th>课程场例子</th><th>带货场例子</th></tr></thead>
+    <thead><tr><th>内容特征</th><th>机制</th><th>状态</th><th>课程场例子</th><th>带货场例子</th></tr></thead>
     <tbody>
-      <tr><td>概念、定义、事实</td><td><code>chest_quiz</code> 宝函答题（用该房 items）</td><td><span class="pill p0">P0</span></td><td>负索引是什么</td><td>316 和 304 的区别</td></tr>
-      <tr><td>易混的一对</td><td><code>twin_doors</code> 双门辨析：选对的门才能过</td><td><span class="pill p1">P1</span></td><td>append ↔ extend</td><td>羊毛混纺 ↔ 纯羊绒</td></tr>
-      <tr><td>步骤、流程</td><td><code>order_steps</code> 机关排序：按顺序踩亮石板</td><td><span class="pill p1">P1</span></td><td>词频统计四步</td><td>挂耳咖啡冲泡步骤</td></tr>
-      <tr><td>代码里的关键写法</td><td><code>code_fill</code> 补全咒文</td><td><span class="pill p2">P2</span></td><td><code>counts.get(w, ___) + 1</code></td><td>—</td></tr>
-      <tr><td>价格、规则计算</td><td><code>calc</code> 算账关</td><td><span class="pill p2">P2</span></td><td>—</td><td>满 199 减 30 怎么凑最省</td></tr>
-      <tr><td>全场最难的段</td><td>Boss 连战（位置由答题卡错误率决定）</td><td><span class="pill p0">P0</span></td><td>KeyError 镇墓兽</td><td>压价掌柜</td></tr>
-      <tr><td>高频提问</td><td>NPC 对话（对应 faq）</td><td><span class="pill p0">P0</span></td><td>「a[-0] 是什么」</td><td>「车载杯架放得下吗」</td></tr>
+      <tr><td>概念、定义、事实</td><td><code>chest_quiz</code> 卷宗匣答题（用该房 items）</td><td><span class="pill ok">已实现</span></td><td>负索引是什么</td><td>316 和 304 的区别</td></tr>
+      <tr><td>易混的一对</td><td><code>twin_doors</code> 双门辨析：选对的门才能过</td><td><span class="pill ok">已实现</span></td><td>append ↔ extend</td><td>羊毛混纺 ↔ 纯羊绒</td></tr>
+      <tr><td>步骤、流程</td><td><code>order_steps</code> 机关排序：机关台上按顺序点出步骤</td><td><span class="pill ok">已实现</span></td><td>词频统计四步</td><td>挂耳咖啡冲泡步骤</td></tr>
+      <tr><td>代码里的关键写法</td><td><code>code_fill</code> 补全咒文</td><td><span class="pill ok">已实现</span></td><td><code>counts.get(w, ___) + 1</code></td><td>—</td></tr>
+      <tr><td>价格、规则计算</td><td><code>calc</code> 算账关</td><td><span class="pill ok">已实现</span></td><td>—</td><td>满 199 减 30 怎么凑最省</td></tr>
+      <tr><td>需要变换节奏的殿室</td><td>引擎内置玩法，不用配题面：<code>lamps</code> 拾灯 · <code>evidence</code> 寻证 · <code>sort</code> 找同类 · <code>assemble</code> 拼原话 · <code>beasts</code> 破惑</td><td><span class="pill ok">已实现</span></td><td>索引耳室拾灯</td><td>眼罩小摊破惑</td></tr>
+      <tr><td>全场最难的段</td><td>Boss 五步对决（位置由答题卡错误率决定，见 F-19）</td><td><span class="pill ok">已实现</span></td><td>KeyError 镇墓兽</td><td>压价掌柜</td></tr>
+      <tr><td>高频提问</td><td>NPC 对话（对应 faq）</td><td><span class="pill ok">已实现</span></td><td>「a[-0] 是什么」</td><td>「车载杯架放得下吗」</td></tr>
     </tbody>
   </table></div>
 <pre>"world": {
@@ -690,8 +783,8 @@
     <li><b>只用枚举</b>：主题、房型、氛围、机制、角色原型只能从上面的清单里选；写不出引擎不认识的东西。</li>
     <li><b>可溯源</b>：每个机制配置带 <code>source_time</code>，内容出自字幕或商品详情；找不到依据就退回 <code>chest_quiz</code>。</li>
     <li><b>Boss 位置不由模型定</b>：<code>world.boss</code> 只写外观与台词，落在程序按答题卡算出的 <code>boss_room</code>，避免配置与真实数据对不上。</li>
-    <li><b>配比</b>：至少一半殿室用 <code>chest_quiz</code>；同一种非 <code>chest_quiz</code> 机制不超过 2 间，保证节奏。</li>
-    <li><b>按档位降级</b>：配置按全量设计，引擎逐档实现；遇到当前档位还没实现的机制，前端自动降级为 <code>chest_quiz</code>（<code>MECHANIC_LEVEL</code>）。<code>world</code> 缺省时按 <code>skin</code> 走默认关卡。</li>
+    <li><b>配比</b>：同一种机制不超过 2 间，相邻殿室尽量不用同一种；Boss 所在殿室固定为 Boss 对决，这里的 <code>mechanic</code> 不生效。</li>
+    <li><b>全部生效</b>：上面的主题、房型、氛围、机制、门题、道具链、NPC 都已在引擎实现，所有主题通用（10.23 起，见 F-20；原「按档位降级」作废）。没配置的殿室按引擎默认轮换；<code>world</code> 缺省时按场景走默认主题与默认关卡。</li>
   </ul>
 </section>
 
@@ -730,7 +823,8 @@
 │   │   ├── pipeline/         # fetch · analyze · schema（game.json 校验）· prompts/
 │   │   ├── routers/          # /api/channels · /api/replays · /api/viewers · /api/dashboard
 │   │   ├── rawdata.py        # 直播原始数据定位与读取（F-13）
-│   │   ├── report.py         # 直播质量分析报告：指标、双维度打分、诊断、AI 点评（F-14）
+│   │   ├── report.py         # 直播质量分析报告：指标、双维度打分、诊断、AI 复盘点评（F-14 / F-23）
+│   │   ├── report_article.py # 竹简报告版：复盘长文（F-23）
 │   │   └── cli.py            # 命令行离线预生成
 │   ├── data/                 # &lt;scene&gt;-&lt;channelId&gt;-&lt;fileId&gt;/raw + game.json；samples/ 离线样例
 │   │                         # channels/&lt;cid&gt;/import/ 导入原始数据 · report_ai.json AI 点评
@@ -738,7 +832,8 @@
 └── frontend/                 # Vue 3 · Vite · TypeScript
     └── src/
         ├── views/            # 入口页 · 讲义页 · 游戏页 · admin/ 后台
-        ├── game/             # Three.js 引擎：layout · textures · skins · engine
+        ├── game/nightcity/   # Three.js 引擎：engine（广场 + 地宫 + 机制 + 对决）· themes（11 套主题）
+        │                     #   · props（氛围摆件）· beasts（怪物外形）· liveplayer（回放播放器）
         ├── api/ · types/     # 接口封装与 game.json 类型
         └── styles/</pre>
 </section>
@@ -798,10 +893,10 @@
   <div class="tbl"><table>
     <thead><tr><th>档位</th><th>内容</th><th>原则</th></tr></thead>
     <tbody>
-      <tr><td><span class="pill p0">P0 一天必做</span></td><td>F-01 数据接入 · F-02 场景选择 · F-03 提示词分析 · F-04 讲义 / 卖点卡 · F-05 3D 地下城（两套皮肤）· F-06 入口页 · 闯关配置 <code>world</code> 生成（引擎实现宝函答题、Boss、NPC，其余机制降级）· 交付物</td><td>这就是最终提交的 Demo，18:00 冻结</td></tr>
-      <tr><td><span class="pill ok">10.23 变更</span></td><td>F-12 列表场景筛选与操作入口 · F-13 直播原始数据查看页 · F-14 直播质量分析报告 · F-15 观看记录拆分直播 / 回放与重点回顾段 · F-16 巡夜怪换样与闯关进度可接着打</td><td>后台联调中提出，已完成，见 6.1</td></tr>
-      <tr><td><span class="pill p1">P1 余力</span></td><td>按顺序：双门辨析 / 机关排序两种机制 → F-07 卧底单人局 → F-08 真实热力图 → F-09 回写打点 → F-10 真实播放器 → 自动识别场景</td><td>做不完不影响提交</td></tr>
-      <tr><td><span class="pill p2">P2 拓展</span></td><td>F-11 全部 · 补全咒文 / 算账关两种机制</td><td>只放进 PPT 路线图，比赛期间不写代码</td></tr>
+      <tr><td><span class="pill p0">P0 一天必做</span></td><td>F-01 数据接入 · F-02 场景选择 · F-03 提示词分析 · F-04 讲义 / 卖点卡 · F-05 3D 地下城（两套皮肤）· F-06 入口页 · 闯关配置 <code>world</code> 生成 · 交付物</td><td>这就是最终提交的 Demo，18:00 冻结</td></tr>
+      <tr><td><span class="pill ok">10.23 变更</span></td><td>F-12 列表场景筛选与操作入口 · F-13 直播原始数据查看页 · F-14 直播质量分析报告 · F-15 观看记录拆分直播 / 回放与重点回顾段 · F-16 巡夜怪换样与闯关进度可接着打 · F-17 游戏配置后台调整 · F-18 地宫主题与摆件 · F-19 破惑对决与巡夜怪 · F-20 闯关配置接入引擎（双门辨析、机关排序、补全咒文、算账均已实现）· F-21 本室任务指引 · F-22 城防舆图首页 · F-23 AI 复盘点评 v2 与竹简版 · F-24 后台命名与局域网访问 · F-25 后台查看观众闯关数据</td><td>后台联调中提出，已完成，见 6.1</td></tr>
+      <tr><td><span class="pill p1">P1 余力</span></td><td>按顺序：F-07 卧底单人局 → F-08 真实热力图 → F-09 回写打点 → F-10 真实播放器 → 自动识别场景</td><td>做不完不影响提交</td></tr>
+      <tr><td><span class="pill p2">P2 拓展</span></td><td>F-11 全部（其中数字人 NPC 讲解视频等全部功能完成后再开发）</td><td>只放进 PPT 路线图，比赛期间不写代码</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -833,7 +928,7 @@
     <thead><tr><th>交付物</th><th>内容</th><th>验收</th></tr></thead>
     <tbody>
       <tr><td>Demo</td><td>静态站点（入口页、讲义页、3D 游戏）+ 两份 game.json</td><td>本地或任意静态服务器打开即可演示</td></tr>
-      <tr><td>演示视频</td><td>3 分钟，脚本见下表</td><td>覆盖两个场景和切换</td></tr>
+      <tr><td>演示视频</td><td>3 分钟，脚本见下表；<b>等全部功能完成后再制作</b>，届时按最终玩法（城防舆图、主题地宫、破惑对决、闯关配置、复盘报告）重写脚本</td><td>覆盖两个场景和切换</td></tr>
       <tr><td>源码</td><td>按第 9.3 节目录结构；README 含架构图、接口清单、运行步骤、合规说明</td><td>按 README 能从零跑通</td></tr>
       <tr><td>海报</td><td>回放不夜城 9:16（宋风）</td><td>已完成，见 <code>doc/assets/</code></td></tr>
     </tbody>
@@ -910,6 +1005,8 @@
       <tr><td>v1.1</td><td>2026-10-23</td><td>需求变更 6.1：F-12 已导入城列表场景筛选与操作入口；F-13 直播原始数据查看页；F-14 直播质量分析报告（培训 + 营销双维度）。同步更新目录结构、隐私要求与待确认事项 Q7、Q8</td></tr>
       <tr><td>v1.2</td><td>2026-10-23</td><td>需求变更 F-15：观看记录改用 v2 观看日志拆分直播与回放；报告直播看在线曲线与流失点，回放看观众构成、补看与重点回顾段；回放城播放器上报真实播放区间；质量报告指标与权重相应调整</td></tr>
       <tr><td>v1.3</td><td>2026-10-23</td><td>需求变更 F-16：巡夜怪按主题、按房间换外形；进行中闯关进度写入数据库，刷新后用观众 id 接着打；通关后可重新闯关</td></tr>
+      <tr><td>v1.4</td><td>2026-10-23</td><td>补齐已实现需求 F-17～F-24：游戏配置后台调整、11 套地宫主题与氛围摆件、破惑对决与巡夜怪、闯关配置全部接入引擎（8.3 节去掉「按档位降级」，机制状态改为已实现并补引擎内置玩法）、本室任务指引、城防舆图首页、AI 复盘点评 v2 与竹简版、后台命名与局域网访问；范围分档与目录结构同步；讲解视频与演示视频等全部功能完成后再做</td></tr>
+      <tr><td>v1.5</td><td>2026-10-23</td><td>需求变更 F-25：观众进游戏自动发「夜巡人·xxxx」昵称；后台按频道查看观众闯关列表与局内事件明细；讲师助教大盘可点进同一份详情</td></tr>
     </tbody>
   </table></div>
 </section>

@@ -296,7 +296,53 @@ export interface ReplayDashboard {
   funnel: { room: number | null; title: string; reached: number }[]
   topWrong: { id: string; room: number; keyword: string; question: string; answer: string; wrong: number; total: number; sourceTime: number; choices: { text: string; count: number }[] }[]
   reviveHeat: { t: number; seconds: number }[]
-  viewers: { nickname: string; result: string; points: number; roomsDone: number; wrong: number; revives: number; duration: number; startedAt: number }[]
+  viewers: { id: string; runId: string; nickname: string; result: string; points: number; roomsDone: number; wrong: number; revives: number; duration: number; startedAt: number }[]
+}
+
+export interface PlayViewerRow {
+  id: string
+  nickname: string
+  first_seen: number
+  last_seen: number
+  runs: number
+  cleared: number
+  playing: number
+  points: number
+  last_run: number
+}
+
+export interface PlayEvent {
+  type: string
+  room: number | null
+  ref: string
+  correct: number | null
+  choice: string
+  sourceTime: number | null
+  ts: number
+  extra: Record<string, unknown>
+}
+
+export interface PlayRunDetail {
+  id: string
+  replay_id: string
+  replay_title: string
+  sort_no: number
+  started_at: number
+  ended_at: number | null
+  result: string
+  rooms_done: number
+  lamps_left: number
+  points: number
+  correct_cnt: number
+  wrong_cnt: number
+  revive_cnt: number
+  duration_s: number
+  events: PlayEvent[]
+}
+
+export interface PlayViewerDetail {
+  viewer: { id: string; nickname: string; first_seen: number; last_seen: number }
+  runs: PlayRunDetail[]
 }
 
 /** 质量报告竹简版：大模型把报告数据写成的复盘文章 */

@@ -242,7 +242,57 @@ def replay_dashboard(r: dict) -> dict:
         "bossRoom": g.get("boss_room"),
         "funnel": funnel, "topWrong": top_wrong,
         "reviveHeat": [{"t": t, "seconds": s} for t, s in sorted(revive_heat.items())],
-        "viewers": [{"nickname": x["nickname"], "result": x["result"] or "playing", "points": x["points"], "roomsDone": x["rooms_done"],
+        "viewers": [{"id": x["viewer_id"], "runId": x["id"], "nickname": x["nickname"],
+                     "result": x["result"] or "playing", "points": x["points"], "roomsDone": x["rooms_done"],
                      "wrong": x["wrong_cnt"], "revives": x["revive_cnt"], "duration": x["duration_s"], "startedAt": x["started_at"]}
                     for x in runs[:50]],
     }
+
+
+def channel_viewers(cid: str) -> list[dict]:
+    """本城有过闯关局的观众，按最近一局时间倒序。"""
+    with db.connect() as conn:
+        rows = conn.execute(
+            "SELECT v.id, v.nickname, v.first_seen, v.last_seen, COUNT(p.id) AS runs, "
+            "SUM(CASE WHEN p.result = 'cleared' THEN 1 ELSE 0 END) AS cleared, "
+            "SUM(CASE WHEN p.ended_at IS NULL THEN 1 ELSE 0 END) AS playing, "
+            "SUM(p.points) AS points, MAX(p.started_at) AS last_run "
+            "FROM play_run p JOIN viewer v ON v.id = p.viewer_id WHERE p.channel_id = ? "
+            "GROUP BY v.id ORDER BY last_run DESC LIMIT 500", (cid,)).fetchall()
+    return [{**dict(x), "cleared": int(x["cleared"] or 0), "playing": int(x["playing"] or 0),
+             "points": int(x["points"] or 0)} for x in rows]
+
+
+def viewer_play(cid: str, vid: str) -> dict | None:
+    """一名观众在本城的全部闯关局 + 事件明细。"""
+    with db.connect() as conn:
+        v = conn.execute("SELECT id, nickname, first_seen, last_seen FROM viewer WHERE id = ?", (vid,)).fetchone()
+        if not v:
+            return None
+        runs = [dict(x) for x in conn.execute(
+            "SELECT p.id, p.replay_id, p.started_at, p.ended_at, p.result, p.rooms_done, p.lamps_left, "
+            "p.points, p.correct_cnt, p.wrong_cnt, p.revive_cnt, p.duration_s, "
+            "r.title AS replay_title, r.sort_no FROM play_run p JOIN replay r ON r.id = p.replay_id "
+            "WHERE p.channel_id = ? AND p.viewer_id = ? ORDER BY p.started_at DESC LIMIT 100", (cid, vid)).fetchall()]
+        events: list[dict] = []
+        if runs:
+            q = ",".join("?" * len(runs))
+            events = [dict(x) for x in conn.execute(
+                f"SELECT run_id, type, room, ref, correct, choice, source_time, ts, extra FROM play_event "
+                f"WHERE run_id IN ({q}) ORDER BY ts LIMIT 2000", [x["id"] for x in runs]).fetchall()]
+    by_run: dict[str, list] = defaultdict(list)
+    for e in events:
+        extra = e.get("extra")
+        if isinstance(extra, str):
+            try:
+                extra = json.loads(extra)
+            except json.JSONDecodeError:
+                extra = {}
+        by_run[e["run_id"]].append({
+            "type": e["type"], "room": e["room"], "ref": e["ref"], "correct": e["correct"],
+            "choice": e["choice"], "sourceTime": e["source_time"], "ts": e["ts"], "extra": extra or {},
+        })
+    for r in runs:
+        r["result"] = r["result"] or "playing"
+        r["events"] = by_run.get(r["id"], [])
+    return {"viewer": dict(v), "runs": runs}
