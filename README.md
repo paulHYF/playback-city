@@ -12,15 +12,27 @@ POLYV 2026 Hackathon（10.23–10.24）· 队伍「你说就你队」
 
 | 路径 | 内容 |
 |---|---|
+| `backend/` | 服务端（Python · FastAPI）：调用直播开放接口拉取回放数据，按场景提示词调用大模型生成 `game.json`，见 [backend/README.md](backend/README.md) |
+| `frontend/` | 前端（Vue 3 · Vite · TypeScript）：后台、入口页、讲义页、3D 游戏（Three.js），见 [frontend/README.md](frontend/README.md) |
 | `doc/需求文档.html` | 完整需求文档（本地浏览器直接打开）：范围分档、game.json 结构、OpenAPI 清单、排期、构思记录、拓展方向 |
 | `doc/assets/` | 主视觉海报 9:16 |
-| `prototype/v1-dungeon-2d-pixel.html` | 原型 v1：2D 像素地下城 |
-| `prototype/v2-dungeon-3d-stone.html` | 原型 v2：3D 第一人称石砖地宫 |
-| `prototype/v3-night-city-song.html` | 原型 v3：宋风地上回放广场 + 店铺经济 + 地下地宫 |
+| `prototype/` | 单文件原型 v1（2D 像素）· v2（3D 石砖地宫）· v3（宋风地上广场 + 店铺经济 + 地下地宫），浏览器直接打开 |
 
-原型都是单文件 HTML，浏览器直接打开即可（Three.js 与字体走 CDN，需联网）。
+## 本地启动
 
-## v3 怎么玩
+```bash
+# 服务端（默认连测试环境 develop-3-api.polyv.net）
+cd backend && cp .env.example .env && uv sync && uv run uvicorn app.main:app --reload --port 8000
+
+# 前端（需要 Node 20+）
+cd frontend && npm install && npm run dev   # http://localhost:5173 ，/admin 是后台
+```
+
+没配密钥也能跑：`backend/data/samples/` 里有一份离线样例（Python 入门第 3 讲），空库首次启动会自动导入。
+
+流程：后台 `/admin` 输入频道号导入 → 回放基础信息页逐讲「生成」→「生成整城」→ 观众进 `/city/<频道号>` 闯关 → 讲师看 `/dashboard/<频道号>`。开发计划见 [doc/开发计划.md](doc/开发计划.md)。
+
+## 原型 v3 怎么玩
 
 方向键 / WASD 移动转身，Q E 侧移，面对建筑按前进交互。
 

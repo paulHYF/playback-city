@@ -288,6 +288,47 @@
   <h2><span class="no">06</span>功能需求</h2>
   <p class="note">优先级：<span class="pill p0">P0</span> 比赛当天必做；<span class="pill p1">P1</span> 有余力再做；<span class="pill p2">P2</span> 后续拓展，只写进路线图。每条需求下方是验收标准。</p>
 
+  <div class="note"><b>6.0 玩法定稿 v2（2026-10-22 评审）</b>：评审认为 v1「走过去开宝箱答题」偏幼稚。以下 5 条为定稿方向，与 F-05 冲突处以本节为准。</div>
+  <div class="tbl"><table>
+    <thead><tr><th>决定</th><th>落地方式</th><th>数据 / 接口</th><th>档位</th></tr></thead>
+    <tbody>
+      <tr><td><b>① 密室逃脱节奏</b></td><td>
+        <ul>
+          <li>每间殿室是一间<b>密室</b>，门上写着一个疑问（取本房最重要的一道选择题，选择题保留），答对开门、取得<b>道具</b>。</li>
+          <li>道具是后面某一关的<b>开启工具</b>，形成道具链：如「灯油」点亮墨雾房、「铜鱼符」开 Boss 门、「卷宗残页」拼出终局问题。</li>
+          <li><b>打怪</b>：战胜得积分或道具；<b>战败进入问答回血</b>，答对回血，答错给出讲师原话与回放时间点。</li>
+          <li><b>时辰倒计时</b>：一局等于一夜十二时辰（真实 5–8 分钟），在天亮或宵禁前破局；剩余时辰计入结算评级。</li>
+        </ul></td><td>game.json <code>rooms[].items</code>（门题）· <code>world.rooms[].door / requires</code> · <code>world.items</code>（见 8.3）</td><td><span class="pill p0">P0</span></td></tr>
+      <tr><td><b>② 夜巡破案的审美</b></td><td>
+        <ul>
+          <li>整体调成<b>「长安十二时辰」式夜巡破案</b>：提灯、卷宗、更鼓。</li>
+          <li><b>克制配色</b>：墨、赭、旧金、灯火橙，不用高饱和与卡通色。</li>
+          <li><b>界面做成卷宗与账簿</b>：纸张底、朱印、竖排标题、毛笔数字；不用悬浮游戏 HUD，生命、积分、道具都写在随身卷宗里。</li>
+          <li>用词去低龄：宝函改「卷宗匣」，玉璧改「灯」，镇墓兽改「众惑」（课程）、「刁客」（带货）。<b>设计稿需按此重出</b>。</li>
+        </ul></td><td>前端皮肤与 UI 组件；<code>world.palette</code></td><td><span class="pill p0">P0 必须</span></td></tr>
+      <tr><td><b>③ 不夜城随真实时间昼夜变化</b></td><td>
+        <ul>
+          <li>按观众本地时间切换四个时段：<b>日</b>（市井白昼，灯笼未亮）、<b>暮</b>（华灯初上）、<b>夜</b>（全城灯火、更夫巡夜）、<b>拂晓</b>。</li>
+          <li>影响光照、天空、NPC 台词与背景声；更鼓按真实时辰敲响。</li>
+          <li>倒计时终点随时段变化：夜里是「天亮前」，白天是「宵禁前」。</li>
+        </ul></td><td>浏览器本地时间；前端光照预设</td><td><span class="pill p0">P0</span></td></tr>
+      <tr><td><b>④ 回放广场要有真回放</b></td><td>
+        <ul>
+          <li>回放列表的每一讲是一座楼阁，<b>楼阁前的绢幕直接播放这一讲的回放</b>。</li>
+          <li>点开进入卷宗风格的播放器，可拖动；密室里的「回看」也跳到这里对应的秒数。</li>
+        </ul></td><td>查询视频库列表；暂存列表的 <code>m3u8</code> / <code>mp4</code>（hls.js 播放）</td><td><span class="pill p0">P0</span></td></tr>
+      <tr><td><b>⑤ 店铺：商品讲解回放 + 有人张罗</b></td><td>
+        <ul>
+          <li>直播中按商品打讲解点，回放后切成<b>商品讲解片段</b>，用于店铺里的商品介绍。</li>
+          <li>进店有<b>掌柜或伙计迎客</b>，按商品详情与主播原话介绍。</li>
+          <li><b>商品卡可点开</b>：封面图、简介、详情、价格，「看讲解」播放该商品在回放里的那一段。</li>
+        </ul></td><td>
+        <ul>
+          <li>商品库与频道商品；商品讲解 <code>/live/v4/channel/product/product-explain/start</code>（可按场次与相对秒数补打点）、<code>get-explain</code>（返回片段起止秒与视频地址；live-api-aggregate 有实现，官网文档未收录，用前验证）。</li>
+          <li><b>兜底</b>：造数时间轴里每个商品的开讲、结束秒数 + 暂存 mp4。</li>
+        </ul></td><td><span class="pill p0">P0</span></td></tr>
+    </tbody>
+  </table></div>
   <div class="req"><div class="hd"><span class="id">F-01</span><span class="name">回放数据接入</span><span class="pill p0">P0</span></div><div class="bd">
     <p>脚本调用公开 OpenAPI 拉取指定回放的大纲、字幕、聊天记录、提问记录，结果缓存为本地 JSON。课程、带货各准备一场。</p>
     <ul class="ac">
@@ -325,7 +366,7 @@
     </ul>
   </div></div>
 
-  <div class="req"><div class="hd"><span class="id">F-05</span><span class="name">3D 地下城</span><span class="pill p0">P0</span></div><div class="bd">
+  <div class="req"><div class="hd"><span class="id">F-05</span><span class="name">3D 地下城（v1；与 6.0 冲突处以 6.0 为准）</span><span class="pill p0">P0</span></div><div class="bd">
     <p>基于现有 3D 原型，改为读取 <code>game.json</code> 生成地图，并支持两套皮肤。</p>
     <h4>F-05.1 地图生成</h4>
     <ul class="ac">
@@ -475,6 +516,7 @@
 <!-- 8 -->
 <section id="s8">
   <h2><span class="no">08</span>数据结构 game.json</h2>
+  <h3>8.1 结构</h3>
 <pre>{
   "version": 1,
   "scene": "course",                     // course | commerce
@@ -502,8 +544,11 @@
             "samples": [["阿杰", "-1 是倒数第一个吗", "12:41"]] }],
   "pairs": [{ "a": "append", "b": "extend", "diff": "...", "source_time": 1290 }],
   "handout": { "title": "直播讲义", "markdown": "..." },
-  "skin": "dungeon"                      // dungeon | market
+  "skin": "dungeon",                     // dungeon | market
+  "world": { ... }                       // 闯关配置，可选，见 8.3
 }</pre>
+  <h3>8.2 校验规则</h3>
+  <p>校验在服务端 <code>backend/app/pipeline/schema.py</code>（Pydantic）完成，不通过时把错误回喂给模型重试一次；前端类型 <code>frontend/src/types/game.ts</code> 与之保持一致。</p>
   <div class="tbl"><table>
     <thead><tr><th>字段</th><th>校验规则</th></tr></thead>
     <tbody>
@@ -512,8 +557,67 @@
       <tr><td><code>source_time</code></td><td>必须落在所属房间的 <code>[start, end]</code> 内</td></tr>
       <tr><td><code>boss_room</code></td><td>该房间至少有 3 个 items</td></tr>
       <tr><td><code>faq.count</code></td><td>正整数；<code>samples</code> 昵称需脱敏</td></tr>
+      <tr><td><code>rooms[].fail_rate</code> · <code>boss_room</code></td><td>由程序用答题卡真实作答计算（发题时间落在殿室区间内的卡：1 − 答对数 / 作答数），不由模型估；Boss 取错误率最高且题数 ≥ 3 的殿室</td></tr>
+      <tr><td><code>world.theme</code></td><td>与 <code>skin</code> 对应：<code>song_palace</code> ↔ <code>dungeon</code>，<code>night_market</code> ↔ <code>market</code></td></tr>
+      <tr><td><code>world.rooms[]</code></td><td><code>room</code> 不越界、不重复；<code>mechanic</code> 非 <code>chest_quiz</code> 时必须带同名配置，且不能带其他机制的配置；配置里的 <code>source_time</code> 落在该房间 <code>[start, end]</code> 内</td></tr>
+      <tr><td>机制配置</td><td><code>twin_doors</code> 两门不同；<code>order_steps</code> 3–6 步且不重复；<code>code_fill</code> 的 code 含 <code>___</code>，options 正好 4 个互不相同</td></tr>
+      <tr><td><code>world.npcs[]</code></td><td><code>room</code>、<code>faq</code> 下标不越界</td></tr>
     </tbody>
   </table></div>
+
+  <h3>8.3 闯关配置 world：AI 生成每场不同的关卡</h3>
+  <p>题目只是关卡的一部分。<code>world</code> 让 AI 读完大纲和字幕后，决定这场回放长成什么样的关卡：叫什么、每间殿室用什么玩法、Boss 和 NPC 说什么。原则是 <b>AI 只生成配置，不生成画面和代码</b>：引擎事先准备好参数化的「积木」，按配置组合出场景；配置里的枚举只能从引擎支持的清单里选，名字、台词、旁白可以自由写。这样每场不一样，现场演示也不会因为模型输出出错而崩。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>层</th><th>AI 生成（配置）</th><th>引擎内置（积木）</th></tr></thead>
+    <tbody>
+      <tr><td>世界观</td><td>关卡名、开场旁白、配色（墙色 / 点缀色 / 雾浓度）</td><td>主题皮肤：<code>song_palace</code> 宋式地宫、<code>night_market</code> 夜市</td></tr>
+      <tr><td>殿室</td><td>地名、房型、氛围</td><td>房型 <code>hall</code> / <code>corridor</code> / <code>courtyard</code> / <code>stall_row</code>；氛围 <code>lit</code> / <code>dim</code> / <code>misty</code></td></tr>
+      <tr><td>玩法</td><td>每间殿室选哪种机制，并给出机制数据</td><td>机制库（见下表）</td></tr>
+      <tr><td>角色</td><td>Boss 名字、弱点、挑衅台词；NPC 开场台词</td><td>原型：<code>tomb_beast</code> 镇墓兽、<code>haggler</code> 压价掌柜、<code>scholar_ghost</code> 书生灯影、<code>shop_clerk</code> 跑堂伙计</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>按内容类型选玩法</b>，这是「不仅仅是题目」的关键：</p>
+  <div class="tbl"><table>
+    <thead><tr><th>内容特征</th><th>机制</th><th>档位</th><th>课程场例子</th><th>带货场例子</th></tr></thead>
+    <tbody>
+      <tr><td>概念、定义、事实</td><td><code>chest_quiz</code> 宝函答题（用该房 items）</td><td><span class="pill p0">P0</span></td><td>负索引是什么</td><td>316 和 304 的区别</td></tr>
+      <tr><td>易混的一对</td><td><code>twin_doors</code> 双门辨析：选对的门才能过</td><td><span class="pill p1">P1</span></td><td>append ↔ extend</td><td>羊毛混纺 ↔ 纯羊绒</td></tr>
+      <tr><td>步骤、流程</td><td><code>order_steps</code> 机关排序：按顺序踩亮石板</td><td><span class="pill p1">P1</span></td><td>词频统计四步</td><td>挂耳咖啡冲泡步骤</td></tr>
+      <tr><td>代码里的关键写法</td><td><code>code_fill</code> 补全咒文</td><td><span class="pill p2">P2</span></td><td><code>counts.get(w, ___) + 1</code></td><td>—</td></tr>
+      <tr><td>价格、规则计算</td><td><code>calc</code> 算账关</td><td><span class="pill p2">P2</span></td><td>—</td><td>满 199 减 30 怎么凑最省</td></tr>
+      <tr><td>全场最难的段</td><td>Boss 连战（位置由答题卡错误率决定）</td><td><span class="pill p0">P0</span></td><td>KeyError 镇墓兽</td><td>压价掌柜</td></tr>
+      <tr><td>高频提问</td><td>NPC 对话（对应 faq）</td><td><span class="pill p0">P0</span></td><td>「a[-0] 是什么」</td><td>「车载杯架放得下吗」</td></tr>
+    </tbody>
+  </table></div>
+<pre>"world": {
+  "theme": "song_palace",
+  "name": "列表地宫",
+  "intro": "子时三刻，地宫的灯一盏盏亮起……",
+  "palette": { "wall": "#2a3036", "accent": "#c9a45c", "fog": 0.16 },
+  "rooms": [
+    { "room": 1, "name": "索引长廊", "layout": "corridor", "mood": "dim", "mechanic": "chest_quiz",
+      "door": { "item": "q12" }, "reward": "oil" },
+    { "room": 3, "name": "双门殿", "layout": "hall", "mechanic": "twin_doors", "requires": "oil",
+      "twin_doors": { "prompt": "想把 3、4 逐个加进列表", "left": "append", "right": "extend",
+                      "answer": "right", "explain": "extend 拆开逐个加入", "source_time": 1290 } },
+    { "room": 6, "name": "词频庭院", "layout": "courtyard", "mechanic": "order_steps",
+      "order_steps": { "prompt": "统计词频的步骤",
+                       "steps": ["建空字典", "遍历每个词", "get 默认 0 再加 1", "按次数排序"], "source_time": 3720 } }
+  ],
+  "boss": { "archetype": "tomb_beast", "name": "KeyError 镇墓兽", "weakness": "get", "taunt": "取不到的键，就别想过去" },
+  "npcs": [{ "archetype": "scholar_ghost", "room": 1, "faq": 0, "line": "二十七人问过我同一个问题……" }],
+  "items": [{ "id": "oil", "name": "灯油", "desc": "一小壶灯油", "use": "点亮双门殿的墨雾" }],
+  "clock": { "real_minutes": 6 }
+}</pre>
+  <p><b>密室逃脱的道具链</b>（对应 6.0 ①）：每间殿室的 <code>door</code> 指定门题（本房最重要的一道选择题），答对开门得到 <code>reward</code> 道具；<code>requires</code> 表示进入该房需要先持有的道具。道具在 <code>world.items</code> 里定义名称、描述与用途；Boss 战胜得 <code>points</code> 积分，可另给 <code>reward</code> 道具；<code>clock.real_minutes</code> 是一夜十二时辰折合的真实分钟数（5–8）。校验保证链路走得通：门题必须在本房、每件道具只从一处得到、需要的道具必须由更早的殿室给出，避免卡死。</p>
+  <p><b>约束</b></p>
+  <ul>
+    <li><b>只用枚举</b>：主题、房型、氛围、机制、角色原型只能从上面的清单里选；写不出引擎不认识的东西。</li>
+    <li><b>可溯源</b>：每个机制配置带 <code>source_time</code>，内容出自字幕或商品详情；找不到依据就退回 <code>chest_quiz</code>。</li>
+    <li><b>Boss 位置不由模型定</b>：<code>world.boss</code> 只写外观与台词，落在程序按答题卡算出的 <code>boss_room</code>，避免配置与真实数据对不上。</li>
+    <li><b>配比</b>：至少一半殿室用 <code>chest_quiz</code>；同一种非 <code>chest_quiz</code> 机制不超过 2 间，保证节奏。</li>
+    <li><b>按档位降级</b>：配置按全量设计，引擎逐档实现；遇到当前档位还没实现的机制，前端自动降级为 <code>chest_quiz</code>（<code>MECHANIC_LEVEL</code>）。<code>world</code> 缺省时按 <code>skin</code> 走默认关卡。</li>
+  </ul>
 </section>
 
 <!-- 9 -->
@@ -521,64 +625,63 @@
   <h2><span class="no">09</span>技术方案</h2>
   <h3>9.1 架构</h3>
   <div class="flow">
-    <div class="node"><b>fetch-polyv.js</b>OpenAPI 签名、拉取、缓存</div>
+    <div class="node"><b>backend · fetch</b>直播开放接口签名、拉取原始数据</div>
     <div class="arrow">→</div>
-    <div class="node"><b>analyze.js</b>场景提示词 → 大模型 → 校验 → game.json</div>
+    <div class="node"><b>backend · analyze</b>场景提示词 → 大模型 → 校验 → game.json</div>
     <div class="arrow">→</div>
-    <div class="node"><b>静态前端</b>入口页 · 讲义页 · 3D 游戏</div>
+    <div class="node"><b>frontend</b>后台 · 入口页 · 讲义页 · 3D 游戏</div>
   </div>
-  <p><b>演示策略</b>：离线预生成 <code>game.json</code>，前端是纯静态页面。这样现场演示不依赖网络和模型的稳定性；实时生成的过程在演示视频里录一遍。</p>
+  <p>两个项目：<code>backend/</code>（Python）负责取数和生成，<code>frontend/</code>（Vue）同时承载后台和游戏页面。接口默认调用测试环境 <code>develop-3-api.polyv.net</code>，只用直播开放接口。</p>
+  <p><b>演示策略</b>：离线预生成 <code>game.json</code>（命令行 <code>playback-city fetch / analyze</code>），现场演示只读本地数据，不依赖网络和模型的稳定性；实时生成的过程在演示视频里录一遍。</p>
   <h3>9.2 技术栈</h3>
   <div class="tbl"><table>
     <thead><tr><th>层</th><th>选型</th><th>说明</th></tr></thead>
     <tbody>
-      <tr><td>数据脚本</td><td>Node.js</td><td>调用 OpenAPI（签名）、调用大模型、JSON Schema 校验（ajv）</td></tr>
-      <tr><td>3D 渲染</td><td>Three.js</td><td>原型已验证：InstancedMesh 批量绘制墙地、Canvas 程序化纹理、固定数量光源</td></tr>
-      <tr><td>页面</td><td>原生 HTML / CSS / JS</td><td>不引入框架，单文件即可打开</td></tr>
+      <tr><td>服务端</td><td>Python 3.11+ · FastAPI · httpx · Pydantic · uv</td><td>直播开放接口 MD5 签名、拉取原始数据、调用大模型、用 Pydantic 校验 game.json</td></tr>
+      <tr><td>后台</td><td>Vue 3 · Vite · TypeScript · Element Plus</td><td>浏览频道暂存、触发 AI 大纲、拉取数据、生成与预览 game.json</td></tr>
+      <tr><td>游戏</td><td>Three.js（TypeScript 模块，不依赖 Vue）</td><td>原型已验证：InstancedMesh 批量绘制墙地、Canvas 程序化纹理、固定数量光源；Vue 页面只负责 HUD 与弹窗</td></tr>
       <tr><td>复习排期</td><td>ts-fsrs（P2）</td><td>Demo 先用固定的 1 / 3 / 7 天</td></tr>
-      <tr><td>大模型</td><td>任一公开 API</td><td>要求支持 JSON 输出；长字幕分段调用</td></tr>
+      <tr><td>大模型</td><td>任一 OpenAI 兼容接口</td><td>要求支持 JSON 输出；长字幕分段调用；换厂商只改 .env</td></tr>
     </tbody>
   </table></div>
   <h3>9.3 目录结构</h3>
 <pre>playback-city/
-├── doc/                  # 需求文档（本文件）、设计与海报素材
-├── prompts/
-│   ├── course.md         # 课程培训提示词
-│   └── commerce.md       # 直播带货提示词
-├── schema/
-│   └── game.schema.json  # game.json 校验规则
-├── scripts/
-│   ├── fetch-polyv.js    # 拉取回放数据
-│   └── analyze.js        # 生成 game.json
-├── data/
-│   ├── course-&lt;id&gt;/      # raw/ 原始数据 + game.json
-│   └── commerce-&lt;id&gt;/
-├── web/
-│   ├── index.html        # 入口页
-│   ├── handout.html      # 讲义 / 卖点卡
-│   ├── game.html         # 3D 地下城
-│   └── skins/            # dungeon.js · market.js
-├── .env.example          # POLYV_APP_ID / POLYV_APP_SECRET / POLYV_USER_ID / LLM_API_KEY
-└── README.md</pre>
+├── doc/                      # 需求文档（本文件）、海报
+├── prototype/                # v1–v3 单文件原型
+├── backend/                  # Python · FastAPI
+│   ├── app/
+│   │   ├── polyv/            # 签名、客户端、接口清单、SRT 解析
+│   │   ├── llm/              # OpenAI 兼容客户端
+│   │   ├── pipeline/         # fetch · analyze · schema（game.json 校验）· prompts/
+│   │   ├── routers/          # /api/channels · /api/games
+│   │   └── cli.py            # 命令行离线预生成
+│   ├── data/                 # &lt;scene&gt;-&lt;channelId&gt;-&lt;fileId&gt;/raw + game.json；samples/ 离线样例
+│   └── .env.example          # POLYV_API_BASE / POLYV_APP_ID / POLYV_APP_SECRET / LLM_*
+└── frontend/                 # Vue 3 · Vite · TypeScript
+    └── src/
+        ├── views/            # 入口页 · 讲义页 · 游戏页 · admin/ 后台
+        ├── game/             # Three.js 引擎：layout · textures · skins · engine
+        ├── api/ · types/     # 接口封装与 game.json 类型
+        └── styles/</pre>
 </section>
 
 <!-- 10 -->
 <section id="s10">
   <h2><span class="no">10</span>OpenAPI 清单</h2>
-  <p class="note">路径取自保利威帮助中心文档仓库 <code>document-center</code>，比赛当天开工第一件事就是逐个验证。</p>
+  <p class="note">只用直播开放接口，路径与参数取自帮助中心文档仓库 <code>document-center</code>；开发阶段调用测试环境 <code>develop-3-api.polyv.net</code>（2026-10-22 已用测试账号验证签名）。</p>
   <div class="tbl"><table>
     <thead><tr><th>用途</th><th>接口（帮助中心文档路径）</th><th>优先级</th><th>状态</th></tr></thead>
     <tbody>
-      <tr><td>查询暂存视频大纲</td><td><code>live/api/v4/channel/recordfile/get_record_file_outline</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
-      <tr><td>创建暂存视频大纲</td><td><code>live/api/v4/channel/recordfile/create_record_file_outline</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
-      <tr><td>查询智能字幕</td><td><code>vod/api/video_management/smart_subtitle/query_smart_subtitle</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
-      <tr><td>查询字幕列表</td><td><code>vod/api/video_management/subtitle/get_subtitle</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
-      <tr><td>查询频道聊天记录</td><td><code>live/api/chat/message/get_message_list</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
-      <tr><td>查询频道提问记录</td><td><code>live/api/live_interaction/get_question_list</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>分页查询频道暂存列表（含字幕地址）</td><td><code>live/api/v4/channel/recordfile/page_record</code></td><td><span class="pill p0">P0</span></td><td><b>测试环境已调通</b></td></tr>
+      <tr><td>获取暂存视频大纲（AI 大纲 + 答题）</td><td><code>live/api/v4/channel/recordfile/get_record_file_outline</code></td><td><span class="pill p0">P0</span></td><td><b>测试环境已调通</b></td></tr>
+      <tr><td>创建暂存视频大纲（可同时开知识测验、回放自动打点）</td><td><code>live/api/v4/channel/recordfile/create_record_file_outline</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
+      <tr><td>字幕内容</td><td>暂存列表 <code>contents[].subtitleList[].srtUrl</code> 下载 SRT（文档未列出该字段，接口实际返回）</td><td><span class="pill p0">P0</span></td><td><b>测试环境已调通</b></td></tr>
+      <tr><td>查询频道聊天记录</td><td><code>live/api/chat/message/get_message_list</code></td><td><span class="pill p0">P0</span></td><td><b>测试环境已调通</b></td></tr>
+      <tr><td>查询频道提问记录</td><td><code>live/api/live_interaction/get_question_list</code></td><td><span class="pill p0">P0</span></td><td><b>测试环境已调通</b></td></tr>
       <tr><td>查询视频库列表（回放列表）</td><td><code>live/api/channel/playback/get_playback_list</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
-      <tr><td>查询观看记录</td><td><code>live/api/v4/user/viewlog/viewlog_list</code></td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
+      <tr><td>查询观看记录</td><td><code>live/api/v4/user/viewlog/viewlog_list</code></td><td><span class="pill p1">P1</span></td><td><b>测试环境已调通</b></td></tr>
       <tr><td>答题卡作答统计</td><td>live_interaction 答题卡相关接口</td><td><span class="pill p1">P1</span></td><td><b>取数接口待核对</b></td></tr>
-      <tr><td>设置 / 查询打点信息</td><td><code>vod/api/video_management/chapter_marker/add_chapter_marker</code></td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
+      <tr><td>回写进度条打点</td><td>创建暂存视频大纲的 <code>syncToPlaybackDotEnabled</code></td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
       <tr><td>频道商品（带货）</td><td><code>live/api/channel/operate/add_channel_product</code> 及商品库相关接口</td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
       <tr><td>数字人视频创作</td><td><code>live/api/v4/ai/video-produce/video-produce-batch-create</code></td><td><span class="pill p2">P2</span></td><td>异步，耗时不可控</td></tr>
       <tr><td>聊天室</td><td>直播聊天室 JS-SDK（<code>live/js/chat_js_sdk</code>）</td><td><span class="pill p2">P2</span></td><td>多人联机用</td></tr>
@@ -616,9 +719,9 @@
   <div class="tbl"><table>
     <thead><tr><th>档位</th><th>内容</th><th>原则</th></tr></thead>
     <tbody>
-      <tr><td><span class="pill p0">P0 一天必做</span></td><td>F-01 数据接入 · F-02 场景选择 · F-03 提示词分析 · F-04 讲义 / 卖点卡 · F-05 3D 地下城（两套皮肤）· F-06 入口页 · 交付物</td><td>这就是最终提交的 Demo，18:00 冻结</td></tr>
-      <tr><td><span class="pill p1">P1 余力</span></td><td>按顺序：F-07 卧底单人局 → F-08 真实热力图 → F-09 回写打点 → F-10 真实播放器 → 自动识别场景</td><td>做不完不影响提交</td></tr>
-      <tr><td><span class="pill p2">P2 拓展</span></td><td>F-11 全部</td><td>只放进 PPT 路线图，比赛期间不写代码</td></tr>
+      <tr><td><span class="pill p0">P0 一天必做</span></td><td>F-01 数据接入 · F-02 场景选择 · F-03 提示词分析 · F-04 讲义 / 卖点卡 · F-05 3D 地下城（两套皮肤）· F-06 入口页 · 闯关配置 <code>world</code> 生成（引擎实现宝函答题、Boss、NPC，其余机制降级）· 交付物</td><td>这就是最终提交的 Demo，18:00 冻结</td></tr>
+      <tr><td><span class="pill p1">P1 余力</span></td><td>按顺序：双门辨析 / 机关排序两种机制 → F-07 卧底单人局 → F-08 真实热力图 → F-09 回写打点 → F-10 真实播放器 → 自动识别场景</td><td>做不完不影响提交</td></tr>
+      <tr><td><span class="pill p2">P2 拓展</span></td><td>F-11 全部 · 补全咒文 / 算账关两种机制</td><td>只放进 PPT 路线图，比赛期间不写代码</td></tr>
     </tbody>
   </table></div>
 </section>

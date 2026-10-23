@@ -1,0 +1,417 @@
+{
+  "version": 1,
+  "scene": "course",
+  "replay": {
+    "channelId": "3958201",
+    "fileId": "demo",
+    "title": "Python 入门 · 第 3 讲：列表、字典与循环",
+    "duration": 4320,
+    "host": "林老师"
+  },
+  "rooms": [
+    {
+      "title": "开场：为什么需要数据结构",
+      "start": 0,
+      "end": 400,
+      "summary": "用「存全班 50 人成绩」的例子引出问题：变量一多就没法批量处理，需要把数据装进一个容器。",
+      "keywords": [
+        "数据结构",
+        "列表"
+      ],
+      "watched_ratio": 1,
+      "fail_rate": 0.08,
+      "items": [
+        {
+          "id": "q01",
+          "keyword": "数据结构",
+          "question": "用 s1、s2 … s50 五十个变量存全班成绩，最大的麻烦是什么？",
+          "code": "",
+          "options": [
+            "没法用循环批量处理，求平均分要写 50 遍",
+            "变量名里不能带数字",
+            "Python 最多只能有 32 个变量",
+            "会让程序明显变慢"
+          ],
+          "explain": "变量一多就没法统一处理。把同类数据放进一个列表，一个循环就能处理全部。",
+          "source_time": 212,
+          "source_quote": "那要算个平均分怎么办？五十个变量挨个加"
+        },
+        {
+          "id": "q02",
+          "keyword": "列表",
+          "question": "下面哪个是合法的 Python 列表？",
+          "code": "",
+          "options": [
+            "[90, 85, 77]",
+            "(90; 85; 77)",
+            "<90, 85, 77>",
+            "{90: 85: 77}"
+          ],
+          "explain": "列表用方括号，元素之间用逗号分隔。",
+          "source_time": 318,
+          "source_quote": "里面的元素用英文逗号隔开，比如 90, 85, 77"
+        }
+      ]
+    },
+    {
+      "title": "列表的创建与索引",
+      "start": 400,
+      "end": 1155,
+      "summary": "列表用方括号创建，下标从 0 开始；负索引从末尾往回数；切片取一段，包含起点不包含终点。",
+      "keywords": [
+        "索引",
+        "负索引",
+        "切片"
+      ],
+      "watched_ratio": 1,
+      "fail_rate": 0.24,
+      "items": [
+        {
+          "id": "q11",
+          "keyword": "索引",
+          "question": "输出是什么？",
+          "code": "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1])",
+          "options": [
+            "香蕉",
+            "苹果",
+            "橙子",
+            "报错 IndexError"
+          ],
+          "explain": "索引从 0 开始，a[0] 是苹果，a[1] 才是香蕉。",
+          "source_time": 520,
+          "source_quote": "所以 a[0] 是苹果，a[1] 是香蕉"
+        },
+        {
+          "id": "q12",
+          "keyword": "负索引",
+          "question": "输出是什么？",
+          "code": "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[-1])",
+          "options": [
+            "葡萄",
+            "苹果",
+            "报错，索引不能是负数",
+            "橙子"
+          ],
+          "explain": "负索引从末尾往回数，-1 就是最后一个。",
+          "source_time": 762,
+          "source_quote": "a[-1] 就是最后一个，a[-2] 是倒数第二个"
+        },
+        {
+          "id": "q13",
+          "keyword": "切片",
+          "question": "输出是什么？",
+          "code": "a = ['苹果', '香蕉', '橙子', '葡萄']\nprint(a[1:3])",
+          "options": [
+            "['香蕉', '橙子']",
+            "['香蕉', '橙子', '葡萄']",
+            "['苹果', '香蕉', '橙子']",
+            "['橙子']"
+          ],
+          "explain": "切片包含起点、不包含终点：a[1:3] 取的是下标 1 和 2。",
+          "source_time": 948,
+          "source_quote": "记住一句话：包含起点，不包含终点"
+        }
+      ]
+    },
+    {
+      "title": "列表的增删改",
+      "start": 1155,
+      "end": 1910,
+      "summary": "append 在末尾加一个元素，pop 删除并返回元素；列表是可变对象，两个变量可能指向同一个列表。",
+      "keywords": [
+        "append",
+        "pop",
+        "可变"
+      ],
+      "watched_ratio": 1,
+      "fail_rate": 0.17,
+      "items": [
+        {
+          "id": "q21",
+          "keyword": "append",
+          "question": "输出是什么？",
+          "code": "nums = [1, 2]\nnums.append([3, 4])\nprint(len(nums))",
+          "options": [
+            "3",
+            "4",
+            "2",
+            "报错"
+          ],
+          "explain": "append 把整个 [3, 4] 当成一个元素加进去，所以长度是 3。想逐个加入要用 extend。",
+          "source_time": 1290,
+          "source_quote": "如果你 append 一个列表进去，它会整个作为一个元素"
+        },
+        {
+          "id": "q22",
+          "keyword": "pop",
+          "question": "输出是什么？",
+          "code": "nums = [10, 20, 30]\nx = nums.pop()\nprint(x)",
+          "options": [
+            "30",
+            "10",
+            "[10, 20]",
+            "None"
+          ],
+          "explain": "pop() 不传参数时，删除并返回最后一个元素。",
+          "source_time": 1502,
+          "source_quote": "而且它会把删掉的那个值返回给你"
+        },
+        {
+          "id": "q23",
+          "keyword": "可变",
+          "question": "输出是什么？",
+          "code": "b = [1, 2]\nc = b\nc.append(3)\nprint(b)",
+          "options": [
+            "[1, 2, 3]",
+            "[1, 2]",
+            "[3]",
+            "报错"
+          ],
+          "explain": "c = b 没有复制列表，两个名字指向同一个列表对象，改 c 就是改 b。",
+          "source_time": 1736,
+          "source_quote": "b 和 c 是同一个列表的两个名字"
+        }
+      ]
+    },
+    {
+      "title": "字典：键值对",
+      "start": 1910,
+      "end": 2730,
+      "summary": "字典用键找值。方括号取不存在的键会抛 KeyError，get 可以给默认值；键必须是不可变类型。",
+      "keywords": [
+        "KeyError",
+        "get",
+        "键"
+      ],
+      "watched_ratio": 1,
+      "fail_rate": 0.62,
+      "items": [
+        {
+          "id": "qb1",
+          "keyword": "KeyError",
+          "question": "执行结果是什么？",
+          "code": "d = {'name': '小明', 'age': 12}\nprint(d['score'])",
+          "options": [
+            "抛出 KeyError",
+            "输出 None",
+            "输出 0",
+            "输出 ''（空字符串）"
+          ],
+          "explain": "用方括号取一个不存在的键，会直接抛 KeyError。",
+          "source_time": 2205,
+          "source_quote": "程序会直接报错，错误类型叫 KeyError"
+        },
+        {
+          "id": "qb2",
+          "keyword": "get",
+          "question": "输出是什么？",
+          "code": "d = {'name': '小明', 'age': 12}\nprint(d.get('score', 0))",
+          "options": [
+            "0",
+            "None",
+            "抛出 KeyError",
+            "score"
+          ],
+          "explain": "get 取不到键时，返回第二个参数作为默认值。",
+          "source_time": 2318,
+          "source_quote": "你还可以给它第二个参数，当作默认值"
+        },
+        {
+          "id": "qb3",
+          "keyword": "键",
+          "question": "下面哪个不能作为字典的键？",
+          "code": "",
+          "options": [
+            "[1, 2]",
+            "'id'",
+            "42",
+            "(1, 2)"
+          ],
+          "explain": "字典的键必须是不可变的。列表可变，不能当键；元组可以。",
+          "source_time": 2490,
+          "source_quote": "字符串、数字、元组都可以"
+        }
+      ]
+    },
+    {
+      "title": "for 循环遍历",
+      "start": 2730,
+      "end": 3490,
+      "summary": "range 生成数字序列，enumerate 同时拿下标和元素，items 遍历字典的键值对。",
+      "keywords": [
+        "range",
+        "enumerate",
+        "items"
+      ],
+      "watched_ratio": 0,
+      "fail_rate": 0.41,
+      "items": [
+        {
+          "id": "q41",
+          "keyword": "range",
+          "question": "输出是什么？",
+          "code": "for i in range(3):\n    print(i, end=' ')",
+          "options": [
+            "0 1 2",
+            "1 2 3",
+            "0 1 2 3",
+            "3"
+          ],
+          "explain": "range(3) 生成 0、1、2，不包含 3。",
+          "source_time": 2860,
+          "source_quote": "和切片一样，不包含终点 3"
+        },
+        {
+          "id": "q42",
+          "keyword": "enumerate",
+          "question": "输出是什么？",
+          "code": "for i, v in enumerate(['a', 'b']):\n    print(i, v)\n    break",
+          "options": [
+            "0 a",
+            "1 a",
+            "a 0",
+            "0 b"
+          ],
+          "explain": "enumerate 同时给出下标和元素，下标默认从 0 开始。",
+          "source_time": 3105,
+          "source_quote": "它每轮给你两个值：下标和元素"
+        },
+        {
+          "id": "q43",
+          "keyword": "items",
+          "question": "for k, v in d.items() 每一轮拿到的是什么？",
+          "code": "",
+          "options": [
+            "一个键和它对应的值",
+            "只有键",
+            "只有值",
+            "键的下标和键"
+          ],
+          "explain": "items() 返回键值对，解包成 k 和 v。",
+          "source_time": 3340,
+          "source_quote": "用 d.items()，每轮拿到一个键和对应的值"
+        }
+      ]
+    },
+    {
+      "title": "综合练习：统计词频",
+      "start": 3490,
+      "end": 4320,
+      "summary": "用字典计数，再按出现次数排序，找出一段文字里最常出现的词。",
+      "keywords": [
+        "计数",
+        "排序"
+      ],
+      "watched_ratio": 1,
+      "fail_rate": 0.29,
+      "items": [
+        {
+          "id": "q51",
+          "keyword": "计数",
+          "question": "输出是什么？",
+          "code": "counts = {}\nfor w in ['a', 'b', 'a']:\n    counts[w] = counts.get(w, 0) + 1\nprint(counts)",
+          "options": [
+            "{'a': 2, 'b': 1}",
+            "{'a': 1, 'b': 1}",
+            "抛出 KeyError",
+            "{'a': 2}"
+          ],
+          "explain": "get(w, 0) 第一次遇到某个词时取到 0，再加 1，所以不会报 KeyError。",
+          "source_time": 3720,
+          "source_quote": "counts.get(w, 0) + 1，第一次出现就从 0 开始加"
+        },
+        {
+          "id": "q52",
+          "keyword": "排序",
+          "question": "输出是什么？",
+          "code": "counts = {'a': 2, 'b': 5, 'c': 1}\ntop = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)\nprint(top[0])",
+          "options": [
+            "('b', 5)",
+            "('a', 2)",
+            "('c', 1)",
+            "5"
+          ],
+          "explain": "按值（kv[1]）从大到小排序，第一个就是出现次数最多的。",
+          "source_time": 4010,
+          "source_quote": "key 写 lambda kv: kv[1]，表示按值排序"
+        }
+      ]
+    }
+  ],
+  "boss_room": 3,
+  "faq": [
+    {
+      "room": 1,
+      "count": 27,
+      "question": "a[-1] 到底是哪一个？负数索引从哪开始数？",
+      "answer": "负索引从末尾往回数：a[-1] 是最后一个，a[-2] 是倒数第二个，等价于 a[len(a) - 1]。另外 -0 就是 0，所以 a[-0] 取到的是第一个。",
+      "source_time": 762,
+      "samples": [
+        [
+          "阿*",
+          "老师 -1 是倒数第一个吗",
+          "12:41"
+        ],
+        [
+          "M**",
+          "负数索引从哪开始数啊",
+          "12:44"
+        ],
+        [
+          "土*",
+          "a[-0] 是什么？",
+          "12:50"
+        ]
+      ]
+    },
+    {
+      "room": 3,
+      "count": 34,
+      "question": "d.get(\"k\") 和 d[\"k\"] 有什么区别？",
+      "answer": "键不存在时，d[\"k\"] 直接抛 KeyError；d.get(\"k\") 返回 None，d.get(\"k\", 0) 返回你给的默认值 0。你希望程序报错还是给个默认值，决定了用哪一个。这也是镇墓兽的弱点。",
+      "source_time": 2318,
+      "samples": [
+        [
+          "小*",
+          "get 和 [] 有啥区别",
+          "37:02"
+        ],
+        [
+          "K****",
+          "为啥我这报 KeyError",
+          "37:15"
+        ],
+        [
+          "奶****",
+          "get 第二个参数是干嘛的",
+          "38:40"
+        ]
+      ]
+    }
+  ],
+  "pairs": [
+    {
+      "a": "append",
+      "b": "extend",
+      "diff": "append 把参数整个当成一个元素加到末尾；extend 把参数拆开逐个加入。",
+      "source_time": 1290
+    },
+    {
+      "a": "d['k']",
+      "b": "d.get('k')",
+      "diff": "键不存在时，方括号抛 KeyError；get 返回 None 或你给的默认值。",
+      "source_time": 2318
+    },
+    {
+      "a": "c = b",
+      "b": "c = b.copy()",
+      "diff": "c = b 只是给同一个列表起了第二个名字；copy() 才会复制出一个新列表。",
+      "source_time": 1736
+    }
+  ],
+  "handout": {
+    "title": "直播讲义",
+    "markdown": "# Python 入门 · 第 3 讲：列表、字典与循环\n\n主讲：林老师 · 回放时长 72 分钟\n\n## 1. 开场：为什么需要数据结构（00:00–06:40）\n\n用「存全班 50 人成绩」的例子引出问题：变量一多就没法批量处理，需要把数据装进一个容器。\n\n- **数据结构**：变量一多就没法统一处理。把同类数据放进一个列表，一个循环就能处理全部。（回放 03:32）\n- **列表**：列表用方括号，元素之间用逗号分隔。（回放 05:18）\n\n## 2. 列表的创建与索引（06:40–19:15）\n\n列表用方括号创建，下标从 0 开始；负索引从末尾往回数；切片取一段，包含起点不包含终点。\n\n- **索引**：索引从 0 开始，a[0] 是苹果，a[1] 才是香蕉。（回放 08:40）\n- **负索引**：负索引从末尾往回数，-1 就是最后一个。（回放 12:42）\n- **切片**：切片包含起点、不包含终点：a[1:3] 取的是下标 1 和 2。（回放 15:48）\n\n## 3. 列表的增删改（19:15–31:50）\n\nappend 在末尾加一个元素，pop 删除并返回元素；列表是可变对象，两个变量可能指向同一个列表。\n\n- **append**：append 把整个 [3, 4] 当成一个元素加进去，所以长度是 3。想逐个加入要用 extend。（回放 21:30）\n- **pop**：pop() 不传参数时，删除并返回最后一个元素。（回放 25:02）\n- **可变**：c = b 没有复制列表，两个名字指向同一个列表对象，改 c 就是改 b。（回放 28:56）\n\n## 4. 字典：键值对（31:50–45:30）\n\n字典用键找值。方括号取不存在的键会抛 KeyError，get 可以给默认值；键必须是不可变类型。\n\n- **KeyError**：用方括号取一个不存在的键，会直接抛 KeyError。（回放 36:45）\n- **get**：get 取不到键时，返回第二个参数作为默认值。（回放 38:38）\n- **键**：字典的键必须是不可变的。列表可变，不能当键；元组可以。（回放 41:30）\n\n## 5. for 循环遍历（45:30–58:10）\n\nrange 生成数字序列，enumerate 同时拿下标和元素，items 遍历字典的键值对。\n\n- **range**：range(3) 生成 0、1、2，不包含 3。（回放 47:40）\n- **enumerate**：enumerate 同时给出下标和元素，下标默认从 0 开始。（回放 51:45）\n- **items**：items() 返回键值对，解包成 k 和 v。（回放 55:40）\n\n## 6. 综合练习：统计词频（58:10–72:00）\n\n用字典计数，再按出现次数排序，找出一段文字里最常出现的词。\n\n- **计数**：get(w, 0) 第一次遇到某个词时取到 0，再加 1，所以不会报 KeyError。（回放 62:00）\n- **排序**：按值（kv[1]）从大到小排序，第一个就是出现次数最多的。（回放 66:50）\n"
+  },
+  "skin": "dungeon"
+}

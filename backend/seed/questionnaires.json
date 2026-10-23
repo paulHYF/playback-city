@@ -1,0 +1,20 @@
+{
+  "course": {
+    "questionnaireTitle": "第 3 讲课后反馈",
+    "questions": [
+      {"name": "这节课整体难度如何？", "type": "R", "required": "Y", "options": ["太简单", "刚好", "有点难", "很难"]},
+      {"name": "哪些部分没听懂？（可多选）", "type": "C", "required": "Y", "options": ["列表索引与负索引", "切片", "append 和 extend", "c = b 不是复制", "字典 KeyError 与 get", "for 循环 range / enumerate", "遍历字典 items", "词频统计综合练习"]},
+      {"name": "给林老师的讲解打个分", "type": "X", "required": "Y", "options": ["很差", "较差", "一般", "不错", "很好"]},
+      {"name": "还有什么想问或建议？", "type": "Q", "required": "N"}
+    ]
+  },
+  "commerce": {
+    "questionnaireTitle": "秋冬好物专场 · 购买意向调查",
+    "questions": [
+      {"name": "你最感兴趣的是哪件商品？", "type": "R", "required": "Y", "options": ["宋锦纹保温杯", "羊毛混纺围巾", "桑蚕丝遮光眼罩", "云南挂耳咖啡"]},
+      {"name": "下单前你最在意什么？（可多选）", "type": "C", "required": "Y", "options": ["尺寸规格", "材质成分", "价格优惠", "退换售后", "发货速度"]},
+      {"name": "还没下单的原因是？", "type": "R", "required": "N", "options": ["已经下单了", "还在比价", "担心尺寸不合适", "担心售后麻烦", "暂时不需要"]},
+      {"name": "给主播阿月的讲解打个分", "type": "X", "required": "Y", "options": ["很差", "较差", "一般", "不错", "很好"]}
+    ]
+  }
+}

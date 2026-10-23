@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>回放不夜城 · 设计稿 v2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0f13; --night: #121a24; --night-2: #1b2531;
+    --paper: #e8dcc0; --paper-2: #d9c8a2; --paper-line: rgba(90, 64, 34, 0.18);
+    --ochre: #8a5a2c; --gold: #b8975a; --gold-dim: #8d7445; --lamp: #e3893a; --lamp-soft: rgba(227, 137, 58, 0.18);
+    --seal: #a3312a; --text-ink: #2b2219; --text-mute: #6e6250; --jade: #7fa99a;
+    --serif: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    --brush: 'Ma Shan Zheng', 'STKaiti', serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #08090b; color: var(--paper); font-family: var(--serif); }
+  .page { max-width: 1320px; margin: 0 auto; padding: 40px 20px 80px; }
+  .page > header h1 { font-family: var(--brush); font-weight: 400; font-size: 44px; color: var(--gold); margin: 0; letter-spacing: 0.1em; }
+  .page > header p { color: #8f8572; margin: 8px 0 0; font-size: 14px; }
+  .tokens { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 8px; }
+  .tok { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #a99d86; }
+  .tok i { width: 22px; height: 22px; border-radius: 2px; display: inline-block; border: 1px solid rgba(255,255,255,0.08); }
+  figure { margin: 48px 0 0; }
+  figcaption { display: flex; gap: 14px; align-items: baseline; margin-bottom: 12px; }
+  figcaption b { font-family: var(--brush); font-weight: 400; color: var(--gold); font-size: 26px; }
+  figcaption span { color: #8f8572; font-size: 13px; }
+  .frame { position: relative; width: 1280px; max-width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 4px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+  .frame > svg.scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .frame .grain { position: absolute; inset: 0; pointer-events: none; opacity: 0.18; mix-blend-mode: overlay;
+    background-image: radial-gradient(rgba(255,255,255,0.18) 1px, transparent 1px); background-size: 3px 3px; }
+  .vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 50% 45%, transparent 55%, rgba(0,0,0,0.55)); }
+
+  /* 卷宗：随身档案，代替 HUD */
+  .dossier { position: absolute; background: linear-gradient(180deg, var(--paper), var(--paper-2)); color: var(--text-ink);
+    border-radius: 2px; box-shadow: 0 10px 30px rgba(0,0,0,0.45), inset 0 0 40px rgba(120, 86, 40, 0.18); padding: 16px 18px 16px 30px; }
+  .dossier::before { content: ''; position: absolute; left: 10px; top: 14px; bottom: 14px; width: 2px;
+    background: repeating-linear-gradient(180deg, var(--ochre) 0 6px, transparent 6px 22px); opacity: 0.7; }
+  .dossier h4 { margin: 0 0 8px; font-size: 13px; letter-spacing: 0.35em; color: var(--ochre); font-weight: 600; }
+  .dossier.ruled { background: repeating-linear-gradient(180deg, transparent 0 27px, var(--paper-line) 27px 28px), linear-gradient(180deg, var(--paper), var(--paper-2)); }
+  .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; line-height: 28px; }
+  .row b { font-size: 17px; font-weight: 600; }
+  .seal { position: absolute; font-family: var(--brush); color: var(--seal); border: 2px solid var(--seal); border-radius: 3px;
+    padding: 2px 5px; font-size: 18px; line-height: 1.05; transform: rotate(-8deg); opacity: 0.85; writing-mode: vertical-rl; }
+  .lamps { display: flex; gap: 6px; }
+  .lamps i { width: 12px; height: 16px; border-radius: 5px 5px 4px 4px; background: radial-gradient(circle at 50% 40%, #ffd08a, var(--lamp) 60%, #9a4a16); box-shadow: 0 0 8px rgba(227,137,58,0.7); }
+  .lamps i.off { background: #4a4038; box-shadow: none; }
+  .slots { display: flex; gap: 8px; margin-top: 4px; }
+  .slot { width: 46px; height: 46px; border: 1px solid rgba(110, 82, 46, 0.45); border-radius: 2px; display: grid; place-items: center;
+    font-size: 11px; color: var(--text-mute); background: rgba(255,255,255,0.18); text-align: center; line-height: 1.2; }
+  .slot.has { color: var(--text-ink); border-color: var(--ochre); background: rgba(227,137,58,0.12); }
+
+  /* 时辰牌 + 更鼓 */
+  .watch { position: absolute; display: flex; align-items: center; gap: 12px; color: var(--paper); }
+  .watch .plate { writing-mode: vertical-rl; font-family: var(--brush); font-size: 30px; letter-spacing: 0.15em; color: #f0dfb6;
+    background: linear-gradient(90deg, #3a2516, #26170e); padding: 12px 8px; border: 1px solid var(--gold-dim); box-shadow: 0 6px 18px rgba(0,0,0,0.5); }
+  .watch .meta { font-size: 13px; line-height: 1.7; color: #cdbf9f; }
+  .watch .meta b { color: var(--lamp); font-weight: 600; }
+  .dial { width: 64px; height: 64px; }
+
+  .tag { position: absolute; font-size: 12px; color: #d8c9a6; background: rgba(13, 15, 19, 0.72); border: 1px solid rgba(184, 151, 90, 0.4);
+    padding: 4px 10px; border-radius: 2px; letter-spacing: 0.05em; }
+  .tag.trace { color: #e9b7a8; border-color: rgba(163, 49, 42, 0.6); }
+  .btn { display: inline-block; font-family: var(--serif); font-size: 13px; padding: 6px 14px; border: 1px solid var(--ochre); color: var(--text-ink); background: rgba(227,137,58,0.12); border-radius: 2px; }
+  .btn.dark { color: #f0dfb6; border-color: var(--gold-dim); background: rgba(13,15,19,0.6); }
+  .vtitle { position: absolute; writing-mode: vertical-rl; font-family: var(--brush); color: rgba(240, 223, 182, 0.92); letter-spacing: 0.2em; }
+  .notes { margin-top: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 24px; color: #a99d86; font-size: 13px; line-height: 1.7; }
+  .notes p { margin: 0; padding-left: 12px; border-left: 2px solid #3a2f22; }
+  .notes b { color: #d8c9a6; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>回放不夜城 · 设计稿 v2</h1>
+    <p>夜巡破案 · 提灯、卷宗、更鼓。界面是随身卷宗与账簿，不用悬浮游戏 HUD；配色只用墨、赭、旧金、灯火橙与朱印。画面里的回放截帧、商品封面都来自测试环境的两场真实数据。</p>
+    <div class="tokens">
+      <span class="tok"><i style="background:#0d0f13"></i>墨 #0d0f13</span>
+      <span class="tok"><i style="background:#121a24"></i>夜 #121a24</span>
+      <span class="tok"><i style="background:#e8dcc0"></i>卷宗纸 #e8dcc0</span>
+      <span class="tok"><i style="background:#8a5a2c"></i>赭 #8a5a2c</span>
+      <span class="tok"><i style="background:#b8975a"></i>旧金 #b8975a</span>
+      <span class="tok"><i style="background:#e3893a"></i>灯火 #e3893a</span>
+      <span class="tok"><i style="background:#a3312a"></i>朱印 #a3312a</span>
+    </div>
+  </header>
+
+  <!-- ① 回放广场 · 夜 -->
+  <figure id="f1">
+    <figcaption><b>壹 · 回放广场 · 子时</b><span>每一讲回放是一座楼阁，楼阁前的绢幕在播这一讲；点绢幕看完整回放。</span></figcaption>
+    <div class="frame">
+      <svg class="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070a10"/><stop offset="0.6" stop-color="#141d29"/><stop offset="1" stop-color="#2a2218"/></linearGradient>
+          <radialGradient id="moon" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#f3e7c6"/><stop offset="0.55" stop-color="#e3d3a8"/><stop offset="1" stop-color="#e3d3a8" stop-opacity="0"/></radialGradient>
+          <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffb46a" stop-opacity="0.85"/><stop offset="1" stop-color="#ffb46a" stop-opacity="0"/></radialGradient>
+          <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b241c"/><stop offset="1" stop-color="#0d0c0b"/></linearGradient>
+          <pattern id="tiles" width="60" height="22" patternUnits="userSpaceOnUse"><path d="M0 21 H60 M30 0 V21" stroke="#3a3127" stroke-width="1" fill="none"/></pattern>
+          <symbol id="roof" viewBox="0 0 200 60"><path d="M0 52 Q30 50 46 30 L154 30 Q170 50 200 52 L196 58 Q100 46 4 58 Z" fill="#17120e"/><path d="M40 30 L100 4 L160 30 Z" fill="#1e1712"/><path d="M0 52 Q30 50 46 30" stroke="#8d7445" stroke-width="1.2" fill="none" opacity="0.7"/><path d="M200 52 Q170 50 154 30" stroke="#8d7445" stroke-width="1.2" fill="none" opacity="0.7"/></symbol>
+          <symbol id="lantern" viewBox="0 0 20 34"><line x1="10" y1="0" x2="10" y2="6" stroke="#5a4030" stroke-width="1"/><rect x="5" y="5" width="10" height="2.5" fill="#8d7445"/><ellipse cx="10" cy="16" rx="7.5" ry="9" fill="#d9772f"/><ellipse cx="10" cy="15" rx="4" ry="6" fill="#ffc681" opacity="0.8"/><rect x="5" y="24.5" width="10" height="2.5" fill="#8d7445"/><line x1="10" y1="27" x2="10" y2="33" stroke="#a3312a" stroke-width="1.6"/></symbol>
+        </defs>
+        <rect width="1280" height="720" fill="url(#sky)"/>
+        <circle cx="1040" cy="120" r="70" fill="url(#moon)"/>
+        <!-- 远城 -->
+        <g opacity="0.55" fill="#0f141b">
+          <path d="M0 360 L60 350 L80 330 L130 330 L150 350 L220 352 L240 320 L300 320 L320 350 L420 356 L460 336 L520 336 L540 356 L640 360 L700 340 L760 340 L780 358 L900 360 L930 330 L1000 330 L1020 356 L1120 358 L1150 338 L1210 338 L1230 356 L1280 358 L1280 420 L0 420 Z"/>
+        </g>
+        <g opacity="0.7">
+          <circle cx="250" cy="335" r="2" fill="#ffb46a"/><circle cx="470" cy="345" r="2" fill="#ffb46a"/><circle cx="955" cy="342" r="2" fill="#ffb46a"/><circle cx="1180" cy="346" r="2" fill="#ffb46a"/>
+        </g>
+        <!-- 地面 -->
+        <rect y="440" width="1280" height="280" fill="url(#ground)"/>
+        <rect y="440" width="1280" height="280" fill="url(#tiles)" opacity="0.5"/>
+        <path d="M520 720 L600 440 L680 440 L760 720 Z" fill="#3a3024" opacity="0.5"/>
+        <!-- 左右楼阁（其他几讲） -->
+        <g>
+          <rect x="70" y="300" width="230" height="150" fill="#1a130e"/>
+          <use href="#roof" x="40" y="252" width="290" height="70"/>
+          <use href="#roof" x="80" y="206" width="210" height="56"/>
+          <rect x="100" y="360" width="34" height="70" fill="#d69a52" opacity="0.55"/><rect x="146" y="360" width="34" height="70" fill="#d69a52" opacity="0.45"/><rect x="236" y="360" width="34" height="70" fill="#d69a52" opacity="0.5"/>
+          <text x="185" y="478" fill="#a99d86" font-size="14" text-anchor="middle" font-family="Noto Serif SC">第一讲 · 变量与类型</text>
+          <path d="M276 210 L276 160 L300 168 L276 176" fill="#a3312a"/>
+        </g>
+        <g>
+          <rect x="980" y="300" width="230" height="150" fill="#1a130e"/>
+          <use href="#roof" x="950" y="252" width="290" height="70"/>
+          <rect x="1010" y="360" width="34" height="70" fill="#3a3530" opacity="0.8"/><rect x="1146" y="360" width="34" height="70" fill="#3a3530" opacity="0.8"/>
+          <text x="1095" y="478" fill="#6e6250" font-size="14" text-anchor="middle" font-family="Noto Serif SC">第四讲 · 函数与模块（未开）</text>
+        </g>
+        <!-- 主楼阁：第三讲 -->
+        <g>
+          <rect x="400" y="250" width="480" height="210" fill="#1c140f"/>
+          <use href="#roof" x="350" y="190" width="580" height="110"/>
+          <use href="#roof" x="430" y="118" width="420" height="88"/>
+          <use href="#roof" x="510" y="60" width="260" height="64"/>
+          <rect x="420" y="262" width="12" height="190" fill="#6b2a20"/><rect x="848" y="262" width="12" height="190" fill="#6b2a20"/>
+          <rect x="400" y="250" width="480" height="8" fill="#8d7445" opacity="0.6"/>
+        </g>
+        <!-- 绢幕：真回放 -->
+        <rect x="466" y="282" width="348" height="196" fill="#0d0f13" stroke="#b8975a" stroke-width="2"/>
+        <image href="assets/replay-frame.png" x="470" y="286" width="340" height="188" preserveAspectRatio="xMidYMid slice"/>
+        <rect x="470" y="462" width="340" height="12" fill="rgba(0,0,0,0.55)"/>
+        <rect x="470" y="467" width="118" height="3" fill="#e3893a"/>
+        <circle cx="560" cy="468" r="3" fill="#a3312a"/><circle cx="640" cy="468" r="3" fill="#a3312a"/><circle cx="702" cy="468" r="3" fill="#a3312a"/>
+        <circle cx="640" cy="380" r="22" fill="rgba(13,15,19,0.6)" stroke="#e8dcc0" stroke-width="1.5"/>
+        <path d="M633 369 L652 380 L633 391 Z" fill="#e8dcc0"/>
+        <!-- 灯串 -->
+        <path d="M0 150 Q320 230 640 170 Q960 110 1280 190" stroke="#3a2a1e" stroke-width="1.5" fill="none"/>
+        <g>
+          <circle cx="120" cy="190" r="40" fill="url(#glow)" opacity="0.35"/><use href="#lantern" x="110" y="176" width="20" height="34"/>
+          <circle cx="300" cy="216" r="40" fill="url(#glow)" opacity="0.35"/><use href="#lantern" x="290" y="202" width="20" height="34"/>
+          <circle cx="980" cy="134" r="40" fill="url(#glow)" opacity="0.35"/><use href="#lantern" x="970" y="120" width="20" height="34"/>
+          <circle cx="1160" cy="168" r="40" fill="url(#glow)" opacity="0.35"/><use href="#lantern" x="1150" y="154" width="20" height="34"/>
+        </g>
+        <!-- 楼前石灯 -->
+        <g><rect x="380" y="430" width="16" height="56" fill="#3d3a33"/><rect x="372" y="420" width="32" height="14" fill="#4a463e"/><circle cx="388" cy="440" r="26" fill="url(#glow)" opacity="0.5"/></g>
+        <g><rect x="884" y="430" width="16" height="56" fill="#3d3a33"/><rect x="876" y="420" width="32" height="14" fill="#4a463e"/><circle cx="892" cy="440" r="26" fill="url(#glow)" opacity="0.5"/></g>
+        <!-- 提灯人（玩家视角的手） -->
+        <g opacity="0.95"><path d="M1060 720 Q1080 610 1120 590 L1150 600 Q1120 650 1110 720 Z" fill="#0e0b09"/><line x1="1135" y1="596" x2="1135" y2="560" stroke="#5a4030" stroke-width="2"/><circle cx="1135" cy="540" r="60" fill="url(#glow)" opacity="0.6"/><use href="#lantern" x="1122" y="520" width="26" height="44"/></g>
+      </svg>
+      <div class="vtitle" style="left:612px; top:24px; font-size:22px; color:#e3d3a8; background:rgba(26,19,14,0.85); padding:10px 6px; border:1px solid #8d7445;">第三讲</div>
+      <div class="tag" style="left:470px; top:488px;">列表、字典与循环 · 1,862 人看过 · 22:24 · <span style="color:#e3893a">点绢幕看完整回放</span></div>
+      <div class="tag trace" style="left:560px; top:520px;">● 红点 = 全场卡点：12:41 · 27 人在此卡住</div>
+      <div class="watch" style="left:28px; top:26px;">
+        <div class="plate">子时</div>
+        <div class="meta">三更 · 更鼓三响<br>距天亮 <b>四个时辰</b><br><span style="color:#8f8572">按你的本地时间 23:42</span></div>
+      </div>
+      <div class="dossier ruled" style="right:24px; top:24px; width:250px;">
+        <h4>随 身 卷 宗</h4>
+        <div class="row"><span>灯</span><span class="lamps"><i></i><i></i><i></i><i class="off"></i><i class="off"></i></span></div>
+        <div class="row"><span>积分</span><b>240</b></div>
+        <div class="row"><span>已破</span><span>第一、二讲</span></div>
+        <div class="row" style="margin-top:6px"><span>道具</span><span></span></div>
+        <div class="slots"><div class="slot has">灯油</div><div class="slot has">铜鱼<br>符</div><div class="slot">空</div><div class="slot">空</div></div>
+        <div class="seal" style="right:12px; bottom:-14px;">夜巡</div>
+      </div>
+      <div class="vignette"></div><div class="grain"></div>
+    </div>
+    <div class="notes">
+      <p><b>楼阁 = 一讲回放</b>：层数随观看人次，挂朱旗表示已破解；未开的讲次楼阁不亮灯。数据来自回放列表与观看记录。</p>
+      <p><b>绢幕在播真回放</b>：静音循环播本讲高光；点击进入「贰」的完整回放播放器。进度条上的红点是全场卡点。</p>
+      <p><b>不用 HUD</b>：灯（生命）、积分、道具都写在右上的随身卷宗里；左上是时辰牌，更鼓按真实时辰敲。</p>
+    </div>
+  </figure>
+
+  <!-- ② 完整回放播放器 -->
+  <figure id="f2">
+    <figcaption><b>贰 · 完整回放</b><span>点绢幕打开。卷宗式播放器，可拖动；进度条标出卡点、章节与商品讲解。</span></figcaption>
+    <div class="frame" style="background:radial-gradient(ellipse at 40% 30%, #1d2631, #0b0d11 70%);">
+      <div style="position:absolute; left:40px; top:36px; width:860px;">
+        <div style="font-size:13px; color:#a99d86; letter-spacing:0.3em;">第三讲 · 林老师</div>
+        <div style="font-family:var(--brush); font-size:38px; color:#e3d3a8; margin:2px 0 14px;">列表、字典与循环</div>
+        <div style="position:relative; border:1px solid #6e5a37; padding:6px; background:#0b0c0f; box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+          <img src="assets/replay-frame-dict.png" style="display:block; width:100%; aspect-ratio:16/9; object-fit:cover;">
+          <div style="position:absolute; left:6px; right:6px; bottom:6px; padding:30px 18px 14px; background:linear-gradient(transparent, rgba(0,0,0,0.85));">
+            <div style="font-size:15px; color:#f0e6cf; text-align:center; margin-bottom:12px;">「方括号是必须有，没有就报错；get 是有就给，没有就给默认值。」</div>
+            <div style="position:relative; height:26px;">
+              <div style="position:absolute; left:0; right:0; top:11px; height:4px; background:#3a332a;"></div>
+              <div style="position:absolute; left:0; width:43%; top:11px; height:4px; background:var(--lamp);"></div>
+              <div style="position:absolute; left:43%; top:6px; width:14px; height:14px; border-radius:50%; background:#f0dfb6; transform:translateX(-7px);"></div>
+              <div style="position:absolute; left:14%; top:0; width:2px; height:26px; background:#8d7445;"></div>
+              <div style="position:absolute; left:28%; top:0; width:2px; height:26px; background:#8d7445;"></div>
+              <div style="position:absolute; left:52%; top:0; width:2px; height:26px; background:#8d7445;"></div>
+              <div style="position:absolute; left:70%; top:0; width:2px; height:26px; background:#8d7445;"></div>
+              <div style="position:absolute; left:16%; top:7px; width:12px; height:12px; background:var(--seal); transform:rotate(45deg);"></div>
+              <div style="position:absolute; left:33%; top:7px; width:12px; height:12px; background:var(--seal); transform:rotate(45deg);"></div>
+              <div style="position:absolute; left:47%; top:7px; width:12px; height:12px; background:var(--seal); transform:rotate(45deg); box-shadow:0 0 0 4px rgba(163,49,42,0.35);"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:#a99d86; margin-top:6px;"><span>09:42 / 22:24</span><span>倍速 1.25 · 字幕 开 · 卷宗模式</span></div>
+          </div>
+          <div class="tag trace" style="left:47%; bottom:150px; transform:translateX(-40%);">◆ 09:41 · 字典 get 与 KeyError · 34 人追问 · 71% 答错</div>
+        </div>
+      </div>
+      <div class="dossier ruled" style="right:36px; top:36px; width:320px; bottom:36px;">
+        <h4>本 讲 卷 目</h4>
+        <div class="row"><span>壹 · 为什么需要容器</span><span>00:28</span></div>
+        <div class="row"><span>贰 · 列表索引与越界</span><span>01:54</span></div>
+        <div class="row"><span>叁 · 切片</span><span>03:34</span></div>
+        <div class="row"><span>肆 · 增删改与复制陷阱 <span style="color:var(--seal)">◆</span></span><span>04:17</span></div>
+        <div class="row" style="background:rgba(227,137,58,0.15); margin:0 -8px; padding:0 8px;"><span><b style="font-size:14px">伍 · 字典、get 与键</b> <span style="color:var(--seal)">◆</span></span><span>06:37</span></div>
+        <div class="row"><span>陆 · for 循环与 range</span><span>09:11</span></div>
+        <div class="row"><span>柒 · 遍历字典</span><span>10:42</span></div>
+        <div class="row"><span>捌 · 词频统计</span><span>11:10</span></div>
+        <h4 style="margin-top:18px;">全 场 卡 点</h4>
+        <div style="font-size:13px; line-height:1.7; color:var(--text-ink);">
+          <div>◆ 02:41 负索引 · 27 人问「a[-0] 是什么」</div>
+          <div>◆ 05:12 append 与 extend · 62% 答错</div>
+          <div>◆ 09:41 KeyError 与 get · 71% 答错</div>
+        </div>
+        <div style="position:absolute; left:30px; right:18px; bottom:18px; display:flex; gap:8px;"><span class="btn">回到广场</span><span class="btn">入此讲密室</span></div>
+        <div class="seal" style="right:18px; bottom:84px;">回放</div>
+      </div>
+      <div class="grain"></div>
+    </div>
+    <div class="notes">
+      <p><b>完整回放</b>：播放暂存的 m3u8 / mp4（hls.js），可拖动、倍速、开关字幕；密室里的「回看」都跳到这里的对应秒数。</p>
+      <p><b>进度条三种刻度</b>：竖线是 AI 大纲章节，朱红菱形是全场卡点（聊天追问 + 答题卡错误率），带货场另有商品讲解段。</p>
+      <p><b>右侧卷目</b>：章节与卡点点击即跳转；「入此讲密室」进入这一讲的闯关。</p>
+    </div>
+  </figure>
+
+  <!-- ③ 密室门题 -->
+  <figure id="f3">
+    <figcaption><b>叁 · 密室门题</b><span>门上挂着一个疑问，答对开门、得道具；道具开启后面某一关。</span></figcaption>
+    <div class="frame">
+      <svg class="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="room" cx="0.5" cy="0.45" r="0.7"><stop offset="0" stop-color="#2a2016"/><stop offset="1" stop-color="#07080a"/></radialGradient>
+          <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2d1d12"/><stop offset="0.5" stop-color="#3b2717"/><stop offset="1" stop-color="#2a1b10"/></linearGradient>
+          <radialGradient id="glow3" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffb46a" stop-opacity="0.7"/><stop offset="1" stop-color="#ffb46a" stop-opacity="0"/></radialGradient>
+        </defs>
+        <rect width="1280" height="720" fill="url(#room)"/>
+        <!-- 两侧格扇 -->
+        <g opacity="0.55">
+          <rect x="60" y="120" width="160" height="380" fill="#1c140e" stroke="#4a3522"/>
+          <g stroke="#4a3522" stroke-width="3"><line x1="140" y1="120" x2="140" y2="500"/><line x1="60" y1="200" x2="220" y2="200"/><line x1="60" y1="280" x2="220" y2="280"/><line x1="60" y1="360" x2="220" y2="360"/></g>
+          <rect x="1060" y="120" width="160" height="380" fill="#1c140e" stroke="#4a3522"/>
+          <g stroke="#4a3522" stroke-width="3"><line x1="1140" y1="120" x2="1140" y2="500"/><line x1="1060" y1="200" x2="1220" y2="200"/><line x1="1060" y1="280" x2="1220" y2="280"/><line x1="1060" y1="360" x2="1220" y2="360"/></g>
+        </g>
+        <!-- 门 -->
+        <rect x="390" y="70" width="500" height="560" fill="#140d08"/>
+        <rect x="410" y="90" width="228" height="540" fill="url(#wood)"/><rect x="642" y="90" width="228" height="540" fill="url(#wood)"/>
+        <g fill="#8d7445"><circle cx="452" cy="140" r="7"/><circle cx="452" cy="600" r="7"/><circle cx="828" cy="140" r="7"/><circle cx="828" cy="600" r="7"/></g>
+        <g fill="#6e5a37" opacity="0.8"><circle cx="600" cy="360" r="14"/><circle cx="680" cy="360" r="14"/></g>
+        <rect x="610" y="352" width="60" height="16" fill="#3a2a1a"/>
+        <!-- 地面痕迹 -->
+        <ellipse cx="560" cy="668" rx="70" ry="10" fill="#5a1d17" opacity="0.55"/>
+        <ellipse cx="760" cy="676" rx="50" ry="8" fill="#5a1d17" opacity="0.45"/>
+        <circle cx="200" cy="420" r="160" fill="url(#glow3)" opacity="0.35"/>
+      </svg>
+      <!-- 门上挂的疑问卷 -->
+      <div style="position:absolute; left:470px; top:120px; width:340px; background:linear-gradient(180deg,#eadfc4,#d8c7a0); color:var(--text-ink); padding:18px 22px 20px; box-shadow:0 14px 34px rgba(0,0,0,0.6); border-top:10px solid #5a3b22; border-bottom:10px solid #5a3b22;">
+        <div style="font-size:12px; letter-spacing:0.4em; color:var(--ochre);">肆 · 增删改之室 · 门上疑问</div>
+        <div style="font-size:19px; font-weight:600; margin:10px 0 10px; line-height:1.5;">b = [1, 2]，c = b，c.append(3)，<br>此时 print(b) 得什么？</div>
+        <pre style="margin:0; font:13px/1.6 'SF Mono',Menlo,monospace; background:rgba(43,34,25,0.08); padding:8px 10px; border-left:3px solid var(--ochre);">b = [1, 2]
+c = b
+c.append(3)
+print(b)</pre>
+        <div class="seal" style="right:12px; top:20px; font-size:15px;">疑</div>
+      </div>
+      <!-- 竹签选项 -->
+      <div style="position:absolute; left:420px; bottom:44px; display:flex; gap:14px;">
+        <div style="width:96px; padding:14px 8px; text-align:center; background:linear-gradient(90deg,#c9a76a,#e3c88f,#c9a76a); color:#2b2219; font-size:15px; border-radius:3px 3px 10px 10px; box-shadow:0 6px 14px rgba(0,0,0,0.5);"><div style="font-size:11px;color:#6e5230">甲</div>[1, 2, 3]</div>
+        <div style="width:96px; padding:14px 8px; text-align:center; background:linear-gradient(90deg,#c9a76a,#e3c88f,#c9a76a); color:#2b2219; font-size:15px; border-radius:3px 3px 10px 10px; box-shadow:0 6px 14px rgba(0,0,0,0.5); transform:translateY(-10px); outline:2px solid var(--lamp);"><div style="font-size:11px;color:#6e5230">乙</div>[1, 2]</div>
+        <div style="width:96px; padding:14px 8px; text-align:center; background:linear-gradient(90deg,#c9a76a,#e3c88f,#c9a76a); color:#2b2219; font-size:15px; border-radius:3px 3px 10px 10px; box-shadow:0 6px 14px rgba(0,0,0,0.5);"><div style="font-size:11px;color:#6e5230">丙</div>[3]</div>
+        <div style="width:96px; padding:14px 8px; text-align:center; background:linear-gradient(90deg,#c9a76a,#e3c88f,#c9a76a); color:#2b2219; font-size:15px; border-radius:3px 3px 10px 10px; box-shadow:0 6px 14px rgba(0,0,0,0.5);"><div style="font-size:11px;color:#6e5230">丁</div>报错</div>
+      </div>
+      <div class="tag trace" style="left:500px; top:590px;">此处有 13 道血痕 · 「小满」选了乙 · 「Kevin」选了乙</div>
+      <div class="tag" style="left:806px; top:448px; transform:rotate(-2deg);">墙上留字：「c = b 只是起了第二个名字」—— 晚风</div>
+      <!-- 时辰倒计时 -->
+      <div class="watch" style="left:34px; top:30px;">
+        <svg class="dial" viewBox="0 0 64 64"><circle cx="32" cy="32" r="28" fill="none" stroke="#3a2f22" stroke-width="6"/><circle cx="32" cy="32" r="28" fill="none" stroke="#e3893a" stroke-width="6" stroke-dasharray="117 176" transform="rotate(-90 32 32)"/><text x="32" y="38" text-anchor="middle" font-size="16" fill="#f0dfb6" font-family="Ma Shan Zheng">寅</text></svg>
+        <div class="meta">寅时 · 五更将至<br>卯时天亮前破局 · 剩 <b>二个时辰</b><br><span style="color:#8f8572">一夜十二时辰 ≈ 6 分钟</span></div>
+      </div>
+      <div class="dossier ruled" style="right:28px; top:30px; width:250px;">
+        <h4>随 身 卷 宗</h4>
+        <div class="row"><span>灯</span><span class="lamps"><i></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i></span></div>
+        <div class="row"><span>积分</span><b>240</b></div>
+        <div class="row"><span>进门凭</span><span>灯油 ✓</span></div>
+        <div class="row"><span>开门得</span><b style="color:var(--seal)">铜鱼符</b></div>
+        <div style="font-size:12px; color:var(--text-mute); line-height:1.6; margin-top:4px;">铜鱼符：开第五室「众惑」之门</div>
+        <div class="slots" style="margin-top:8px"><div class="slot has">灯油</div><div class="slot">空</div><div class="slot">空</div><div class="slot">空</div></div>
+        <div style="margin-top:12px; display:flex; gap:8px;"><span class="btn">回看 05:12</span><span class="btn">用提示签</span></div>
+      </div>
+      <div class="vignette"></div><div class="grain"></div>
+    </div>
+    <div class="notes">
+      <p><b>门题</b>：取本室最重要的一道选择题，写在门上的卷轴里；四根竹签是选项，抽对一根门开。</p>
+      <p><b>道具链</b>：进门凭「灯油」（上一室所得），开门得「铜鱼符」，用于第五室 Boss 门。链路由 schema 校验保证走得通。</p>
+      <p><b>前人痕迹</b>：地上血痕 = 答错的人与他们选的签（答题卡真实作答）；墙上留字 = 真实聊天原句。</p>
+      <p><b>时辰</b>：表盘是剩余时辰，卯时天亮前没破局按剩余进度评级；「回看」跳到完整回放 05:12。</p>
+    </div>
+  </figure>
+
+  <!-- ④ 战败 · 问答回血 -->
+  <figure id="f4">
+    <figcaption><b>肆 · 众惑 · 战败回血</b><span>Boss 是全场的困惑；被击倒时以问答回血，答对添一盏灯。</span></figcaption>
+    <div class="frame">
+      <svg class="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="dark4" cx="0.42" cy="0.45" r="0.75"><stop offset="0" stop-color="#1e1612"/><stop offset="1" stop-color="#050506"/></radialGradient>
+          <radialGradient id="ink4" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#0a0a0c"/><stop offset="0.7" stop-color="#151418" stop-opacity="0.9"/><stop offset="1" stop-color="#151418" stop-opacity="0"/></radialGradient>
+          <filter id="blur4"><feGaussianBlur stdDeviation="6"/></filter>
+        </defs>
+        <rect width="1280" height="720" fill="url(#dark4)"/>
+        <!-- 众惑：墨团 + 无数问号般的眼 -->
+        <g filter="url(#blur4)" opacity="0.9"><circle cx="520" cy="330" r="210" fill="url(#ink4)"/><circle cx="430" cy="270" r="120" fill="url(#ink4)"/><circle cx="620" cy="250" r="110" fill="url(#ink4)"/></g>
+        <g fill="#a3312a" opacity="0.85">
+          <ellipse cx="470" cy="300" rx="9" ry="5"/><ellipse cx="560" cy="290" rx="9" ry="5"/><ellipse cx="515" cy="360" rx="6" ry="3.5"/><ellipse cx="420" cy="360" rx="5" ry="3"/><ellipse cx="610" cy="350" rx="5" ry="3"/><ellipse cx="380" cy="300" rx="4" ry="2.5"/><ellipse cx="650" cy="300" rx="4" ry="2.5"/>
+        </g>
+        <g font-family="Noto Serif SC" fill="#8f8572" opacity="0.75" font-size="15">
+          <text x="300" y="200">KeyError？</text><text x="560" y="190">get 和 [] 有什么区别</text><text x="250" y="430">为啥我这报错</text><text x="640" y="450">默认值是干嘛的</text><text x="430" y="500">取不存在的键不是返回 None 吗</text>
+        </g>
+      </svg>
+      <div style="position:absolute; left:360px; top:40px; text-align:center; width:320px;">
+        <div style="font-family:var(--brush); font-size:44px; color:#e9b7a8; letter-spacing:0.2em;">众 惑</div>
+        <div style="font-size:13px; color:#a99d86;">第五室 · 字典之惑 · 34 人在此追问 · 71% 答错</div>
+        <div style="margin:10px auto 0; width:260px; height:6px; background:#2a1d18;"><div style="width:55%; height:100%; background:var(--seal);"></div></div>
+      </div>
+      <!-- 回血卷 -->
+      <div class="dossier ruled" style="right:40px; top:60px; width:470px; padding-top:20px;">
+        <h4>灯 将 尽 · 答 此 问 添 一 盏 灯</h4>
+        <div class="row"><span>灯</span><span class="lamps"><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></span></div>
+        <div style="font-size:17px; font-weight:600; line-height:1.6; margin:8px 0;">d = {'name': '小明'}，<br>d.get('score', 0) 得什么？</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:10px 0 14px;">
+          <span class="btn" style="text-align:center">甲 · 0</span><span class="btn" style="text-align:center">乙 · None</span>
+          <span class="btn" style="text-align:center">丙 · 抛出 KeyError</span><span class="btn" style="text-align:center">丁 · 'score'</span>
+        </div>
+        <div style="border-top:1px dashed rgba(110,82,46,0.5); padding-top:10px; font-size:13px; line-height:1.7; color:var(--text-ink);">
+          <div style="color:var(--ochre); letter-spacing:0.2em; font-size:12px;">讲 师 原 话 · 回 放 07:18</div>
+          「get 取不到的时候默认返回 None，你还可以给它第二个参数当作默认值。」
+        </div>
+        <div style="margin-top:12px; display:flex; gap:8px;"><span class="btn">回看这 40 秒</span><span class="btn">认输，回广场</span></div>
+        <div class="seal" style="right:18px; bottom:18px;">回血</div>
+      </div>
+      <div class="dossier" style="left:40px; bottom:40px; width:330px; padding-top:14px;">
+        <h4>众 惑 之 弱</h4>
+        <div style="font-size:14px; line-height:1.7;">弱点：<b>get</b>。用「铜鱼符」破门后，连答三问可散众惑：每答对一问，台下亮一盏灯。</div>
+        <div style="font-size:12px; color:var(--text-mute); margin-top:6px;">战胜：积分 +120 · 得「卷宗残页」</div>
+      </div>
+      <div class="vignette"></div><div class="grain"></div>
+    </div>
+    <div class="notes">
+      <p><b>Boss 不是怪兽</b>：「众惑」由全场真实追问组成，飘在周围的字都是聊天原句；位置由答题卡真实错误率决定（课程第五室 71%）。</p>
+      <p><b>战败回血</b>：灯灭前弹出回血卷，答对添灯；附讲师原话与回放时间点，可直接回看这 40 秒。</p>
+      <p><b>战胜</b>：得积分与道具（卷宗残页），残页集齐拼出终局问题。</p>
+    </div>
+  </figure>
+
+  <!-- ⑤ 夜市店铺 -->
+  <figure id="f5">
+    <figcaption><b>伍 · 夜市店铺</b><span>进店有伙计迎客介绍；商品卡可展开看图文与价格，「看讲解」播放这件商品在回放里的那一段。</span></figcaption>
+    <div class="frame">
+      <svg class="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky5" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0a0d13"/><stop offset="1" stop-color="#241a12"/></linearGradient>
+          <radialGradient id="glow5" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffb46a" stop-opacity="0.8"/><stop offset="1" stop-color="#ffb46a" stop-opacity="0"/></radialGradient>
+          <pattern id="awning" width="40" height="80" patternUnits="userSpaceOnUse"><rect width="20" height="80" fill="#6b2a20"/><rect x="20" width="20" height="80" fill="#c9b48a"/></pattern>
+        </defs>
+        <rect width="1280" height="720" fill="url(#sky5)"/>
+        <rect y="520" width="1280" height="200" fill="#120e0b"/>
+        <!-- 摊棚 -->
+        <path d="M60 170 L700 170 L760 260 L0 260 Z" fill="url(#awning)" opacity="0.9"/>
+        <rect x="40" y="260" width="10" height="300" fill="#2d1d12"/><rect x="700" y="260" width="10" height="300" fill="#2d1d12"/>
+        <rect x="40" y="440" width="680" height="24" fill="#3b2717"/>
+        <rect x="60" y="464" width="640" height="90" fill="#22170f"/>
+        <!-- 幌子 -->
+        <rect x="730" y="150" width="50" height="200" fill="#e2d2a8"/><rect x="730" y="150" width="50" height="10" fill="#6b2a20"/>
+        <text x="755" y="200" font-family="Ma Shan Zheng" font-size="32" fill="#2b2219" text-anchor="middle" writing-mode="tb">杯铺</text>
+        <!-- 货架上的杯 -->
+        <g><rect x="120" y="380" width="44" height="60" rx="6" fill="#2f4a52"/><rect x="200" y="372" width="44" height="68" rx="6" fill="#7a2a22"/><rect x="280" y="380" width="44" height="60" rx="6" fill="#d8d1c0"/></g>
+        <!-- 灯 -->
+        <circle cx="160" cy="250" r="70" fill="url(#glow5)" opacity="0.6"/><circle cx="560" cy="250" r="70" fill="url(#glow5)" opacity="0.6"/>
+        <!-- 伙计剪影 -->
+        <g><circle cx="500" cy="300" r="34" fill="#0c0908"/><rect x="452" y="262" width="96" height="14" rx="4" fill="#0c0908"/><path d="M440 450 Q450 340 500 334 Q550 340 560 450 Z" fill="#0c0908"/><path d="M548 380 L600 360 L604 372 L556 396 Z" fill="#0c0908"/></g>
+        <!-- 远处人影 -->
+        <g fill="#0c0a09" opacity="0.8"><circle cx="980" cy="470" r="14"/><path d="M962 560 Q966 488 980 486 Q994 488 998 560 Z"/><circle cx="1050" cy="480" r="12"/><path d="M1034 560 Q1038 496 1050 494 Q1062 496 1066 560 Z"/></g>
+      </svg>
+      <!-- 伙计对白 -->
+      <div class="dossier" style="left:60px; top:520px; width:640px; padding:14px 20px 14px 30px;">
+        <div style="font-size:12px; color:var(--ochre); letter-spacing:0.3em;">伙 计 · 阿 青</div>
+        <div style="font-size:16px; line-height:1.7; margin-top:4px;">「客官来得巧，这宋锦纹保温杯有黛青、朱砂、月白三色。装 95 度的热水放 12 小时，打开约莫还有 62 度——这是主播阿月在直播里说的实测，冬日室外会低些。」</div>
+        <div style="display:flex; gap:8px; margin-top:8px;"><span class="btn">杯身多粗？</span><span class="btn">500 和 350 怎么选？</span><span class="btn">能退吗？</span></div>
+      </div>
+      <!-- 商品卡 -->
+      <div class="dossier ruled" style="right:36px; top:36px; width:440px; bottom:36px; padding-top:18px;">
+        <h4>货 单 · 宋 锦 纹 保 温 杯 500ml</h4>
+        <div style="display:flex; gap:14px;">
+          <img src="assets/cover-cup.png" style="width:150px; height:150px; object-fit:cover; border:1px solid rgba(110,82,46,0.5);">
+          <div style="font-size:13px; line-height:1.75;">
+            <div><span style="color:var(--text-mute)">内胆</span> 316 不锈钢 · 外壳 304</div>
+            <div><span style="color:var(--text-mute)">颜色</span> 黛青 / 朱砂 / 月白</div>
+            <div><span style="color:var(--text-mute)">尺寸</span> 直径 7.2cm · 高 24cm · 360g</div>
+            <div style="margin-top:8px;"><span style="font-size:30px; font-weight:900; color:var(--seal);">¥129</span> <s style="color:var(--text-mute)">¥169</s></div>
+          </div>
+        </div>
+        <div style="font-size:13px; line-height:1.75; margin-top:10px; color:var(--text-ink);">另有 350ml 款 89 元，两款杯盖通用；不建议装碳酸饮料与牛奶久放。满 199 减 30，可与眼罩凑单。</div>
+        <div style="margin-top:12px; position:relative; border:1px solid rgba(110,82,46,0.5);">
+          <img src="assets/product-frame.png" style="display:block; width:100%; aspect-ratio:16/9; object-fit:cover;">
+          <div style="position:absolute; left:0; right:0; bottom:0; padding:6px 10px; background:rgba(0,0,0,0.7); color:#f0e6cf; font-size:12px; display:flex; justify-content:space-between;"><span>▶ 看讲解 · 主播阿月</span><span>回放 00:58 – 02:36</span></div>
+        </div>
+        <div style="font-size:12px; color:var(--text-mute); margin-top:8px;">讲解片段来自直播中的商品讲解打点；卡片内容来自商品库。</div>
+        <div style="position:absolute; left:30px; right:18px; bottom:16px; display:flex; gap:8px;"><span class="btn" style="background:var(--seal); color:#f6ecd6; border-color:var(--seal);">记入账簿 · 去下单</span><span class="btn">看下一件</span></div>
+        <div class="seal" style="right:16px; top:14px;">货单</div>
+      </div>
+      <div class="vignette"></div><div class="grain"></div>
+    </div>
+    <div class="notes">
+      <p><b>有人张罗</b>：进店伙计迎客，台词按商品详情与主播原话生成；底部三个追问来自聊天里的真实顾虑。</p>
+      <p><b>商品卡</b>：封面图、简介、详情、价格；不写功效承诺与绝对化用语（合规约束）。</p>
+      <p><b>看讲解</b>：播放这件商品在回放里的讲解段（商品讲解打点；兜底用造数时间轴 + 暂存 mp4）。</p>
+    </div>
+  </figure>
+
+  <!-- ⑥ 回放广场 · 白昼 -->
+  <figure id="f6">
+    <figcaption><b>陆 · 回放广场 · 午时</b><span>按观众本地时间切换：白天市井、灯笼不点；倒计时终点变为「宵禁前」。</span></figcaption>
+    <div class="frame">
+      <svg class="scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id="sky6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9c4c4"/><stop offset="0.6" stop-color="#d9d2bd"/><stop offset="1" stop-color="#c8b48c"/></linearGradient>
+          <linearGradient id="ground6" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#a99572"/><stop offset="1" stop-color="#7a6a50"/></linearGradient>
+          <pattern id="tiles6" width="60" height="22" patternUnits="userSpaceOnUse"><path d="M0 21 H60 M30 0 V21" stroke="#8d7a5a" stroke-width="1" fill="none"/></pattern>
+          <symbol id="roof6" viewBox="0 0 200 60"><path d="M0 52 Q30 50 46 30 L154 30 Q170 50 200 52 L196 58 Q100 46 4 58 Z" fill="#3b3a38"/><path d="M40 30 L100 4 L160 30 Z" fill="#4a4845"/></symbol>
+        </defs>
+        <rect width="1280" height="720" fill="url(#sky6)"/>
+        <g opacity="0.35" fill="#7d8a8a"><path d="M0 340 Q200 260 380 320 Q560 240 760 310 Q960 250 1280 320 L1280 420 L0 420 Z"/></g>
+        <rect y="440" width="1280" height="280" fill="url(#ground6)"/>
+        <rect y="440" width="1280" height="280" fill="url(#tiles6)" opacity="0.6"/>
+        <g><rect x="70" y="300" width="230" height="150" fill="#6b5a46"/><use href="#roof6" x="40" y="252" width="290" height="70"/><use href="#roof6" x="80" y="206" width="210" height="56"/><rect x="100" y="360" width="34" height="70" fill="#4a3c2c"/><rect x="146" y="360" width="34" height="70" fill="#4a3c2c"/><rect x="236" y="360" width="34" height="70" fill="#4a3c2c"/><path d="M276 210 L276 160 L300 168 L276 176" fill="#a3312a"/></g>
+        <g><rect x="980" y="300" width="230" height="150" fill="#6b5a46"/><use href="#roof6" x="950" y="252" width="290" height="70"/></g>
+        <g><rect x="400" y="250" width="480" height="210" fill="#5e4c3a"/><use href="#roof6" x="350" y="190" width="580" height="110"/><use href="#roof6" x="430" y="118" width="420" height="88"/><use href="#roof6" x="510" y="60" width="260" height="64"/><rect x="420" y="262" width="12" height="190" fill="#8a3a2c"/><rect x="848" y="262" width="12" height="190" fill="#8a3a2c"/></g>
+        <rect x="466" y="282" width="348" height="196" fill="#2b2219" stroke="#8a5a2c" stroke-width="2"/>
+        <image href="assets/replay-frame.png" x="470" y="286" width="340" height="188" preserveAspectRatio="xMidYMid slice"/>
+        <path d="M0 150 Q320 230 640 170 Q960 110 1280 190" stroke="#5a4636" stroke-width="1.5" fill="none"/>
+        <g fill="#8a5a3a"><ellipse cx="120" cy="194" rx="7" ry="9"/><ellipse cx="300" cy="220" rx="7" ry="9"/><ellipse cx="980" cy="138" rx="7" ry="9"/><ellipse cx="1160" cy="172" rx="7" ry="9"/></g>
+        <!-- 行人 -->
+        <g fill="#3b3128" opacity="0.75"><circle cx="300" cy="520" r="12"/><path d="M286 600 Q288 534 300 532 Q312 534 314 600 Z"/><circle cx="940" cy="540" r="10"/><path d="M928 610 Q930 552 940 550 Q950 552 952 610 Z"/><circle cx="1020" cy="530" r="11"/><path d="M1007 604 Q1009 544 1020 542 Q1031 544 1033 604 Z"/></g>
+      </svg>
+      <div class="watch" style="left:28px; top:26px; color:#2b2219;">
+        <div class="plate" style="background:linear-gradient(90deg,#e8dcc0,#d9c8a2); color:#2b2219; border-color:#8a5a2c;">午时</div>
+        <div class="meta" style="color:#3b3128;">日中 · 市井正热<br>距宵禁 <b style="color:#a3312a">七个时辰</b><br><span style="color:#6e6250">按你的本地时间 12:20</span></div>
+      </div>
+      <div class="dossier ruled" style="right:24px; top:24px; width:250px;">
+        <h4>随 身 卷 宗</h4>
+        <div class="row"><span>灯</span><span class="lamps"><i></i><i></i><i></i><i class="off"></i><i class="off"></i></span></div>
+        <div class="row"><span>积分</span><b>240</b></div>
+        <div class="row"><span>今日巡夜</span><span>字典街渐暗</span></div>
+        <div style="font-size:12px; color:var(--text-mute); line-height:1.6;">三日未回看，第五室的灯熄了一半，回来重新点亮。</div>
+        <div class="seal" style="right:12px; bottom:-14px;">日巡</div>
+      </div>
+      <div class="tag" style="left:470px; top:488px; color:#2b2219; background:rgba(232,220,192,0.85); border-color:#8a5a2c;">第三讲 · 列表、字典与循环 · <span style="color:#a3312a">点绢幕看完整回放</span></div>
+      <div class="grain"></div>
+    </div>
+    <div class="notes">
+      <p><b>昼夜</b>：日 / 暮 / 夜 / 拂晓四个时段按本地时间切换，影响天光、灯笼、行人与背景声；夜里全城灯火、更夫巡夜。</p>
+      <p><b>倒计时终点</b>：夜里是「天亮前」，白天是「宵禁前」。</p>
+      <p><b>遗忘变暗</b>（P1）：学过的街区随遗忘曲线熄灯，回来巡夜重新点亮，即间隔复习。</p>
+    </div>
+  </figure>
+</div>
+</body>
+</html>

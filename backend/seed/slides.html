@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: 1280px 720px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #0d1114; }
+  .slide { width: 1280px; height: 720px; position: relative; overflow: hidden; padding: 64px 80px; display: none; break-after: page;
+    font-family: 'PingFang SC', 'Hiragino Sans GB', sans-serif; color: #e6dfcf; }
+  .slide.on, body.all .slide { display: block; }
+  .course { background: radial-gradient(ellipse at 80% 0%, #1d2a2d 0%, #0d1114 60%); }
+  .commerce { background: radial-gradient(ellipse at 20% 0%, #3a2418 0%, #15100d 65%); }
+  .seg { font-size: 22px; color: #c9a45c; letter-spacing: 0.2em; }
+  h1 { font-family: 'STKaiti', 'Kaiti SC', serif; font-weight: 400; font-size: 60px; color: #e8cf94; margin: 14px 0 32px; line-height: 1.2; }
+  .cover h1 { font-size: 84px; margin-top: 180px; }
+  .cover .sub { font-size: 36px; color: #c9c2b2; }
+  .grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 48px; align-items: start; }
+  .grid.solo { grid-template-columns: 1fr; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  li { font-size: 30px; line-height: 1.5; padding: 10px 0 10px 34px; position: relative; }
+  li::before { content: ''; position: absolute; left: 0; top: 26px; width: 14px; height: 14px; background: #c4503a; transform: rotate(45deg); }
+  pre { margin: 0; background: #0a0d10; border: 1px solid #2a333b; border-left: 4px solid #c9a45c; border-radius: 4px; padding: 24px 26px;
+    font: 24px/1.55 'SF Mono', Menlo, monospace; color: #e6dfcf; white-space: pre-wrap; }
+  .cm { color: #8fcfb5; }
+  .price { position: absolute; right: 80px; bottom: 64px; text-align: right; }
+  .price b { font-size: 72px; color: #e8cf94; font-family: 'SF Mono', Menlo, monospace; }
+  .price s { font-size: 28px; color: #8f9690; margin-left: 12px; }
+  .price span { display: block; font-size: 22px; color: #c9a45c; letter-spacing: 0.15em; }
+  .foot { position: absolute; left: 80px; bottom: 36px; font-size: 18px; color: #6d736e; letter-spacing: 0.1em; }
+  .page { position: absolute; right: 80px; top: 64px; font-size: 18px; color: #6d736e; }
+</style>
+</head>
+<body>
+<div id="deck"></div>
+<script>
+  const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]))
+  const code = s => esc(s).split('\n').map(l => l.replace(/(#.*)$/, '<span class="cm">$1</span>')).join('\n')
+  const q = new URLSearchParams(location.search)
+  const deck = window.DECK
+  const pick = deck.products ? Object.fromEntries(deck.products.map(p => [p.key, p])) : {}
+  document.getElementById('deck').innerHTML = deck.slides.map((s, i) => {
+    const p = s.product && pick[s.product]
+    const cover = s.sub && !s.bullets
+    const body = cover ? `<div class="sub">${esc(s.sub)}</div>` : `
+      <div class="grid ${s.code ? '' : 'solo'}">
+        <ul>${(s.bullets || []).map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+        ${s.code ? `<pre>${code(s.code)}</pre>` : ''}
+      </div>`
+    return `<section class="slide ${deck.theme} ${cover ? 'cover' : ''}">
+      <div class="seg">${esc(deck.segments[s.seg])}</div>
+      <h1>${esc(s.title)}</h1>${body}
+      ${p ? `<div class="price"><span>直播间价</span><b>¥${p.price}</b><s>¥${p.originalPrice}</s></div>` : ''}
+      <div class="foot">${esc(deck.title)} · ${esc(deck.host)}</div>
+      <div class="page">${i + 1} / ${deck.slides.length}</div>
+    </section>`
+  }).join('')
+  if (q.has('all')) document.body.classList.add('all')
+  else document.querySelectorAll('.slide')[Number(q.get('i') || 0)].classList.add('on')
+</script>
+</body>
+</html>

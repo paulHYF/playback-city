@@ -1,0 +1,24 @@
+/* 宋风夜色：墨、金、朱、玉 */
+:root {
+  --bg: #0d1114;
+  --panel: #151b20;
+  --panel-2: #1b232a;
+  --line: #2a333b;
+  --text: #e6dfcf;
+  --muted: #8f9690;
+  --gold: #c9a45c;
+  --gold-2: #e8cf94;
+  --cinnabar: #c4503a;
+  --jade: #8fcfb5;
+  --brush: 'Ma Shan Zheng', 'STKaiti', serif;
+  --serif: 'Noto Serif SC', 'Songti SC', serif;
+  --body: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--body); }
+a { color: var(--gold-2); }
+.brush { font-family: var(--brush); font-weight: 400; color: var(--gold-2); }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
