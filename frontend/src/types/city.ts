@@ -1,5 +1,6 @@
 // 频道（城）、回放、观众端城数据、大盘，与 backend app/routers/* 返回一致
 import type { Faq, Room, Scene, World } from './game'
+export type { Scene }
 
 export type GameStatus = 'none' | 'fetching' | 'analyzing' | 'ready' | 'failed'
 
@@ -78,6 +79,8 @@ export interface CityReplay {
 export interface CityData {
   channel: { id: string; name: string; publisher: string; scene: Scene; cover: string }
   city: City
+  /** 直播播放器参数：账号 uid、频道号、按环境下发的 domainInfo */
+  player: { uid: string; channelId: string; domainInfo: Record<string, string> }
   replays: CityReplay[]
 }
 
@@ -110,6 +113,161 @@ export interface Dashboard {
   kpi: { viewers: number; runs: number; cleared: number; clearRate: number; avgDuration: number; revives: number }
   buildings: DashboardBuilding[]
   timeline: { ts: number; replay: string; viewer: string }[]
+}
+
+export interface RawFile {
+  name: string
+  label: string
+  size: number
+  mtime: number
+  count: number | null
+}
+
+export interface RawOverview {
+  import: { files: RawFile[] }
+  replays: { id: string; title: string; sort_no: number; game_status: GameStatus; files: RawFile[]; errors: Record<string, string> }[]
+}
+
+export type Level = 'good' | 'fair' | 'poor' | 'none'
+
+export interface Indicator {
+  key: string
+  name: string
+  value: number | null
+  display: string
+  score: number | null
+  level: Level
+  weight: number
+  tip: string
+}
+
+export interface ReportDimension {
+  score: number | null
+  indicators: Indicator[]
+  findings: string[]
+  actions: string[]
+}
+
+export interface ReplayQuality {
+  id: string
+  no: number
+  title: string
+  duration: number
+  gameReady: boolean
+  hasRaw: boolean
+  /** false：只有旧的按观众汇总观看记录，直播与回放没拆开 */
+  viewSplit: boolean
+  live: {
+    viewers: number
+    plays: number
+    avgWatch: number
+    completion: number | null
+    buckets: number[]
+    /** 每分钟在线人数 */
+    online: number[]
+    peak: number
+    drop: { minute: number; lost: number; room: string | null } | null
+  }
+  vod: {
+    viewers: number
+    plays: number
+    avgWatch: number
+    completion: number | null
+    buckets: number[]
+    repeat: number
+    fromLive: number
+    vodOnly: number
+    liveShort: number
+    makeup: number
+    /** 首次看回放距直播：当天 / 1–3 天 / 4–7 天 / 7 天后 */
+    age: number[]
+  }
+  review: {
+    bin: number
+    heat: number[]
+    seconds: number[]
+    ranges: number
+    reviewers: number
+    sources: Record<string, number>
+    segments: { from: number; to: number; viewers: number; seconds: number; room: string | null; reasons: string[] }[]
+  }
+  chat: {
+    messages: number
+    speakers: number
+    speakRate: number | null
+    perMinute: number | null
+    questions: number
+    intent: number
+    confused: number
+    heat: number[]
+    peak: { minute: number; count: number; room: string | null } | null
+    topics: Record<Scene, Record<string, number>>
+  }
+  asks: number
+  quiz: {
+    cards: { title: string; total: number; correct: number; correctRate: number | null; offset: number | null; room: string | null }[]
+    count: number
+    answers: number
+    participation: number | null
+    correctRate: number | null
+  }
+  questionnaire: {
+    count: number
+    submitters: number
+    rate: number | null
+    satisfaction: number | null
+    questions: { name: string; type: string; answers: number; options: { key: string; count: number }[] }[]
+  }
+  rooms: { title: string; start: number; end: number; failRate: number; items: number; keywords: string[] }[]
+  hardRooms: { title: string; start: number; end: number; failRate: number }[]
+  faq: { question: string; count: number; sourceTime: number }[]
+  faqTotal: number
+}
+
+export interface AiReview {
+  summary: string
+  training: string[]
+  marketing: string[]
+  actions: string[]
+  generatedAt: number
+}
+
+export interface QualityReport {
+  channel: { id: string; name: string; scene: Scene; publisher: string; city: string | null }
+  generatedAt: number
+  summary: {
+    replays: number
+    analyzed: number
+    duration: number
+    viewers: number
+    messages: number
+    speakers: number
+    completion: number | null
+    viewSplit: boolean
+    vodViewers: number
+    vodCompletion: number | null
+    vodRepeat: number
+    vodOnly: number
+    vodReach: number | null
+    makeupRate: number | null
+    reviewers: number
+    reviewRanges: number
+    speakRate: number | null
+    perMinute: number | null
+    intentRate: number | null
+    quizCount: number
+    quizAnswers: number
+    quizPart: number | null
+    quizCorrect: number | null
+    qnRate: number | null
+    satisfaction: number | null
+    faqTotal: number
+    topics: Record<Scene, Record<string, number>>
+    play: Dashboard['kpi']
+  }
+  dimensions: { training: ReportDimension; marketing: ReportDimension }
+  replays: ReplayQuality[]
+  ai: AiReview | null
 }
 
 export interface ReplayDashboard {

@@ -3,7 +3,7 @@ from app import db
 from app.db import dumps, now_ms
 
 REPLAY_LIST_COLS = ("id, channel_id, video_id, title, duration_s, start_time, cover, url, mp4, session_id, sort_no, "
-                    "subtitle_ready, game_status, game_error, updated_at")
+                    "subtitle_ready, game_status, game_error, game_edited_at, updated_at")
 
 
 def list_channels() -> list[dict]:
@@ -27,13 +27,21 @@ def save_channel(data: dict) -> None:
 
 
 def set_city(cid: str, status: str, city: dict | None = None, error: str = "") -> None:
+    """生成任务写状态；带 city 时是新生成的数据，覆盖掉后台的人工调整。"""
     with db.connect() as conn:
         if city is None:
             conn.execute("UPDATE channel SET city_status = ?, city_error = ?, updated_at = ? WHERE channel_id = ?",
                          (status, error, now_ms(), cid))
         else:
-            conn.execute("UPDATE channel SET city_status = ?, city_error = ?, city_json = ?, updated_at = ? WHERE channel_id = ?",
-                         (status, error, dumps(city), now_ms(), cid))
+            conn.execute("UPDATE channel SET city_status = ?, city_error = ?, city_json = ?, city_edited_at = NULL, updated_at = ? "
+                         "WHERE channel_id = ?", (status, error, dumps(city), now_ms(), cid))
+
+
+def edit_city(cid: str, city: dict) -> None:
+    """后台人工调整：城数据即为 ready，清掉生成时的兜底说明。"""
+    with db.connect() as conn:
+        conn.execute("UPDATE channel SET city_status = 'ready', city_error = '', city_json = ?, city_edited_at = ?, updated_at = ? "
+                     "WHERE channel_id = ?", (dumps(city), now_ms(), now_ms(), cid))
 
 
 def list_replays(cid: str, with_game: bool = False) -> list[dict]:
@@ -56,10 +64,17 @@ def save_replay(data: dict) -> None:
 
 
 def set_game(rid: str, status: str, game: dict | None = None, error: str = "") -> None:
+    """生成任务写状态；带 game 时是新生成的数据，覆盖掉后台的人工调整。"""
     with db.connect() as conn:
         if game is None:
             conn.execute("UPDATE replay SET game_status = ?, game_error = ?, updated_at = ? WHERE id = ?",
                          (status, error, now_ms(), rid))
         else:
-            conn.execute("UPDATE replay SET game_status = ?, game_error = ?, game_json = ?, updated_at = ? WHERE id = ?",
-                         (status, error, dumps(game), now_ms(), rid))
+            conn.execute("UPDATE replay SET game_status = ?, game_error = ?, game_json = ?, game_edited_at = NULL, updated_at = ? "
+                         "WHERE id = ?", (status, error, dumps(game), now_ms(), rid))
+
+
+def edit_game(rid: str, game: dict) -> None:
+    with db.connect() as conn:
+        conn.execute("UPDATE replay SET game_json = ?, game_edited_at = ?, updated_at = ? WHERE id = ?",
+                     (dumps(game), now_ms(), now_ms(), rid))

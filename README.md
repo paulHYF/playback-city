@@ -30,7 +30,7 @@ cd frontend && npm install && npm run dev   # http://localhost:5173 ，/admin �
 
 没配密钥也能跑：`backend/data/samples/` 里有一份离线样例（Python 入门第 3 讲），空库首次启动会自动导入。
 
-流程：后台 `/admin` 输入频道号导入 → 回放基础信息页逐讲「生成」→「生成整城」→ 观众进 `/city/<频道号>` 闯关 → 讲师看 `/dashboard/<频道号>`。开发计划见 [doc/开发计划.md](doc/开发计划.md)。
+流程：后台 `/admin` 输入频道号导入 → 回放基础信息页逐讲「生成」→「生成整城」→ 观众进 `/city/<频道号>` 闯关 → 讲师看 `/dashboard/<频道号>`。后台还可以查看直播原始数据（`/admin/channels/<频道号>/raw`），以及按培训、营销两个维度打分的直播质量分析报告（`/admin/channels/<频道号>/report`；直播看到场与流失，回放看补看与大家反复回看的重点段）。开发计划见 [doc/开发计划.md](doc/开发计划.md)。
 
 ## 原型 v3 怎么玩
 

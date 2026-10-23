@@ -1,4 +1,4 @@
-"""按频道号导入：频道信息 + 回放列表 + 暂存列表 → channel / replay 表。
+"""按频道号导入：频道信息 + 回放列表 + 暂存列表 → channel / replay 表，原始响应落 data/channels/<cid>/import/。
 
 一讲回放以暂存 fileId 为 id（AI 大纲、字幕都挂在暂存上）；回放列表补上 videoId、封面和 m3u8。
 重复导入只刷新基础信息，不动已生成的游戏与城数据。
@@ -50,7 +50,12 @@ async def _all_record_files(c: PolyvClient, cid: str) -> list[dict]:
 async def import_channel(c: PolyvClient, cid: str, scene: str) -> dict:
     info = await api.channel_info(c, cid)
     playbacks = await _all_playbacks(c, cid)
-    records = {f["fileId"]: f for f in await _all_record_files(c, cid)}
+    record_list = await _all_record_files(c, cid)
+    records = {f["fileId"]: f for f in record_list}
+    raw = storage.channel_dir(cid) / "import"
+    storage.write_json(raw / "channel_info.json", info)
+    storage.write_json(raw / "playbacks.json", playbacks)
+    storage.write_json(raw / "record_files.json", record_list)
 
     existing = repo.get_channel(cid)
     repo.save_channel({

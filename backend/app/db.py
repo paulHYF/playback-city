@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS channel (
     city_json    TEXT,                            -- AI 生成的城级数据，见 pipeline/city.py
     city_status  TEXT NOT NULL DEFAULT 'none',    -- none | generating | ready | failed
     city_error   TEXT NOT NULL DEFAULT '',
+    city_edited_at INTEGER,                       -- 后台人工调整过城数据的时间；重新生成整城时清空
     imported_at  INTEGER NOT NULL,
     updated_at   INTEGER NOT NULL
 );
@@ -41,6 +42,7 @@ CREATE TABLE IF NOT EXISTS replay (
     game_status    TEXT NOT NULL DEFAULT 'none',  -- none | fetching | analyzing | ready | failed
     game_error     TEXT NOT NULL DEFAULT '',
     game_json      TEXT,
+    game_edited_at INTEGER,                       -- 后台人工调整过 game.json 的时间；重新生成时清空
     updated_at     INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_replay_channel ON replay(channel_id, sort_no);
@@ -97,6 +99,18 @@ CREATE TABLE IF NOT EXISTS viewer_replay (
     best_points INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (viewer_id, replay_id)
 );
+
+CREATE TABLE IF NOT EXISTS replay_watch (                 -- 回放城播放器里真实看过的区间，质量报告「重点回顾段」用
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    viewer_id   TEXT NOT NULL,
+    replay_id   TEXT NOT NULL,
+    channel_id  TEXT NOT NULL,
+    source      TEXT NOT NULL,                    -- full 完整回放 | clip 片段
+    from_s      INTEGER NOT NULL,
+    to_s        INTEGER NOT NULL,
+    ts          INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_watch_replay ON replay_watch(replay_id);
 """
 
 
@@ -123,9 +137,18 @@ def connect():
         conn.close()
 
 
+# 建表之后新增的列：老库启动时补上（CREATE TABLE IF NOT EXISTS 不会改已有表）
+ADDED_COLUMNS = {"channel": {"city_edited_at": "INTEGER"}, "replay": {"game_edited_at": "INTEGER"}}
+
+
 def init() -> None:
     with connect() as conn:
         conn.executescript(SCHEMA)
+        for table, cols in ADDED_COLUMNS.items():
+            have = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+            for col, ddl in cols.items():
+                if col not in have:
+                    conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
 
 
 def row(r: sqlite3.Row | None, *json_fields: str) -> dict | None:

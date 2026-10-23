@@ -148,7 +148,7 @@
       <span>团队 <b>你说就你队</b></span>
       <span>成员 <b>Paul · Bob</b></span>
       <span>赛程 <b>2026.10.23 — 10.24</b></span>
-      <span>版本 <b>v1.0 · 2026-10-21</b></span>
+      <span>版本 <b>v1.2 · 2026-10-23</b></span>
       <span>状态 <b>范围已收敛，待开发</b></span>
     </div>
   </div>
@@ -458,6 +458,72 @@
       <li><b>其他</b>：数字人 NPC 讲解视频、嵌入观看页 SDK、glTF 模型素材与音效</li>
     </ul>
   </div></div>
+
+  <div class="note"><b>6.1 需求变更（2026-10-23）</b>：后台联调时提出 4 条，F-12 修两个交互问题，F-13、F-14 为新增页面；随后又提出观看记录拆分直播与回放（F-15）。均已实现。</div>
+
+  <div class="req"><div class="hd"><span class="id">F-12</span><span class="name">后台「已导入的城」列表：场景筛选与操作入口</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p><b>问题 1</b>：导入区的「场景」单选只决定新导入频道属于哪个场景，下方列表不随之过滤，看起来像筛选失效。<b>问题 2</b>：列表整行可点，跳的是后台管理页（生成密室、生成整城都在那里），整城「未生成」的频道也能点进去，容易误以为没生成也能进城。</p>
+    <ul class="ac">
+      <li>列表右上角提供「全部 / 课程培训 / 直播带货」筛选，带各自数量；切换导入场景时列表同步筛到该场景</li>
+      <li>筛选后为空时提示「这个场景下还没有导入频道」</li>
+      <li>取消整行点击，改为显式操作按钮：未生成显示「去生成」、已生成显示「管理」（均进后台管理页）·「原始数据」·「质量报告」·「进城」</li>
+      <li>「进城」只在整城已生成时可点；未生成时置灰并提示「整城生成后才能进城」</li>
+      <li>后台管理页同步增加「直播原始数据」「直播质量报告」入口</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-13</span><span class="name">直播原始数据查看页</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>把从直播开放接口拉回来的原始数据完整展示出来，原样保存、不做加工，用于核对 AI 生成结果和质量报告的数据来源。路由 <code>/admin/channels/:cid/raw</code>。</p>
+    <ul class="ac">
+      <li>导入时把频道信息、回放列表、暂存列表的原始响应落盘到 <code>data/channels/&lt;cid&gt;/import/</code>（此前导入只入库不落盘）</li>
+      <li>左侧分组列出：频道级导入数据；每讲的暂存文件、AI 大纲与测验、字幕、聊天记录、提问、观看记录、答题卡、问卷，显示条数；拉取失败的标红并显示原因</li>
+      <li>右侧支持表格视图（嵌套字段展开一层、全空字段自动隐藏、关键词搜索、50 行分页）与 JSON 原文视图，可下载 JSON</li>
+      <li>单个对象（如频道信息）竖排为「字段 / 值」，不压成一行</li>
+      <li>旧频道没有导入数据时，页面给「重新导入并保存」按钮；某讲未生成时提示「到频道页点生成后会保存这一讲的原始数据」</li>
+    </ul>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-14</span><span class="name">直播质量分析报告（培训 + 营销双维度）</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p>根据回放城数据（殿室答题错误率、高频疑问、闯关数据）与直播原始数据（观看、聊天、答题卡、问卷），按频道产出一份直播质量分析报告。路由 <code>/admin/channels/:cid/report</code>。<b>所有指标与诊断由程序按真实数据计算，大模型只写可选的文字点评，不改数字。</b></p>
+    <ul class="ac">
+      <li>顶部汇总：已分析讲次、观众数与完课率、观众弹幕与发言人数、答题正确率、问卷满意度与反馈率、高频疑问人次、回放城闯关观众与通关率</li>
+      <li>两个维度各给 0–100 分：每个指标在「低线—高线」间线性折算，按权重加权；无数据的指标显示「无数据」、不计分。频道场景对应的维度标为主维度、排在前面</li>
+      <li>每个维度给出诊断发现与改进建议，定位到具体讲次、段落与时间区间；措辞按频道场景区分（如带货频道的培训维度写「商品信息理解不到位」，课程频道的营销维度写「可转化为咨询话术」）</li>
+      <li>逐讲明细：观看时长分布（&lt;25% / 25–50% / 50–75% / ≥75%）、每分钟弹幕热度（对齐殿室段落，峰值标红）、各段答题错误率、弹幕关注点、高频疑问、答题卡明细（发题时间、所在段、作答人数、正确率）、问卷选项分布</li>
+      <li>「生成 AI 点评」：把报告指标交给大模型写总评、培训要点、营销要点、下一讲优先改进 3 条，存为 <code>data/channels/&lt;cid&gt;/report_ai.json</code>；支持「打印 / 导出 PDF」</li>
+      <li>没有任何一讲拉过原始数据时，提示先生成至少一讲</li>
+    </ul>
+    <div class="tbl"><table>
+      <thead><tr><th>维度</th><th>指标（权重）</th><th>口径</th></tr></thead>
+      <tbody>
+        <tr><td><b>培训</b><br><span class="note">听完、听懂、掌握</span></td><td>直播完课率（25）· 互动发言率（10）· 答题参与率（15）· 知识掌握度（25）· 课后反馈率（5）· 讲解满意度（10）· 回放补课率（10）· 回放城复习通关率（10，有闯关数据时计入）</td><td rowspan="2">
+          <ul>
+            <li>直播完课率 / 直播观看留存 = 直播观众平均观看时长 ÷ 直播时长（直播观看日志）</li>
+            <li>发言率 = 发过言的观众 ÷ 直播观众数；互动热度 = 观众弹幕 ÷ 直播分钟数（排除讲师、助教等角色）</li>
+            <li>答题参与率 = 每张答题卡平均作答人数 ÷ 直播观众数；掌握度 / 卖点认知度 = 答对人次 ÷ 作答人次</li>
+            <li>购买意向信号 = 涉及下单、链接、价格、优惠的弹幕占比</li>
+            <li>反馈率 / 留资率 = 提交问卷人数 ÷ 直播观众数；满意度 = 问卷打分题按 A–E 对应 1–5 分的平均分</li>
+            <li>回放补课率 = 直播没看到一半的观众里，回头看了回放的比例；回放二次触达 = 回放观众数 ÷ 直播观众数（见 F-15）</li>
+            <li>难点段：殿室答题错误率 ≥ 50%</li>
+          </ul></td></tr>
+        <tr><td><b>营销</b><br><span class="note">留下、心动、想买</span></td><td>直播观看留存（20）· 互动热度（15）· 发言渗透率（10）· 回放二次触达（10）· 购买意向信号（20）· 卖点认知度（15）· 问卷留资率（5）· 主播讲解满意度（10）</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">弹幕关注点按关键词归类：课程侧「没听懂 / 求重讲、理解反馈、实操 / 作业、签到寒暄」，带货侧「价格优惠、物流发货、售后保障、规格材质、下单意向」。聊天与观看记录按开播当天、按频道拉取，同一天多场时会合并统计。</p>
+  </div></div>
+
+  <div class="req"><div class="hd"><span class="id">F-15</span><span class="name">观看记录拆分直播 / 回放，回放分析重点回顾段</span><span class="pill p0">P0</span><span class="pill ok">10.23 变更 · 已完成</span></div><div class="bd">
+    <p><b>问题</b>：原观看记录接口 <code>/live/v4/user/viewlog/list</code> 按观众汇总，直播和回放混在一起（如 8655744 报告里的「观众 34」其实是直播 22 + 回放 12），完课率被回放拉低，也看不出回放观众在看什么。<b>直播与回放分析目的不同</b>：直播看到场与留存，回放看谁回来看、看了哪里，<b>重点是大家反复回看的段落</b>，用来定位难点与真实兴趣。</p>
+    <ul class="ac">
+      <li>改用 <code>GET /live/v2/statistics/{channelId}/viewlog</code> 按场次拉逐次播放日志，<code>param3=live</code> 存为 <code>viewlog_live</code>、<code>param3=vod</code> 存为 <code>viewlog_vod</code>；接口不能跨月查询，按自然月切分（直播查开播当月，回放查开播起 12 个月）；旧 <code>viewlog</code> 保留展示</li>
+      <li><b>直播</b>：观众数、播放次数、平均观看时长、完课率、时长分布；按进出时间算每分钟在线人数曲线（对齐殿室段落），标出流失最多的一分钟及当时在讲的段落</li>
+      <li><b>回放</b>：观众数、播放次数、完课率；观众构成（直播看过又来补看 / 只看回放的新观众 / 看了两遍以上）；直播没看到一半的人里多少回来补看；首次看回放距直播的天数分布（当天 / 1–3 天 / 4–7 天 / 7 天后）</li>
+      <li><b>重点回顾段</b>：直播开放接口不返回回放播放进度，回看位置来自回放城——观众在回放城播放器里看完整回放、看讲解片段的真实播放区间（拖动进度条即断开，收起播放器时上报，存 <code>replay_watch</code> 表），以及复活时看完的封印片段。按 30 秒一格叠加回看人数，取不低于峰值 60% 的连续区间，最多 5 段，标注所在段落与原因：答题错误率 ≥ 40%、高频疑问出处、直播流失点、直播弹幕高峰</li>
+      <li>两个维度的诊断都引用直播流失点与重点回顾段；建议按场景区分（课程：剪成知识点微课并在下一讲开场补讲；带货：剪成商品讲解切片做投放，回放页挂常驻购买链接）</li>
+      <li>没有回看数据时显示「暂无回看进度数据」；只有旧格式观看记录时提示到原始数据页「重新拉取」，观看指标先全部按直播计</li>
+      <li>原始数据页每讲增加「重新拉取」：只重拉直播接口数据，不重新生成密室</li>
+    </ul>
+  </div></div>
 </section>
 
 <!-- 7 -->
@@ -653,9 +719,12 @@
 │   │   ├── polyv/            # 签名、客户端、接口清单、SRT 解析
 │   │   ├── llm/              # OpenAI 兼容客户端
 │   │   ├── pipeline/         # fetch · analyze · schema（game.json 校验）· prompts/
-│   │   ├── routers/          # /api/channels · /api/games
+│   │   ├── routers/          # /api/channels · /api/replays · /api/viewers · /api/dashboard
+│   │   ├── rawdata.py        # 直播原始数据定位与读取（F-13）
+│   │   ├── report.py         # 直播质量分析报告：指标、双维度打分、诊断、AI 点评（F-14）
 │   │   └── cli.py            # 命令行离线预生成
 │   ├── data/                 # &lt;scene&gt;-&lt;channelId&gt;-&lt;fileId&gt;/raw + game.json；samples/ 离线样例
+│   │                         # channels/&lt;cid&gt;/import/ 导入原始数据 · report_ai.json AI 点评
 │   └── .env.example          # POLYV_API_BASE / POLYV_APP_ID / POLYV_APP_SECRET / LLM_*
 └── frontend/                 # Vue 3 · Vite · TypeScript
     └── src/
@@ -680,6 +749,7 @@
       <tr><td>查询频道提问记录</td><td><code>live/api/live_interaction/get_question_list</code></td><td><span class="pill p0">P0</span></td><td><b>测试环境已调通</b></td></tr>
       <tr><td>查询视频库列表（回放列表）</td><td><code>live/api/channel/playback/get_playback_list</code></td><td><span class="pill p0">P0</span></td><td>待验证</td></tr>
       <tr><td>查询观看记录</td><td><code>live/api/v4/user/viewlog/viewlog_list</code></td><td><span class="pill p1">P1</span></td><td><b>测试环境已调通</b></td></tr>
+      <tr><td>查询观看日志（分直播 / 回放）</td><td><code>GET /live/v2/statistics/{channelId}/viewlog</code>（<code>param3=live|vod</code>，不能跨月）</td><td><span class="pill p0">P0</span></td><td><b>测试环境已调通</b>（F-15）</td></tr>
       <tr><td>答题卡作答统计</td><td>live_interaction 答题卡相关接口</td><td><span class="pill p1">P1</span></td><td><b>取数接口待核对</b></td></tr>
       <tr><td>回写进度条打点</td><td>创建暂存视频大纲的 <code>syncToPlaybackDotEnabled</code></td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
       <tr><td>频道商品（带货）</td><td><code>live/api/channel/operate/add_channel_product</code> 及商品库相关接口</td><td><span class="pill p1">P1</span></td><td>待验证</td></tr>
@@ -699,7 +769,7 @@
       <tr><td>兼容</td><td>Chrome / Safari 最新版；手机竖屏可玩；WebGL 不可用时给出提示</td></tr>
       <tr><td>稳定</td><td>演示用预生成数据，不依赖现场网络和大模型</td></tr>
       <tr><td>安全</td><td>OpenAPI 密钥和大模型 Key 只放 <code>.env</code>，不进前端、不进仓库；提交前检查 git diff 无密钥</td></tr>
-      <tr><td>隐私</td><td>聊天昵称在 game.json 中脱敏；不展示观众真实身份</td></tr>
+      <tr><td>隐私</td><td>聊天昵称在 game.json 中脱敏；不展示观众真实身份。原始数据页（F-13）按接口原样展示，含观众昵称、IP 字段与频道密码 <code>channelPasswd</code>，只在后台使用，对外开放前需脱敏（见 Q8）</td></tr>
       <tr><td>合规（带货）</td>
         <td>
           <ul>
@@ -720,6 +790,7 @@
     <thead><tr><th>档位</th><th>内容</th><th>原则</th></tr></thead>
     <tbody>
       <tr><td><span class="pill p0">P0 一天必做</span></td><td>F-01 数据接入 · F-02 场景选择 · F-03 提示词分析 · F-04 讲义 / 卖点卡 · F-05 3D 地下城（两套皮肤）· F-06 入口页 · 闯关配置 <code>world</code> 生成（引擎实现宝函答题、Boss、NPC，其余机制降级）· 交付物</td><td>这就是最终提交的 Demo，18:00 冻结</td></tr>
+      <tr><td><span class="pill ok">10.23 变更</span></td><td>F-12 列表场景筛选与操作入口 · F-13 直播原始数据查看页 · F-14 直播质量分析报告 · F-15 观看记录拆分直播 / 回放与重点回顾段</td><td>后台联调中提出，已完成，见 6.1</td></tr>
       <tr><td><span class="pill p1">P1 余力</span></td><td>按顺序：双门辨析 / 机关排序两种机制 → F-07 卧底单人局 → F-08 真实热力图 → F-09 回写打点 → F-10 真实播放器 → 自动识别场景</td><td>做不完不影响提交</td></tr>
       <tr><td><span class="pill p2">P2 拓展</span></td><td>F-11 全部 · 补全咒文 / 算账关两种机制</td><td>只放进 PPT 路线图，比赛期间不写代码</td></tr>
     </tbody>
@@ -800,6 +871,8 @@
       <tr><td>Q4</td><td>课程、带货两场示例回放的来源与使用授权</td><td>团队 / 运营同事</td></tr>
       <tr><td>Q5</td><td>源码提交方式（仓库地址、是否公开）</td><td>赛事组织方</td></tr>
       <tr><td>Q6</td><td>海报左上角是否替换为官方 Logo</td><td>团队</td></tr>
+      <tr><td>Q7</td><td>问卷结果接口只返回选项字母、不返回选项文字，质量报告的问卷分布只能按字母展示；是否另取问卷详情补全选项文字</td><td>查帮助中心 / 团队</td></tr>
+      <tr><td>Q8</td><td>原始数据页是否需要对频道密码、观众 IP 等字段脱敏</td><td>团队</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -823,7 +896,11 @@
   <h3>17.3 版本记录</h3>
   <div class="tbl"><table>
     <thead><tr><th>版本</th><th>日期</th><th>说明</th></tr></thead>
-    <tbody><tr><td>v1.0</td><td>2026-10-21</td><td>初版：整合选题讨论、两场景设计、范围分档与排期；补充构思记录、可持续迭代点与拓展想象</td></tr></tbody>
+    <tbody>
+      <tr><td>v1.0</td><td>2026-10-21</td><td>初版：整合选题讨论、两场景设计、范围分档与排期；补充构思记录、可持续迭代点与拓展想象</td></tr>
+      <tr><td>v1.1</td><td>2026-10-23</td><td>需求变更 6.1：F-12 已导入城列表场景筛选与操作入口；F-13 直播原始数据查看页；F-14 直播质量分析报告（培训 + 营销双维度）。同步更新目录结构、隐私要求与待确认事项 Q7、Q8</td></tr>
+      <tr><td>v1.2</td><td>2026-10-23</td><td>需求变更 F-15：观看记录改用 v2 观看日志拆分直播与回放；报告直播看在线曲线与流失点，回放看观众构成、补看与重点回顾段；回放城播放器上报真实播放区间；质量报告指标与权重相应调整</td></tr>
+    </tbody>
   </table></div>
 </section>
 

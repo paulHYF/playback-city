@@ -2,7 +2,7 @@
 // mount(root, data, hooks)：root 内需有 CityView.vue 提供的 DOM（#cv、#dossier、#modal…）；
 // data = /api/city/:cid 的返回 + progress + viewer；hooks 负责上报与路由。
 import * as THREE from 'three'
-import { attachVideo, detachVideo } from './video.js'
+import { LiveVideo } from './liveplayer.js'
 
 export function mount(root, D, hooks = {}) {
   const sceneKey = D.channel.scene, unit = sceneKey === 'course' ? '讲' : '场';
@@ -511,22 +511,24 @@ export function mount(root, D, hooks = {}) {
   // ═════════════ 弹窗工具 ═════════════
   const modal = $('#modal'), dialog = $('#dialog');
   let locked = false, bossTimer = null;
-  function stopClip() { const v = clipEl(); if (v) detachVideo(v); }
+  let clip = null; // 弹窗里的回放片段播放器
+  function stopClip() { if (clip) { clip.destroy(); clip = null; } }
+  const newClip = autoplay => { stopClip(); clip = new LiveVideo(dialog.querySelector('.clip'), D.player, curReplay.video, { autoplay }); return clip; };
   function openModal(html, lock) { stopClip(); clearInterval(bossTimer); dialog.innerHTML = html; modal.hidden = false; held.length = 0; locked = !!lock; }
   function closeModal() { stopClip(); clearInterval(bossTimer); modal.hidden = true; locked = false; screenEl.focus({ preventScroll: true }); renderDossier(); }
   modal.addEventListener('click', ev => { if (ev.target === modal && !locked) closeModal(); });
   let toastTimer; function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 2800); }
   function flash() { const f = $('#flash'); f.classList.add('on'); setTimeout(() => f.classList.remove('on'), 60); }
-  const clipEl = () => dialog.querySelector('video.clip');
+  const clipEl = () => clip;
   function hurt(msg) { track('fall', { room: curRoom }); S.lamps = Math.max(0, S.lamps - 1); S.shake = 0.35; S.combo = 0; flash(); Music.sfx.hit(); renderDossier(); if (msg) toast(msg); if (S.lamps === 0) setTimeout(openRekindle, 500); }
 
   // 封印：必须完整看完这一段回放（不计拖动），才能解封
   function openSeal({ title, why, from, to, onDone }) {
     const len = Math.max(8, to - from);
     openModal('<h4>封 印 · ' + esc(title) + '</h4><h2>看完这一段才能解封</h2><div class="trace">' + esc(why) + '</div>' +
-      '<video class="clip" playsinline></video><div class="bar"><i id="sealBar" style="width:0"></i></div><div class="tiny" id="sealTip">回放 ' + fmt(from) + ' – ' + fmt(to) + ' · 拖动进度不计入</div>' +
+      '<div class="clip"></div><div class="bar"><i id="sealBar" style="width:0"></i></div><div class="tiny" id="sealTip">回放 ' + fmt(from) + ' – ' + fmt(to) + ' · 拖动进度不计入</div>' +
       '<div class="btns"><button class="btn" type="button" id="sealPlay">▶ 播放</button><button class="btn red" type="button" id="sealOk" disabled>解封</button></div><div class="seal" style="right:16px;top:14px">封</div>', true);
-    const v = clipEl(); attachVideo(v, curReplay.video); let watched = 0, last = null;
+    const v = newClip(true); let watched = 0, last = null;
     const go = () => { v.currentTime = from; v.play().catch(() => {}); };
     v.addEventListener('loadedmetadata', go, { once: true });
     v.addEventListener('timeupdate', () => { const t = v.currentTime; if (last !== null && t > last && t - last < 1.5) watched += t - last; last = t; const bar = $('#sealBar'), ok = $('#sealOk'); if (!bar || !ok) return; bar.style.width = Math.min(100, watched / len * 100) + '%'; if (t >= to) v.pause(); if (watched >= len * 0.85 || t >= to - 0.3) ok.disabled = false; });
@@ -556,8 +558,8 @@ export function mount(root, D, hooks = {}) {
       '<div class="tiny">不用答题：在回放里找到先生讲这件事的那一句。输入关键词搜字幕，点一句听听，确认后按「就是这句」。</div>' +
       '<div class="chips" style="margin:8px 0">' + kws.map(k => '<button class="chip" type="button">' + esc(k) + '</button>').join('') + '</div>' +
       '<input class="search" id="q" placeholder="搜回放字幕，如：负数、最后一个" autocomplete="off"><div class="hits" id="hits"><div class="tiny" style="padding:8px">输入关键词开始寻证</div></div>' +
-      '<video class="clip" playsinline></video><div class="btns"><button class="btn red" type="button" id="pin" disabled>就是这句</button><button class="btn" type="button" id="close">先离开</button></div><div class="seal" style="right:16px;top:14px">证</div>');
-    const v = clipEl(); attachVideo(v, curReplay.video); let sel = null;
+      '<div class="clip"></div><div class="btns"><button class="btn red" type="button" id="pin" disabled>就是这句</button><button class="btn" type="button" id="close">先离开</button></div><div class="seal" style="right:16px;top:14px">证</div>');
+    const v = newClip(false); let sel = null;
     const search = q => { q = q.trim(); const hits = q ? subs.filter(s => s.text.includes(q)).slice(0, 10) : []; $('#hits').innerHTML = hits.length ? hits.map(s => '<div class="hit" data-t="' + s.t + '"><time>' + fmt(s.t) + '</time><span>' + esc(s.text) + '</span></div>').join('') : '<div class="tiny" style="padding:8px">' + (q ? '没搜到，换个词' : '输入关键词开始寻证') + '</div>';
       $('#hits').querySelectorAll('.hit').forEach(h => h.onclick = () => { $('#hits').querySelectorAll('.hit').forEach(x => x.classList.remove('on')); h.classList.add('on'); sel = +h.dataset.t; v.currentTime = Math.max(0, sel - 1); v.play().catch(() => {}); $('#pin').disabled = false; }); };
     $('#q').oninput = ev => search(ev.target.value);
@@ -694,7 +696,7 @@ export function mount(root, D, hooks = {}) {
     curReplay = r; const sc = r.game;
     const hot = sc.rooms.filter(rm => rm.fail_rate >= 0.4).map(rm => '<div>◆ ' + fmt(rm.start) + ' ' + esc(rm.title) + ' · ' + Math.round(rm.fail_rate * 100) + '% 答错</div>').join('');
     openModal('<h4>第 ' + cn(r.no) + ' ' + unit + ' · ' + esc(sc.host) + '</h4><h2>' + esc(b ? b.name + ' · ' + b.plaque : sc.title) + '</h2><div class="say">' + (b ? esc(b.blurb) + '<br>' : '') + '<span class="tiny">' + esc(r.title) + '</span></div><div class="say">' + (r.views ? r.views.toLocaleString() + ' 人看过 · ' : '') + fmt(sc.duration) + ' · ' + sc.rooms.length + ' 间密室' + (G.cleared[r.id] ? ' · <b style="color:var(--seal)">你已破此' + unit + '</b>' : '') + '</div>' + (hot ? '<h4 style="margin-top:12px">全 场 卡 点</h4><div class="tiny" style="color:var(--text-ink)">' + hot + '</div>' : '') + '<div class="btns"><button class="btn" type="button" id="watchFull">看完整回放</button><button class="btn red" type="button" id="enter">' + (G.cleared[r.id] ? '再巡一夜' : '入密室') + '</button></div><div class="seal" style="right:16px;top:14px">回放</div>');
-    $('#watchFull').onclick = () => { track('watch_replay', { extra: { replay: r.id } }); openPlayer({ src: r.video, title: sc.title, sub: '完整回放' }); }; $('#enter').onclick = () => { closeModal(); enterPalace(); };
+    $('#watchFull').onclick = () => { openPlayer({ src: r.video, title: sc.title, sub: '完整回放' }); }; $('#enter').onclick = () => { closeModal(); enterPalace(); };
   }
   function openCrier(e) {
     const n = e.npc, r = HALLS.find(h => h.id === n.replay);
@@ -719,9 +721,18 @@ export function mount(root, D, hooks = {}) {
   }
 
   // ═════════════ 回放播放器 ═════════════
-  const player = $('#player'), video = $('#video'); let clipEnd = null;
+  const player = $('#player'); let video = null, clipEnd = null; // 完整回放播放器，换讲次时重建
+  let seg = null, watching = null; const segs = []; // 本次打开真实播放过的区间（拖动即断开），收起时上报，供质量报告算重点回顾段
+  function closeSeg() { if (seg && seg[1] - seg[0] >= 2) segs.push([Math.floor(seg[0]), Math.ceil(seg[1])]); seg = null; }
+  function reportWatch() { closeSeg(); if (watching && segs.length && hooks.onWatched) hooks.onWatched(watching.replay, watching.source, segs.slice()); segs.length = 0; watching = null; }
+  function onMainTime() {
+    const t = video.currentTime; if (seg && t >= seg[1] && t - seg[1] < 2) seg[1] = t; else { closeSeg(); seg = [t, t]; }
+    if (clipEnd && t >= clipEnd) { video.pause(); clipEnd = null; toast('这一段讲完了'); }
+  }
   function openPlayer({ src, title, from, to, sub }) {
-    $('#pTtl').textContent = sub || ''; $('#pName').textContent = title; attachVideo(video, src); clipEnd = to || null;
+    reportWatch(); watching = { replay: curReplay.id, source: to ? 'clip' : 'full' };
+    $('#pTtl').textContent = sub || ''; $('#pName').textContent = title; clipEnd = to || null;
+    if (!video || video.src !== src) { if (video) video.destroy(); video = new LiveVideo($('#video'), D.player, src); video.addEventListener('timeupdate', onMainTime); video.addEventListener('seeking', closeSeg); }
     $('#pRange').textContent = to ? '片段 ' + fmt(from) + ' – ' + fmt(to) + '（播完自动停）' : '完整回放 · 可拖动';
     const sc = cur();
     $('#pSide').innerHTML = '<h4>卷 目</h4>' + sc.rooms.map((r, i) => '<div class="ch" data-t="' + r.start + '"><span>' + CN[i + 1] + ' · ' + esc(r.title) + (r.fail_rate >= 0.4 ? ' <span style="color:var(--seal)">◆</span>' : '') + '</span><span>' + fmt(r.start) + '</span></div>').join('') + '<div class="tiny" style="margin-top:10px">◆ 答题卡错误率 ≥ 40% 的段落</div>';
@@ -729,8 +740,7 @@ export function mount(root, D, hooks = {}) {
     player.hidden = false; held.length = 0;
     const go = () => { video.currentTime = from || 0; video.play().catch(() => {}); }; if (video.readyState >= 1) go(); else video.addEventListener('loadedmetadata', go, { once: true });
   }
-  function closePlayer() { video.pause(); player.hidden = true; screenEl.focus({ preventScroll: true }); }
-  video.addEventListener('timeupdate', () => { if (clipEnd && video.currentTime >= clipEnd) { video.pause(); clipEnd = null; toast('这一段讲完了'); } });
+  function closePlayer() { if (video) video.pause(); reportWatch(); player.hidden = true; screenEl.focus({ preventScroll: true }); }
   $('#pClose').onclick = closePlayer;
 
   // ═════════════ 小地图 / 前方提示 ═════════════
@@ -832,7 +842,7 @@ export function mount(root, D, hooks = {}) {
   requestAnimationFrame(tt => { last = tt; frame(tt); });
   return {
     dispose() {
-      running = false; ac.abort(); Music.stop(); clearInterval(bossTimer); stopClip(); detachVideo(video);
+      running = false; ac.abort(); Music.stop(); clearInterval(bossTimer); stopClip(); reportWatch(); if (video) video.destroy();
       scene.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) [].concat(o.material).forEach(mm => { if (mm.map) mm.map.dispose(); mm.dispose(); }); });
       renderer.dispose(); delete window.__pc;
     }

@@ -10,6 +10,15 @@ def game_id(scene: str, channel_id: str, file_id: str) -> str:
     return f"{scene}-{channel_id}-{file_id}"
 
 
+def _start_ms(record: dict) -> int | None:
+    s = str(record.get("startTime") or "")
+    if s.isdigit() and len(s) == 13:
+        return int(s)
+    if s.isdigit() and len(s) == 14:
+        return int(datetime.strptime(s, "%Y%m%d%H%M%S").timestamp() * 1000)
+    return None
+
+
 def _day(value) -> str | None:
     """暂存文件 startTime 可能是毫秒时间戳或 yyyyMMddHHmmss 字符串，统一成 yyyy-MM-dd。"""
     if value in (None, ""):
@@ -32,6 +41,32 @@ async def find_record_file(c: PolyvClient, channel_id: str, file_id: str) -> dic
         if page >= (data.get("totalPages") or 1):
             raise LookupError(f"频道 {channel_id} 下没有暂存文件 {file_id}")
         page += 1
+
+
+def _months(start_ms: int, end_ms: int, limit: int = 12) -> list[tuple[int, int]]:
+    """观看日志接口不能跨月查，把 [start, end] 切成自然月区间。"""
+    out, cur = [], datetime.fromtimestamp(start_ms / 1000)
+    while len(out) < limit:
+        nxt = datetime(cur.year + cur.month // 12, cur.month % 12 + 1, 1)
+        out.append((int(cur.timestamp() * 1000), min(end_ms, int(nxt.timestamp() * 1000) - 1)))
+        if nxt.timestamp() * 1000 > end_ms:
+            break
+        cur = nxt
+    return out
+
+
+async def play_logs(c: PolyvClient, channel_id: str, session_id: str, kind: str, start_ms: int, months: int) -> list[dict]:
+    """一场的直播（live）或回放（vod）观看日志，逐月逐页拉全。"""
+    out = []
+    for a, b in _months(start_ms, int(datetime.now().timestamp() * 1000), months):
+        page = 1
+        while True:
+            data = await api.play_logs(c, channel_id, session_id, kind, a, b, page)
+            out += data.get("contents") or []
+            if page >= (data.get("totalPages") or 1):
+                break
+            page += 1
+    return out
 
 
 async def fetch(c: PolyvClient, scene: str, channel_id: str, file_id: str, day: str | None = None) -> str:
@@ -63,6 +98,10 @@ async def fetch(c: PolyvClient, scene: str, channel_id: str, file_id: str, day: 
     if session_id:
         await step("quiz", api.quiz_answers(c, channel_id, session_id))
         await step("questionnaire", api.questionnaire_answers(c, channel_id, session_id))
+        start = _start_ms(record)
+        if start:
+            await step("viewlog_live", play_logs(c, channel_id, session_id, "live", start, 1))
+            await step("viewlog_vod", play_logs(c, channel_id, session_id, "vod", start, 12))
 
     sub = api.pick_subtitle(record)
     if sub:

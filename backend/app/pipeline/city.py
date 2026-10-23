@@ -99,6 +99,22 @@ def fallback(channel: dict, replays: list[dict]) -> City:
     )
 
 
+def reconcile(channel: dict, city: dict, replays: list[dict]) -> dict:
+    """后台调整前对齐当前已生成的讲次：新生成的讲次按兜底补一座楼、排到最后一条街；已不在列表里的讲次去掉。"""
+    ids = [r["id"] for r in replays]
+    fb = fallback(channel, replays).model_dump()
+    built = {b["replay"] for b in city["buildings"] if b["replay"] in ids}
+    missing = [r for r in ids if r not in built]
+    streets = [{**s, "replays": [r for r in s["replays"] if r in ids]} for s in city["streets"]]
+    streets = [s for s in streets if s["replays"]] or [{**fb["streets"][0], "replays": []}]
+    streets[-1]["replays"] += [r for r in missing if all(r not in s["replays"] for s in streets)]
+    return {
+        **city, "streets": streets,
+        "buildings": [b for b in city["buildings"] if b["replay"] in ids] + [b for b in fb["buildings"] if b["replay"] in missing],
+        "npcs": [n for n in city.get("npcs", []) if n["replay"] in ids],
+    }
+
+
 def _short(title: str, n: int) -> str:
     """「课程-Python入门第3讲-频道8655755.mp4」→ 取最长的一段「Python入门第3讲」。"""
     parts = [p.strip() for p in re.split(r"[-·：:|_]", re.sub(r"\.(mp4|flv|m3u8)$", "", title)) if p.strip() and not re.fullmatch(r"频道\d+", p.strip())]

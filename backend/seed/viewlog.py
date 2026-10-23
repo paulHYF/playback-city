@@ -59,31 +59,43 @@ def rows(scene: str) -> tuple[str, list[dict]]:
         join = rnd.randint(0, 40)
         stay = duration - join if i % 4 else duration * rnd.uniform(0.35, 0.7)
         add(f"bny_{vid}", nick.strip(), "live", live_start + timedelta(seconds=join), stay)
-    # 回放：另一批只看回放的观众，覆盖率 30%–100%，体现「墨雾」
+    # 回放：观看时间分散在直播后当天到一周多，但不晚于现在
     replay_start = live_start + timedelta(seconds=duration, minutes=5)
+    later = lambda days, minutes: min(replay_start + timedelta(days=days, minutes=minutes), datetime.now() - timedelta(minutes=5))
+    # 直播中途离开的人里，大部分回来补看后半段
+    for i, (vid, nick) in enumerate(viewers):
+        if i % 4 == 0 and i % 8 != 4:
+            add(f"bny_{vid}", nick.strip(), "vod", later(i % 3, i * 7), duration * rnd.uniform(0.4, 0.7))
+    # 另一批只看回放的观众，覆盖率 30%–100%，体现「墨雾」；前 4 位隔天又看了一遍
     for k, ratio in enumerate([1.0, 1.0, 0.95, 0.85, 0.7, 0.62, 0.55, 0.48, 0.4, 0.33, 0.3, 1.0]):
-        add(f"bny_r{k + 1:02d}", f"回放观众{k + 1}", "vod", replay_start + timedelta(minutes=k), duration * ratio)
-    return live_start.strftime("%Y%m"), out
+        vid, nick, days = f"bny_r{k + 1:02d}", f"回放观众{k + 1}", [0, 0, 1, 2, 3, 5, 6, 9][k % 8]
+        add(vid, nick, "vod", later(days, k * 11), duration * ratio)
+        if k < 4:
+            add(vid, nick, "vod", later(days + 1, k * 13), duration * rnd.uniform(0.2, 0.5))
+    return out
 
 
 def main():
     scene, flags = sys.argv[1], sys.argv[2:]
-    month, data = rows(scene)
-    table = f"viewlog_{month}"
+    data = rows(scene)
     channel = data[0]["channelId"]
-    if "--clean" in flags:
-        mysql(f"DELETE FROM {table} WHERE channelId={channel} AND param5='{MARK}'")
-        print("已清理", table, channel)
-        return
+    tables: dict[str, list[dict]] = {}  # 按观看时间所在月份分表
+    for r in data:
+        tables.setdefault(f"viewlog_{r['createdTime']:%Y%m}", []).append(r)
     cols = list(data[0])
-    values = ",\n".join("(" + ",".join(q(r[c].strftime('%Y-%m-%d %H:%M:%S') if isinstance(r[c], datetime) else r[c]) for c in cols) + ")" for r in data)
-    sql = (f"DELETE FROM {table} WHERE channelId={channel} AND param5='{MARK}';\n"
-           f"INSERT INTO {table} ({','.join(cols)}) VALUES\n{values};")
-    if "--dry-run" in flags:
-        print(sql[:1500])
-        return
-    mysql(sql)
-    print(mysql(f"SELECT param3, COUNT(*) n, ROUND(AVG(playDuration)) avg_s FROM {table} WHERE channelId={channel} AND param5='{MARK}' GROUP BY param3"))
+    for table, part in tables.items():
+        if "--clean" in flags:
+            mysql(f"DELETE FROM {table} WHERE channelId={channel} AND param5='{MARK}'")
+            print("已清理", table, channel)
+            continue
+        values = ",\n".join("(" + ",".join(q(r[c].strftime('%Y-%m-%d %H:%M:%S') if isinstance(r[c], datetime) else r[c]) for c in cols) + ")" for r in part)
+        sql = (f"DELETE FROM {table} WHERE channelId={channel} AND param5='{MARK}';\n"
+               f"INSERT INTO {table} ({','.join(cols)}) VALUES\n{values};")
+        if "--dry-run" in flags:
+            print(sql[:1500])
+            continue
+        mysql(sql)
+        print(table, mysql(f"SELECT param3, COUNT(*) n, ROUND(AVG(playDuration)) avg_s FROM {table} WHERE channelId={channel} AND param5='{MARK}' GROUP BY param3"))
 
 
 if __name__ == "__main__":

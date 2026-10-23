@@ -62,6 +62,8 @@ const genCity = () => act(() => api.generateCity(props.cid), '开始生成整城
           </ElButton>
           <RouterLink :to="`/city/${cid}`" target="_blank"><ElButton :disabled="!readyCount">进城（观众端）</ElButton></RouterLink>
           <RouterLink :to="`/dashboard/${cid}`" target="_blank"><ElButton :disabled="!readyCount">讲师助教大盘</ElButton></RouterLink>
+          <RouterLink :to="`/admin/channels/${cid}/raw`"><ElButton>直播原始数据</ElButton></RouterLink>
+          <RouterLink :to="`/admin/channels/${cid}/report`"><ElButton>直播质量报告</ElButton></RouterLink>
         </div>
       </div>
     </header>

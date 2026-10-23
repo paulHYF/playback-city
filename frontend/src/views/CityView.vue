@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { api } from '@/api'
 // @ts-expect-error 引擎是原型搬来的 JS 模块，没有类型声明
 import { mount } from '@/game/nightcity/engine.js'
-import { ensureViewer, RunTracker } from '@/viewer'
+import { ensureViewer, reportWatch, RunTracker } from '@/viewer'
 
 const props = defineProps<{ cid: string }>()
 const router = useRouter()
@@ -25,9 +25,10 @@ onMounted(async () => {
     }
     state.value = 'ready'
     document.title = `${data.city.name} · 回放不夜城`
-    engine = mount(root.value!, { ...data, progress, viewer }, {
+    engine = mount(root.value!, { ...data, player: { ...data.player, viewerId: viewer.id, nickname: viewer.nickname }, progress, viewer }, {
       onEnterPalace: (r: { id: string }) => { tracker = new RunTracker(viewer.id, r.id) },
       track: (type: string, p: Record<string, unknown>) => tracker?.track({ type, ...p }),
+      onWatched: (replayId: string, source: string, ranges: number[][]) => reportWatch(viewer.id, replayId, source, ranges),
       onFinish: (result: string, stats: { points: number; roomsDone: number; lamps: number }) => {
         tracker?.finish(result, stats)
         tracker = null
@@ -62,7 +63,7 @@ onBeforeUnmount(() => {
     <div id="fade"><span id="fadeText"></span></div>
     <div id="modal" hidden><div class="paper bound" id="dialog" role="dialog" aria-modal="true"></div></div>
     <div id="player" hidden>
-      <div class="main"><div class="ttl" id="pTtl"></div><h3 id="pName"></h3><video id="video" controls playsinline></video><div class="range" id="pRange"></div>
+      <div class="main"><div class="ttl" id="pTtl"></div><h3 id="pName"></h3><div id="video"></div><div class="range" id="pRange"></div>
         <div class="btns"><button class="btn dark" id="pClose" type="button">收起卷宗，回到城中（Esc）</button></div></div>
       <div class="paper bound side" id="pSide"></div>
     </div>
@@ -152,7 +153,7 @@ onBeforeUnmount(() => {
 .nc .trace { font-size: 13px; color: #7a2a20; line-height: 1.7; margin-top: 6px; }
 .nc .bar { height: 6px; background: rgba(43,34,25,0.15); margin: 8px 0; }
 .nc .bar i { display: block; height: 100%; background: var(--seal); transition: width 0.2s linear; }
-.nc .clip { width: 100%; aspect-ratio: 16/9; background: #000; border: 1px solid rgba(110,82,46,0.6); display: block; }
+.nc .clip { width: 100%; aspect-ratio: 16/9; position: relative; overflow: hidden; background: #000; border: 1px solid rgba(110,82,46,0.6); display: block; }
 .nc .hits { max-height: 220px; overflow-y: auto; margin: 8px 0; border: 1px solid rgba(110,82,46,0.3); }
 .nc .hit { display: flex; gap: 10px; padding: 6px 10px; font-size: 14px; cursor: pointer; border-bottom: 1px dashed rgba(110,82,46,0.25); }
 .nc .hit:hover, .nc .hit.on { background: rgba(227,137,58,0.18); }
@@ -172,7 +173,7 @@ onBeforeUnmount(() => {
 .nc #player .main { display: flex; flex-direction: column; min-width: 0; }
 .nc #player .ttl { font-size: 13px; color: #a99d86; letter-spacing: 0.3em; }
 .nc #player h3 { margin: 2px 0 12px; font-family: var(--brush); font-weight: 400; font-size: 34px; color: #e3d3a8; }
-.nc #player video { width: 100%; max-height: 72vh; background: #000; border: 1px solid #6e5a37; }
+.nc #player #video { width: 100%; aspect-ratio: 16 / 9; max-height: 72vh; background: #000; border: 1px solid #6e5a37; }
 .nc #player .range { font-size: 13px; color: var(--lamp); margin-top: 8px; }
 .nc #player .side { padding: 16px 16px 16px 30px; overflow-y: auto; }
 .nc #player .ch { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; line-height: 28px; cursor: pointer; }

@@ -17,6 +17,11 @@ def game_dir(game_id: str) -> Path:
     return root() / game_id
 
 
+def channel_dir(cid: str) -> Path:
+    """频道级文件：import/ 是导入时拉的原始数据，report_ai.json 是质量报告的 AI 点评。"""
+    return root() / "channels" / cid
+
+
 def read_json(path: Path):
     return json.loads(path.read_text("utf-8"))
 

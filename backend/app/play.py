@@ -66,6 +66,28 @@ def add_events(run: dict, events: list[dict]) -> int:
     return len(rows)
 
 
+def add_watch(vid: str, replay: dict, source: str, ranges: list[tuple[int, int]]) -> int:
+    t, dur = now_ms(), replay["duration_s"] or 10 ** 6
+    rows = [(vid, replay["id"], replay["channel_id"], source, max(0, int(a)), min(dur, int(b)), t)
+            for a, b in ranges[:200] if min(dur, b) - max(0, a) >= 2]
+    with db.connect() as conn:
+        conn.executemany("INSERT INTO replay_watch (viewer_id, replay_id, channel_id, source, from_s, to_s, ts) VALUES (?, ?, ?, ?, ?, ?, ?)", rows)
+    return len(rows)
+
+
+def review_ranges(rid: str) -> list[dict]:
+    """回放城里观众回看过的区间：播放器真实播放区间（完整回放 / 片段）+ 复活时看完的封印片段。"""
+    with db.connect() as conn:
+        watch = conn.execute("SELECT viewer_id, source, from_s, to_s FROM replay_watch WHERE replay_id = ?", (rid,)).fetchall()
+        revive = conn.execute("SELECT viewer_id, source_time, extra FROM play_event WHERE replay_id = ? AND type = 'revive_watch' "
+                              "AND source_time IS NOT NULL", (rid,)).fetchall()
+    out = [{"viewer": w["viewer_id"], "source": w["source"], "from": w["from_s"], "to": w["to_s"]} for w in watch]
+    for e in revive:
+        seconds = json.loads(e["extra"] or "{}").get("seconds") or 30
+        out.append({"viewer": e["viewer_id"], "source": "revive", "from": int(e["source_time"]), "to": int(e["source_time"]) + int(seconds)})
+    return out
+
+
 def finish_run(run: dict, result: str, stats: dict) -> None:
     t = now_ms()
     with db.connect() as conn:

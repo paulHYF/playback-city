@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from app import repo, storage
+from app.config import get_settings
 
 from .city import fallback
 from .fetch import game_id
@@ -72,11 +73,15 @@ def city_payload(cid: str) -> dict | None:
         return None
     replays = repo.list_replays(cid, with_game=True)
     city = channel["city_json"]
+    # 直播播放器要账号 uid：取任一讲暂存记录里的 userId
+    uid = next((rec.get("userId") for r in replays
+                if (rec := _load(storage.game_dir(game_id(channel["scene"], cid, r["id"])) / "raw", "record_file"))), "")
     if not city:  # 还没生成城：按标题兜底，进城不用等
         city = fallback(channel, [r for r in replays]).model_dump()
     return {
         "channel": {"id": cid, "name": channel["name"], "publisher": channel["publisher"], "scene": channel["scene"],
                     "cover": channel["cover_img"]},
         "city": city,
+        "player": {"uid": uid, "channelId": cid, "domainInfo": get_settings().player_domain_info},
         "replays": [replay_payload(channel, r) for r in replays],
     }

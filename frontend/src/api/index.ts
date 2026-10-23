@@ -1,5 +1,5 @@
 import type { Game, Scene } from '@/types/game'
-import type { ChannelDetail, ChannelSummary, CityData, Dashboard, Progress, Replay, ReplayDashboard, Viewer } from '@/types/city'
+import type { AiReview, ChannelDetail, ChannelSummary, CityData, Dashboard, Progress, QualityReport, RawOverview, Replay, ReplayDashboard, Viewer } from '@/types/city'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(path, { headers: { 'Content-Type': 'application/json' }, ...init })
@@ -28,6 +28,12 @@ export const api = {
   replay: (rid: string) => request<Replay>(`/api/replays/${rid}`),
   replayGame: (rid: string) => request<Game>(`/api/replays/${rid}/game`),
   raw: (rid: string) => request<RawStatus>(`/api/replays/${rid}/raw`),
+  rawOverview: (cid: string) => request<RawOverview>(`/api/channels/${cid}/raw`),
+  rawImportFile: (cid: string, name: string) => request<unknown>(`/api/channels/${cid}/raw/import/${name}`),
+  rawReplayFile: (rid: string, name: string) => request<unknown>(`/api/replays/${rid}/raw/${name}`),
+  rawRefresh: (rid: string) => post<RawStatus>(`/api/replays/${rid}/raw/refresh`),
+  report: (cid: string) => request<QualityReport>(`/api/channels/${cid}/report`),
+  reportAi: (cid: string) => post<AiReview>(`/api/channels/${cid}/report/ai`),
   generateReplay: (rid: string) => post<{ accepted: boolean }>(`/api/replays/${rid}/generate`),
   // 观众端
   city: (cid: string) => request<CityData>(`/api/city/${cid}`),

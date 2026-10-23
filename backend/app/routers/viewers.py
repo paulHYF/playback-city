@@ -22,6 +22,22 @@ class FinishRun(BaseModel):
     lamps: int = 0
 
 
+class Watch(BaseModel):
+    replayId: str
+    source: Literal["full", "clip"] = "full"
+    ranges: list[tuple[int, int]]
+
+
+@router.post("/viewers/{vid}/watch")
+async def watch(vid: str, request: Request):
+    """回放城播放器里看过的区间（秒）；关页时 sendBeacon 发的是 text/plain，一并按 JSON 解析。"""
+    req = Watch.model_validate(json.loads(await request.body() or b"{}"))
+    r = repo.get_replay(req.replayId)
+    if not r or not play.touch_viewer(vid):
+        raise HTTPException(404, "观众或回放不存在")
+    return {"saved": play.add_watch(vid, r, req.source, req.ranges)}
+
+
 @router.post("/viewers")
 async def create_viewer(request: Request):
     return play.create_viewer(request.headers.get("user-agent", ""))

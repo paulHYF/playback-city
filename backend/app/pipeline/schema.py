@@ -1,7 +1,7 @@
 """game.json 结构与校验规则，对应需求文档第 8 节。前端 src/types/game.ts 与这里保持一致。"""
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 
 Scene = Literal["course", "commerce"]
 
@@ -286,3 +286,10 @@ class Game(BaseModel):
         for wr in w.rooms:
             if wr.requires and not (wr.requires in source and source[wr.requires] < wr.room):
                 raise ValueError(f"world.rooms[{wr.room}] 需要的道具 {wr.requires} 必须由更早的殿室给出")
+
+
+def error_lines(e: ValidationError | ValueError) -> list[str]:
+    """校验错误 → 后台能看懂的逐条说明：「rooms.0.items.1.options：options 必须是 4 个互不相同的选项」。"""
+    if not isinstance(e, ValidationError):
+        return [str(e)]
+    return [f"{'.'.join(map(str, err['loc'])) or '整体'}：{err['msg'].removeprefix('Value error, ')}" for err in e.errors()]

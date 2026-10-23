@@ -31,6 +31,11 @@ export async function ensureViewer(): Promise<Viewer> {
   return v
 }
 
+/** 回放播放器里看过的区间不属于某一局，单独上报；用 sendBeacon 保证离开页面时也能发出。 */
+export function reportWatch(viewerId: string, replayId: string, source: string, ranges: number[][]) {
+  navigator.sendBeacon(`/api/viewers/${viewerId}/watch`, JSON.stringify({ replayId, source, ranges }))
+}
+
 export interface TrackEvent {
   type: string
   room?: number | null

@@ -38,6 +38,14 @@ async def view_logs(c: PolyvClient, channel_id: str, start_date: str, end_date: 
                        viewerId=viewer_id, pageNumber=page, pageSize=page_size)
 
 
+async def play_logs(c: PolyvClient, channel_id: str, session_id: str, kind: str, start_ms: int, end_ms: int,
+                    page: int = 1, page_size: int = 1000):
+    """分页查询频道观看日志，一次播放一条，param3 区分 live 直播 / vod 回放，带进出时间。
+    文档 live/api/channel/viewdata/viewlog_page"""
+    return await c.get(f"/live/v2/statistics/{channel_id}/viewlog", sessionIds=session_id, param3=kind,
+                       startTime=start_ms, endTime=end_ms, page=page, pageSize=page_size)
+
+
 async def record_files(c: PolyvClient, channel_id: str, page: int = 1, page_size: int = 50):
     """分页查询频道直播暂存列表。文档 live/api/v4/channel/recordfile/page_record
 
