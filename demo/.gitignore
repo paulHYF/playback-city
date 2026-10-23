@@ -1,0 +1,3 @@
+# 录制与合成的中间产物：node demo/record.mjs / python3 demo/build.py 可随时重新生成
+out/*
+!out/回放不夜城-演示视频.mp4

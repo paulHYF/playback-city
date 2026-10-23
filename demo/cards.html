@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>回放不夜城 · 演示卡片</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0d1520; --bg2: #16212c; --gold: #e3c88f; --gold2: #b8975a; --ink: #e8dcc0; --mute: #9a9384; --seal: #c2453a; --line: #2f3d4b; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); color: var(--ink); font-family: "Noto Serif SC", "Songti SC", serif; }
+  body { background: radial-gradient(ellipse at 30% 20%, #1d2a38 0%, var(--bg) 60%); }
+  .card { position: absolute; inset: 0; display: none; }
+  .card.on { display: block; }
+  .moon { position: absolute; border-radius: 50%; background: radial-gradient(circle at 45% 42%, #fbf5e3, #dccfae 70%); box-shadow: 0 0 120px 40px rgba(239, 230, 204, .16); }
+  .fade { opacity: 0; animation: in 1.1s ease forwards; }
+  .d1 { animation-delay: .3s } .d2 { animation-delay: .9s } .d3 { animation-delay: 1.6s } .d4 { animation-delay: 2.4s } .d5 { animation-delay: 3.2s } .d6 { animation-delay: 4s } .d7 { animation-delay: 6s } .d8 { animation-delay: 9s }
+  @keyframes in { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+  .cal { font-family: "Ma Shan Zheng", "STKaiti", serif; color: var(--gold); font-weight: 400; }
+  .eyebrow { color: var(--gold2); font-size: 24px; letter-spacing: .4em; }
+  h2.cal { position: absolute; left: 160px; top: 90px; font-size: 84px; }
+  .panel { border: 1px solid var(--line); background: rgba(22, 33, 44, .82); padding: 40px 44px; }
+  .panel h3 { font-size: 44px; color: var(--gold); font-weight: 600; margin: 12px 0 8px; }
+  .panel .goal { font-size: 28px; color: var(--ink); margin-bottom: 22px; }
+  .panel .goal b { color: var(--seal); font-weight: 700; }
+  .panel ul { list-style: none; }
+  .panel li { font-size: 27px; line-height: 1.6; padding: 7px 0 7px 30px; position: relative; color: var(--ink); }
+  .panel li::before { content: ""; position: absolute; left: 4px; top: 22px; width: 10px; height: 10px; background: var(--gold2); transform: rotate(45deg); }
+  .panel .metric { margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--line); font-size: 24px; color: var(--mute); letter-spacing: .06em; }
+
+  /* 片头 */
+  #title .poster { position: absolute; right: 180px; top: 70px; height: 940px; border: 1px solid #2c3a48; box-shadow: 0 30px 80px rgba(0,0,0,.6); }
+  #title .txt { position: absolute; left: 200px; top: 300px; }
+  #title h1 { font-size: 180px; margin: 28px 0 22px; letter-spacing: .08em; }
+  #title .sub { font-size: 38px; letter-spacing: .12em; }
+  #title .meta { margin-top: 60px; font-size: 24px; color: var(--mute); letter-spacing: .2em; }
+
+  /* 为何要做 */
+  #pain .moon { left: 1520px; top: 110px; width: 150px; height: 150px; opacity: .5; }
+  #pain .grid { position: absolute; left: 160px; top: 290px; width: 1600px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+  #pain .who { color: var(--gold2); font-size: 24px; letter-spacing: .3em; }
+  #pain .big { font-size: 60px; margin: 18px 0 16px; color: var(--gold); font-family: "Ma Shan Zheng", serif; }
+  #pain .panel p { font-size: 28px; line-height: 1.7; }
+  #pain .ans { position: absolute; left: 160px; top: 760px; font-size: 40px; letter-spacing: .08em; }
+  #pain .ans b { color: var(--gold); }
+
+  /* 两种场景 */
+  #scenes .two { position: absolute; left: 160px; top: 240px; width: 1600px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  #scenes .one { position: absolute; left: 160px; top: 868px; font-size: 28px; color: var(--mute); letter-spacing: .06em; }
+  #scenes .one b { color: var(--gold); font-weight: 600; }
+
+  /* 作用 */
+  #value .lead { position: absolute; left: 160px; top: 200px; font-size: 32px; color: var(--ink); letter-spacing: .04em; }
+  #value .three { position: absolute; left: 160px; top: 290px; width: 1600px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+  #value .panel h3 { font-size: 40px; }
+  #value .panel li { font-size: 26px; }
+
+  /* 下一步 */
+  #end .road { position: absolute; left: 160px; top: 240px; width: 1600px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; }
+  #end .panel h3 { font-size: 40px; }
+  #end .panel li { font-size: 26px; }
+  #end .sign { position: absolute; left: 160px; right: 160px; top: 800px; display: flex; align-items: flex-end; justify-content: space-between; }
+  #end .sign .cal { font-size: 66px; }
+  #end .sign .who { font-size: 24px; color: var(--mute); letter-spacing: .2em; text-align: right; line-height: 1.8; }
+</style>
+</head>
+<body>
+<section class="card" id="title">
+  <img class="poster fade d2" src="../doc/POLYV2026_Hackathon_线上主图_回放不夜城_宋风_9x16@2x.png" alt="回放不夜城主视觉">
+  <div class="txt">
+    <div class="eyebrow fade d1">POLYV 2026 HACKATHON</div>
+    <h1 class="cal fade d1">回放不夜城</h1>
+    <div class="sub fade d3">把直播回放，变成一座可以逛、可以闯的古城</div>
+    <div class="meta fade d4">课程培训 · 直播营销带货 &nbsp;|&nbsp; 一套引擎，两种场景</div>
+  </div>
+</section>
+
+<section class="card" id="pain">
+  <div class="moon"></div>
+  <h2 class="cal fade d1">为何要做</h2>
+  <div class="grid">
+    <div class="panel fade d2"><div class="who">观 众</div><div class="big">不愿看</div><p>一两个小时的回放，打开就是从头拖进度条，看不下去。</p></div>
+    <div class="panel fade d3"><div class="who">学 员</div><div class="big">记不住</div><p>看完就忘，哪里没懂、哪里讲错了，自己也说不清。</p></div>
+    <div class="panel fade d4"><div class="who">讲 师 · 主 播</div><div class="big">看不见</div><p>不知道学员卡在哪一段，也不知道卖点有没有讲透。</p></div>
+  </div>
+  <div class="ans fade d6">让观众<b>闯</b>过一遍回放：答错就回看那一段，卡点自动汇成大盘。</div>
+</section>
+
+<section class="card" id="scenes">
+  <h2 class="cal fade d1">一套引擎，两种场景</h2>
+  <div class="two">
+    <div class="panel fade d2">
+      <div class="eyebrow">课 程 培 训</div>
+      <h3>图的是「学会」</h3>
+      <div class="goal">讲师关心：学员<b>卡在哪</b>、下一讲复讲什么</div>
+      <ul>
+        <li>题目来自答题卡与字幕，带讲师原话与时间点</li>
+        <li>易错点化作怪，易混概念化作双门</li>
+        <li>答错只回看讲师讲的那一段</li>
+        <li>错题排出第 1 · 3 · 7 天复习计划</li>
+      </ul>
+      <div class="metric">看：完课率 · 答题正确率 · 掌握度</div>
+    </div>
+    <div class="panel fade d4">
+      <div class="eyebrow">直 播 营 销 带 货</div>
+      <h3>图的是「下单」</h3>
+      <div class="goal">主播关心：回放的<b>购买转化率</b></div>
+      <ul>
+        <li>卖点成了题，讲透了才放行</li>
+        <li>购买顾虑由伙计照主播原话解答</li>
+        <li>凑单、满减、到手价，当场算明白</li>
+        <li>商品讲解片段一点就看，记入账簿待下单</li>
+      </ul>
+      <div class="metric">看：购买意向 · 卖点认知 · 讲解段流失</div>
+    </div>
+  </div>
+  <div class="one fade d7">换的只是<b>场景提示词</b>与<b>地宫皮肤</b>，引擎、数据管线、大盘与报告都是同一套。</div>
+</section>
+
+<section class="card" id="value">
+  <h2 class="cal fade d1">作用</h2>
+  <div class="lead fade d1">AI 把<b style="color:var(--gold)">整场直播与回放</b>分析一遍，再分给不同的人用</div>
+  <div class="three">
+    <div class="panel fade d2">
+      <div class="eyebrow">讲 师 · 助 教</div>
+      <h3>全班卡在哪</h3>
+      <ul>
+        <li>殿室漏斗、错误率、错题榜，每个错误选项被选几次</li>
+        <li>直播流失点、回放重点回顾段</li>
+        <li>AI 复盘点评：下一讲怎么讲</li>
+        <li>点进每位观众的闯关明细</li>
+      </ul>
+    </div>
+    <div class="panel fade d3">
+      <div class="eyebrow">主 播 · 运 营</div>
+      <h3>卖点讲透没有</h3>
+      <ul>
+        <li>哪件商品讲解段流失最多</li>
+        <li>哪类购买顾虑问得最多</li>
+        <li>营销维度：购买意向、卖点认知</li>
+        <li>开播前自检清单</li>
+      </ul>
+    </div>
+    <div class="panel fade d5">
+      <div class="eyebrow">观 众</div>
+      <h3>只看卡住的那段</h3>
+      <ul>
+        <li>不必从头拖进度条，闯一遍就复习一遍</li>
+        <li>学员：答错回看，按计划复习</li>
+        <li>消费者：弄懂卖点，算清到手价</li>
+        <li>讲义 · 卖点卡随时翻</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="end">
+  <h2 class="cal fade d1">往后还能做什么</h2>
+  <div class="road">
+    <div class="panel fade d2">
+      <div class="eyebrow">近 期</div>
+      <h3>嵌进观看页</h3>
+      <ul>
+        <li>后台一键为回放「开副本」</li>
+        <li>倒下的位置汇成进度条上的难度热度带</li>
+        <li>通关高光短片 + 海报，一键分享</li>
+      </ul>
+    </div>
+    <div class="panel fade d4">
+      <div class="eyebrow">中 期</div>
+      <h3>直播中长出地下城</h3>
+      <ul>
+        <li>讲完一段长出一间密室，边听边闯</li>
+        <li>带货开播前放出预热副本</li>
+        <li>AI 地城主旁白，讲师数字分身陪闯</li>
+      </ul>
+    </div>
+    <div class="panel fade d6">
+      <div class="eyebrow">远 期</div>
+      <h3>卡关指标成数据产品</h3>
+      <ul>
+        <li>卡关率、复活回看率成内容质量指标</li>
+        <li>通关报告作为企业培训凭证</li>
+        <li>请企业 AI 助教来闯关，当知识库考场</li>
+      </ul>
+    </div>
+  </div>
+  <div class="sign fade d8">
+    <div class="cal">让每一场回放，都值得再走一遍</div>
+    <div class="who">你说就你队 · Paul · Bob<br>POLYV 2026 Hackathon</div>
+  </div>
+</section>
+<script>
+  const c = new URLSearchParams(location.search).get('c') || 'title'
+  document.getElementById(c).classList.add('on')
+</script>
+</body>
+</html>
